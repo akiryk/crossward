@@ -1,18 +1,21 @@
 <script>
-
+  import { signIn, signOut } from "@auth/sveltekit/client"
+  import { page } from "$app/stores"
 </script>
 
-<div class="index">
-  <h2>Welcome</h2>
-  <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Sunt laborum magnam deleniti recusandae, quis aperiam, architecto neque, voluptatem dicta expedita aut id voluptate omnis consectetur dolore! Quo quae perferendis vel dignissimos quasi illum aperiam dolores, id, laudantium voluptatibus fugiat accusantium impedit velit modi ratione iure qui culpa! Repellendus cupiditate aliquid quam magni. Laudantium, laboriosam quibusdam. Provident, quae incidunt! Aspernatur, vel?</p>
-  <a href="/guides">View Guides</a>
-  <a href="/about">About</a>
-</div>
+<h1>SvelteKit Auth Example</h1>
+<p>
+  {#if $page.data.session?.user}
+    <span class="signedInText">
+      <small>Signed in as</small><br />
+      <strong>{$page.data.session.user?.name ?? "User"}</strong>
+    </span>
+    <button on:click={() => signOut()} class="button">Sign out</button>
+  {:else}
+    <span class="notSignedInText">You are not signed in</span>
+    <button on:click={() => signIn("google")}>Sign In with Google</button>
+  {/if}
+</p>
 
 <style>
-  .index {
-    text-align: center;
-    display: block;
-    margin: 20px auto;
-  }
 </style>
