@@ -9,12 +9,15 @@
 </script>
 
 <section>
-	<h1>puzzles</h1>
+	<h1 class="mb-2 mt-0 text-2xl font-medium leading-tight text-primary">Puzzles</h1>
 	{#if session?.user}
-		<ul>
-			hi
+		<ul class="w-96">
 			{#each puzzles as puzzle}
-				<li>{puzzle.title}</li>
+				<li
+					class="w-full border-b-2 border-neutral-100 border-opacity-100 py-4 dark:border-opacity-50"
+				>
+					{puzzle.title}
+				</li>
 			{/each}
 		</ul>
 	{:else}
