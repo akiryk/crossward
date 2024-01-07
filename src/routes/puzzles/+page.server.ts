@@ -1,8 +1,10 @@
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';
 
+type Puzzle = Record<string, string>;
+
 type Props = {
-	puzzles: Array<Record<string, string>>;
+	puzzles: Array<Puzzle>;
 };
 
 export const load: PageServerLoad = async (): Promise<Props> => {
@@ -13,7 +15,7 @@ export const load: PageServerLoad = async (): Promise<Props> => {
 		.toArray();
 
 	// make the _id field serializable
-	const puzzles = unserializablePuzzles.map((puzzle) => ({
+	const puzzles = unserializablePuzzles.map((puzzle: Puzzle) => ({
 		...puzzle,
 		_id: puzzle._id.toString()
 	}));
