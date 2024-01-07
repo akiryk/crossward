@@ -40,6 +40,7 @@
 	"type": "module",
 	"dependencies": {
 		"@auth/sveltekit": "^0.5.1",
+		"@sveltejs/adapter-vercel": "^4.0.4",
 		"mongodb": "^6.3.0"
 	}
 }
