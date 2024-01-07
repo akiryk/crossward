@@ -25,6 +25,7 @@ export const load: PageServerLoad = async (): Promise<Props> => {
 			puzzles
 		};
 	} catch (error) {
+		console.log('error', error);
 		return { puzzles: [] };
 	}
 };

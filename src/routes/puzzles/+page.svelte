@@ -5,6 +5,7 @@
 
 	// destructure puzzles from data
 	$: ({ puzzles, session } = data);
+	console.log('puzzles', puzzles);
 </script>
 
 <section>
