@@ -5,7 +5,6 @@
 
 	// destructure puzzles from data
 	$: ({ puzzles, session } = data);
-	console.log('puzzles', puzzles);
 </script>
 
 <section>
@@ -16,7 +15,10 @@
 				<li
 					class="w-full border-b-2 border-neutral-100 border-opacity-100 py-4 dark:border-opacity-50"
 				>
-					{puzzle.title}
+					<span
+						>{puzzle.title}
+						<span><a href="/puzzles/{puzzle._id}" class="text-sky-600">edit</a></span>
+					</span>
 				</li>
 			{/each}
 		</ul>
