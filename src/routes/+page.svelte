@@ -1,1 +1,2 @@
-<h1>SvelteKit Auth Example</h1>
+<h1>Welcome</h1>
+<p>This is all about the crossward</p>

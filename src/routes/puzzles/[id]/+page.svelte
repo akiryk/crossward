@@ -10,8 +10,13 @@
 <div class="guide">
 	{#if puzzle.title}
 		<h2>{puzzle.title}</h2>
+		<p>Now, this is a puzzle!</p>
 	{:else}
-		<h2>Untitled Puzzle</h2>
+		<h2>Hmmm, you seem lost.</h2>
+		<p>
+			Are you lost? You might want to return to the <a class="text-sky-600" href="/puzzles"
+				>puzzles page</a
+			> and try again.
+		</p>
 	{/if}
-	<p>This is a puzzle.</p>
 </div>
