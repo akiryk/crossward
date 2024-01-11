@@ -1,16 +1,44 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { enhance } from '$app/forms';
 
 	export let data: PageData;
-
+	export let form;
 	// destructure puzzles from data
-	$: ({ puzzle } = data);
+	$: ({ puzzle, isEditing } = data);
 </script>
 
 <div class="guide">
 	{#if puzzle.title}
-		<h2>{puzzle.title}</h2>
-		<p>Now, this is a puzzle!</p>
+		<h2>{form?.title || puzzle.title}</h2>
+
+		{#if !form}
+			<p>Now, this is a puzzle!</p>
+		{/if}
+
+		{#if form?.error}
+			<p class="error">{form.error}</p>
+		{/if}
+
+		{#if form?.success}
+			<p>You did it successfully.</p>
+		{/if}
+
+		{#if isEditing}
+			<form method="POST" action="?/update" use:enhance>
+				<input type="hidden" name="originalTitle" value={puzzle.title} />
+				<label>
+					Title:
+					<input
+						type="text"
+						placeholder={puzzle.title}
+						name="title"
+						value={form?.title ?? ''}
+						class="border-solid border-2 border-indigo-600 p-2"
+					/></label
+				>
+			</form>
+		{/if}
 	{:else}
 		<h2>Hmmm, you seem lost.</h2>
 		<p>
