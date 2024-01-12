@@ -30,8 +30,7 @@ export const actions = {
 					title: newTitle
 				}
 			};
-			const result = await puzzlesCollection.updateOne(filter, updateDocument);
-			console.log(result);
+			await puzzlesCollection.updateOne(filter, updateDocument);
 			return {
 				title: newTitle,
 				success: true

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
+	import Crossword from '$lib/Crossword.svelte';
 
 	export let data: PageData;
 	export let form;
@@ -8,12 +9,15 @@
 	$: ({ puzzle, isEditing } = data);
 </script>
 
-<div class="guide">
+<div>
 	{#if puzzle.title}
 		<h2>{form?.title || puzzle.title}</h2>
 
 		{#if !form}
-			<p>Now, this is a puzzle!</p>
+			<h2>Play the game</h2>
+			{#if puzzle.puzzle}
+				<Crossword grid={puzzle.puzzle} />
+			{/if}
 		{/if}
 
 		{#if form?.error}
