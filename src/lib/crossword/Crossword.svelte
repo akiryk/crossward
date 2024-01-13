@@ -25,7 +25,16 @@
 	export let grid: Puzzle = {
 		downSpan: 0,
 		crossSpan: 0,
-		cellsMap: {}
+		cellsMap: {
+			'0:0': {
+				displayNumber: 0,
+				value: '',
+				correctValue: '',
+				id: '',
+				x: 0,
+				y: 0
+			}
+		}
 	};
 
 	export let rows: Rows = [];
@@ -52,12 +61,12 @@
 			{#each row as cell}
 				{#if cell?.correctValue === ''}
 					<DeadCell />
-				{:else}
+				{:else if cell}
 					<td
 						class={`${SHARED_CELL_STYLES} ${SHARED_CELL_FONT_STYLES} bg-white flex justify-center items-center`}
 						role="gridcell"
 					>
-						<Cell displayNumber={cell?.displayNumber} value={cell?.correctValue} />
+						<Cell displayNumber={cell.displayNumber} value={cell.correctValue} />
 					</td>
 				{/if}
 			{/each}

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
-	import Crossword from '$lib/Crossword.svelte';
+	import Crossword from '$lib/crossword/Crossword.svelte';
 
 	export let data: PageData;
 	export let form;
