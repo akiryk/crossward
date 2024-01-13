@@ -69,7 +69,6 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 		};
 
 		const edit = url.searchParams.get('edit');
-
 		return {
 			puzzle,
 			isEditing: edit === 'true'

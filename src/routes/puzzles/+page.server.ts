@@ -1,8 +1,7 @@
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';
+import type { Puzzle, Puzzles } from '$utils/types';
 import { redirect } from '@sveltejs/kit';
-
-type Puzzle = Record<string, string>;
 
 type Props = {
 	puzzles: Array<Puzzle>;
@@ -28,10 +27,10 @@ export const load: PageServerLoad = async (props): Promise<Props> => {
 			.toArray();
 
 		// make the _id field serializable
-		const puzzles = unserializablePuzzles.map((puzzle: Puzzle) => ({
+		const puzzles = unserializablePuzzles.map((puzzle) => ({
 			...puzzle,
 			_id: puzzle._id.toString()
-		}));
+		})) as unknown as Puzzles;
 
 		return {
 			puzzles
@@ -39,5 +38,12 @@ export const load: PageServerLoad = async (props): Promise<Props> => {
 	} catch (error) {
 		console.log('error', error);
 		return { puzzles: [] };
+	}
+};
+
+export const actions = {
+	create: async ({ request }) => {
+		const data = await request.formData();
+		console.log('data is ', data);
 	}
 };
