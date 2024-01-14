@@ -1,4 +1,4 @@
-import { puzzlesCollection } from '$db/puzzles';
+import { getPuzzlesCollection } from '$db/puzzles';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import type { Puzzle, Puzzles, PublishStatus } from '$utils/types';
@@ -24,6 +24,7 @@ export const load: PageServerLoad = async (props): Promise<Props> => {
 	// MongoDB returns the _id field by default, which is unserializable.
 	// I could remove it with a projection, _id: 0, but we need it.
 	try {
+		const puzzlesCollection = getPuzzlesCollection();
 		const unserializablePuzzles = await puzzlesCollection
 			.find({}, { limit: 10, projection: { title: 1 } })
 			.toArray();

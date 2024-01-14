@@ -1,3 +1,6 @@
 import db from '$db/mongo';
 
-export const puzzlesCollection = db.collection('puzzles');
+export const getPuzzlesCollection = () => {
+	console.log(process.env.NODE_ENV);
+	return db.collection('puzzles');
+};
