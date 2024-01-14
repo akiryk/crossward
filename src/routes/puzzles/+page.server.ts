@@ -1,9 +1,9 @@
+import { redirect, fail } from '@sveltejs/kit';
+import { goto } from '$app/navigation';
 import { puzzlesCollection } from '$db/puzzles';
-import { fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import type { Puzzle, Puzzles, PublishStatus } from '$utils/types';
 import { GRID_SIZES, DRAFT } from '$utils/constants';
-import { redirect } from '@sveltejs/kit';
 
 type Props = {
 	puzzles: Array<Puzzle>;
@@ -73,11 +73,11 @@ export const actions = {
 
 			try {
 				const result = await puzzlesCollection.insertOne(document);
-				console.log(`Success! _id: ${result.insertedId}`);
-				return {
-					title,
-					success: true
-				};
+				if (result.insertedId) {
+					goto(`/puzzles/${result.insertedId}`);
+				} else {
+					throw new Error();
+				}
 			} catch {
 				return fail(500, {
 					error:
