@@ -1,4 +1,5 @@
 import { MINI, DAILY, SUNDAY } from '$utils/constants';
+import { DRAFT, PUBLISHED } from '$utils/constants';
 
 export type Row = Array<Cell | null>;
 export type Rows = Array<Row>;
@@ -32,3 +33,4 @@ export type GridSizes = {
 	[SUNDAY]: number;
 };
 export type GridSizeName = typeof MINI | typeof DAILY | typeof SUNDAY;
+export type PublishStatus = typeof DRAFT | typeof PUBLISHED;

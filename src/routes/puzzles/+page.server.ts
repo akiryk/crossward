@@ -1,7 +1,8 @@
 import { puzzlesCollection } from '$db/puzzles';
+import { fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import type { Puzzle, Puzzles, GridSizeName } from '$utils/types';
-import { GRID_SIZES } from '$utils/constants';
+import type { Puzzle, Puzzles, PublishStatus } from '$utils/types';
+import { GRID_SIZES, DRAFT } from '$utils/constants';
 import { redirect } from '@sveltejs/kit';
 
 type Props = {
@@ -49,8 +50,7 @@ export const actions = {
 			const sizeName = data.get('size');
 
 			if (typeof sizeName !== 'string' || !(sizeName in GRID_SIZES)) {
-				console.log('do we get here?');
-				throw new Error('Must select a size');
+				throw new Error('Oops! Can you please select a size?');
 			}
 
 			const title = data.get('title') || new Date().toLocaleString();
@@ -58,26 +58,36 @@ export const actions = {
 			const crossSpan = GRID_SIZES[sizeName as keyof typeof GRID_SIZES];
 			const downSpan = GRID_SIZES[sizeName as keyof typeof GRID_SIZES];
 			const dateCreated = new Date().toISOString();
+			const publishStatus: PublishStatus = DRAFT;
 
-			console.log(`title is ${title}`);
-			console.log(`email is ${email}`);
-			console.log(`crossSpan is ${crossSpan}`);
-			console.log(`downSpan is ${downSpan}`);
-			console.log(`dateCreated is ${dateCreated}`);
-			// const filter = { title: originalTitle };
-			// // Specify the update to set a value for the plot field
-			// const updateDocument = {
-			// 	$set: {
-			// 		title: newTitle
-			// 	}
-			// };
-			// await puzzlesCollection.updateOne(filter, updateDocument);
-			// return {
-			// 	title: newTitle,
-			// 	success: true
-			// };
-		} catch (error) {
-			throw new Error('Unable to save new puzzle. Please try again.');
+			// Specify the update to set a value for the plot field
+			const document = {
+				title,
+				authorEmail: email,
+				crossSpan,
+				downSpan,
+				dateCreated,
+				publishStatus,
+				puzzleType: sizeName
+			};
+
+			try {
+				const result = await puzzlesCollection.insertOne(document);
+				console.log(`Success! _id: ${result.insertedId}`);
+				return {
+					title,
+					success: true
+				};
+			} catch {
+				return fail(500, {
+					error:
+						"Sorry about that, we had a database problem. You could try again but I can't promise anything"
+				});
+			}
+		} catch (error: { message: string }) {
+			return fail(422, {
+				error: error.message
+			});
 		}
 	}
 };

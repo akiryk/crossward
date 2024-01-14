@@ -10,3 +10,6 @@ export const GRID_SIZES = {
 	[DAILY]: DAILY_GRID_SIZE,
 	[SUNDAY]: SUNDAY_GRID_SIZE
 };
+
+export const DRAFT = 'draft';
+export const PUBLISHED = 'published';

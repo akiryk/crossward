@@ -12,6 +12,7 @@
 
 	export let puzzles: Puzzles;
 	export let data: PageData;
+	export let form;
 	// destructure puzzles from data
 	$: ({ puzzles, session } = data);
 </script>
@@ -49,6 +50,13 @@
 				</ul>
 			</fieldset>
 
+			{#if form?.error}
+				<p class="error">{form.error}</p>
+			{/if}
+
+			{#if form?.success}
+				<p>You did it successfully.</p>
+			{/if}
 			<Button type="primary">Start Building!</Button>
 		</form>
 	</div>
