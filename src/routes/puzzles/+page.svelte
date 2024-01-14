@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
+
 	import type { PageData } from './$types';
 	import type { Puzzles } from '$utils/types';
 
-	import { enhance } from '$app/forms';
+	import { MINI, DAILY, SUNDAY } from '$utils/constants';
 
 	import List from '$components/List.svelte';
 	import ListItem from '$components/ListItem.svelte';
@@ -10,9 +12,8 @@
 
 	export let puzzles: Puzzles;
 	export let data: PageData;
-
 	// destructure puzzles from data
-	$: ({ puzzles } = data);
+	$: ({ puzzles, session } = data);
 </script>
 
 <section>
@@ -20,6 +21,7 @@
 	<div class=" bg-slate-100 px-2 pt-2 pb-8 border-solid border border-gray-200 sm:max-w-lg bg-gray">
 		<h2 class="my-2 text-md font-medium">Create a puzzle</h2>
 		<form method="POST" action="?/create" use:enhance>
+			<input type="hidden" name="userEmail" value={data.session?.user?.email} />
 			<div>
 				<label>
 					Title:
@@ -31,28 +33,22 @@
 					/></label
 				>
 			</div>
-			<div>
-				<label>
-					How many cells across?
-					<input
-						type="number"
-						name="crossSpan"
-						value="5"
-						class="border-solid border border-gray-400 p-2"
-					/></label
-				>
-			</div>
-			<div>
-				<label>
-					How many cells down?
-					<input
-						type="number"
-						name="downSpan"
-						value="5"
-						class="border-solid border border-gray-400 p-2"
-					/></label
-				>
-			</div>
+			<fieldset>
+				<legend>What size of puzzle? </legend>
+				Puzzle size?
+				<ul>
+					<li>
+						<label><input type="radio" name="size" value={MINI} checked /> Mini (5x5)</label>
+					</li>
+					<li>
+						<label><input type="radio" name="size" value={DAILY} /> Daily (15x15)</label>
+					</li>
+					<li>
+						<label><input type="radio" name="size" value={SUNDAY} /> Sunday (30x30)</label>
+					</li>
+				</ul>
+			</fieldset>
+
 			<Button type="primary">Start Building!</Button>
 		</form>
 	</div>

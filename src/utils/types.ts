@@ -1,3 +1,5 @@
+import { MINI, DAILY, SUNDAY } from '$utils/constants';
+
 export type Row = Array<Cell | null>;
 export type Rows = Array<Row>;
 export type ID = `${number}:${number}`;
@@ -24,3 +26,9 @@ export type Puzzle = {
 	cellsMap: Record<ID, Cell>;
 };
 export type Puzzles = Array<Puzzle>;
+export type GridSizes = {
+	[MINI]: number;
+	[DAILY]: number;
+	[SUNDAY]: number;
+};
+export type GridSizeName = typeof MINI | typeof DAILY | typeof SUNDAY;
