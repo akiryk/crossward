@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { getPuzzlesCollection } from '$db/puzzles';
+import { puzzlesCollection } from '$db/puzzles';
 import { ObjectId } from 'mongodb';
 import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
@@ -30,7 +30,6 @@ export const actions = {
 					title: newTitle
 				}
 			};
-			const puzzlesCollection = getPuzzlesCollection();
 			await puzzlesCollection.updateOne(filter, updateDocument);
 			return {
 				title: newTitle,
