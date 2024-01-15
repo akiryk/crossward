@@ -12,21 +12,6 @@ export type Cell = {
 	x: number;
 	y: number;
 };
-export type UnserializablePuzzle = {
-	_id: () => string;
-	title: string;
-	downSpan: number;
-	crossSpan: number;
-	cellsMap: Record<ID, Cell>;
-};
-export type Puzzle = {
-	_id: string;
-	title: string;
-	downSpan: number;
-	crossSpan: number;
-	cellsMap: Record<ID, Cell>;
-};
-export type Puzzles = Array<Puzzle>;
 export type GridSizes = {
 	[MINI]: number;
 	[DAILY]: number;
@@ -34,3 +19,42 @@ export type GridSizes = {
 };
 export type GridSizeName = typeof MINI | typeof DAILY | typeof SUNDAY;
 export type PublishStatus = typeof DRAFT | typeof PUBLISHED;
+
+export type CellMap = Record<ID, Cell>;
+export type Hint = {
+	displayNumber: string;
+	hint: string;
+	answer: string;
+};
+
+// PuzzleDocument is the type for new puzzles before being saved
+export type PuzzleDocument = {
+	title: string;
+	authorEmail: string;
+	dateCreated: string;
+	publishStatus: string;
+	puzzleType: string;
+	grid: {
+		acrossSpan: number;
+		downSpan: number;
+		cellMap: CellMap | null;
+		acrossHints: Array<Hint | undefined>;
+		downHints: Array<Hint | undefined>;
+	};
+};
+
+export interface PuzzleFromDb extends PuzzleDocument {
+	_id: () => string;
+}
+
+export interface Puzzle extends PuzzleDocument {
+	_id: string;
+}
+
+export type Puzzles = Array<Puzzle>;
+
+export type SanitizeInputParams = {
+	data: FormData;
+	inputName: string;
+	fallback?: string;
+};

@@ -6,6 +6,7 @@
 
 	export let data: PageData;
 	export let form;
+	console.log(data);
 	// destructure puzzles from data
 	$: ({ puzzle, isEditing } = data);
 </script>

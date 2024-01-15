@@ -1,15 +1,15 @@
 import { redirect, fail } from '@sveltejs/kit';
-import { goto } from '$app/navigation';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';
-import type { Puzzle, Puzzles, PublishStatus } from '$utils/types';
+import type { Puzzle, Puzzles, PublishStatus, PuzzleDocument } from '$utils/types';
 import { GRID_SIZES, DRAFT } from '$utils/constants';
+import { handleSanitizeInput } from '$utils/sanitizers';
 
 type Props = {
 	puzzles: Array<Puzzle>;
 };
 
-export const load: PageServerLoad = async ({ locals, url }): Promise<Props> => {
+export const load: PageServerLoad = async ({ locals }): Promise<Props> => {
 	let session;
 
 	try {
@@ -24,18 +24,18 @@ export const load: PageServerLoad = async ({ locals, url }): Promise<Props> => {
 	// MongoDB returns the _id field by default, which is unserializable.
 	// I could remove it with a projection, _id: 0, but we need it.
 	try {
-		const unserializablePuzzles = await puzzlesCollection
+		const puzzlesFromDb = await puzzlesCollection
 			.find({}, { limit: 10, projection: { title: 1 } })
 			.toArray();
 
 		// make the _id field serializable
-		const puzzles = unserializablePuzzles.map((puzzle) => ({
+		const shapedPuzzles = puzzlesFromDb.map((puzzle) => ({
 			...puzzle,
 			_id: puzzle._id.toString()
 		})) as unknown as Puzzles;
 
 		return {
-			puzzles
+			puzzles: shapedPuzzles
 		};
 	} catch (error) {
 		console.log('error', error);
@@ -50,26 +50,40 @@ export const actions = {
 			const data = await request.formData();
 			const sizeName = data.get('size');
 
-			if (typeof sizeName !== 'string' || !(sizeName in GRID_SIZES)) {
-				throw new Error('Oops! Can you please select a size?');
-			}
+			const title = handleSanitizeInput({
+				data,
+				inputName: 'title',
+				fallback: new Date().toLocaleString()
+			});
 
-			const title = data.get('title') || new Date().toLocaleString();
 			const email = data.get('userEmail');
-			const crossSpan = GRID_SIZES[sizeName as keyof typeof GRID_SIZES];
+			const acrossSpan = GRID_SIZES[sizeName as keyof typeof GRID_SIZES];
 			const downSpan = GRID_SIZES[sizeName as keyof typeof GRID_SIZES];
 			const dateCreated = new Date().toISOString();
 			const publishStatus: PublishStatus = DRAFT;
 
+			if (typeof sizeName !== 'string' || !(sizeName in GRID_SIZES)) {
+				throw new Error('Oops! Can you please select a size?');
+			}
+
+			if (!email || typeof email !== 'string') {
+				throw new Error('You need to be logged in as a user with an email');
+			}
+
 			// Specify the update to set a value for the plot field
-			const document = {
+			const document: PuzzleDocument = {
 				title,
 				authorEmail: email,
-				crossSpan,
-				downSpan,
 				dateCreated,
 				publishStatus,
-				puzzleType: sizeName
+				puzzleType: sizeName,
+				grid: {
+					acrossSpan,
+					downSpan,
+					cellMap: null,
+					acrossHints: [],
+					downHints: []
+				}
 			};
 
 			try {
@@ -85,9 +99,9 @@ export const actions = {
 						"Sorry about that, we had a database problem. You could try again but I can't promise anything"
 				});
 			}
-		} catch (error: { message: string }) {
+		} catch (error) {
 			return fail(422, {
-				error: error.message
+				error
 			});
 		}
 		redirect(302, `/puzzles/${insertedId}`);

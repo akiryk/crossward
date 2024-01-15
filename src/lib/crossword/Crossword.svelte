@@ -18,13 +18,13 @@
 	type ID = `${number}:${number}`;
 	type Puzzle = {
 		downSpan: number;
-		crossSpan: number;
+		acrossSpan: number;
 		cellsMap: Record<ID, Cell>;
 	};
 
 	export let grid: Puzzle = {
 		downSpan: 0,
-		crossSpan: 0,
+		acrossSpan: 0,
 		cellsMap: {
 			'0:0': {
 				displayNumber: 0,
@@ -41,7 +41,7 @@
 
 	for (let y = 0; y < grid.downSpan; y++) {
 		const row = [];
-		for (let x = 0; x < grid.crossSpan; x++) {
+		for (let x = 0; x < grid.acrossSpan; x++) {
 			row.push(grid.cellsMap[`${x}:${y}`]);
 		}
 		rows.push(row);

@@ -1,4 +1,5 @@
 import mongodb from 'mongodb';
+import { handleSanitizeInput } from '$utils/sanitizers';
 import { fail } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { ObjectId } from 'mongodb';
@@ -25,16 +26,16 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 	}
 
 	try {
-		const unserializablePuzzle = await puzzlesCollection.findOne({
+		const puzzleFromDb = await puzzlesCollection.findOne({
 			_id: new ObjectId(params.id)
 		});
 
-		if (unserializablePuzzle === null) {
+		if (puzzleFromDb === null) {
 			return { puzzle: {}, isEditing: false };
 		}
 		const puzzle = {
-			...unserializablePuzzle,
-			_id: unserializablePuzzle._id.toString()
+			...puzzleFromDb,
+			_id: puzzleFromDb._id.toString()
 		};
 
 		const edit = url.searchParams.get('edit');
@@ -44,7 +45,10 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 			isEditing: edit === 'true'
 		};
 	} catch (error) {
-		return { puzzle: {}, isEditing: false };
+		// @ts-expect-error in catch block
+		return fail(422, {
+			error
+		});
 	}
 };
 
@@ -52,14 +56,13 @@ export const actions = {
 	update: async ({ request }) => {
 		const data = await request.formData();
 		const originalTitle = data.get('originalTitle');
-		const newTitle = data.get('title');
+		const newTitle = handleSanitizeInput({
+			data,
+			inputName: 'title',
+			fallback: new Date().toLocaleString()
+		});
+
 		try {
-			if (newTitle === '') {
-				throw new Error('Puzzle must have a newTitle');
-			}
-			if (newTitle === 'The Best Puzzle') {
-				throw new Error("You must not call your puzzle 'The Best Puzzle'!");
-			}
 			const filter = { title: originalTitle };
 			// Specify the update to set a value for the plot field
 			const updateDocument = {

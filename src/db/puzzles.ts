@@ -1,5 +1,7 @@
 import db from '$db/mongo';
 
-const collection = process.env.NODE_ENV === 'development' ? 'puzzlesDev' : 'puzzles';
+type Collection = 'puzzlesDev' | 'puzzles';
+
+const collection: Collection = process.env.NODE_ENV === 'development' ? 'puzzlesDev' : 'puzzles';
 
 export const puzzlesCollection = db.collection(collection);

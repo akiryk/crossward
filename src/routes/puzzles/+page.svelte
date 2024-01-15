@@ -52,12 +52,10 @@
 
 			{#if form?.error}
 				<p class="error">{form.error}</p>
-			{/if}
-
-			{#if form?.success}
+			{:else}
 				<p>You did it successfully.</p>
 			{/if}
-			<Button type="primary">Start Building!</Button>
+			<Button style="primary">Start Building!</Button>
 		</form>
 	</div>
 	<List type="ul">
