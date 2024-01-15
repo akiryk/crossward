@@ -84,7 +84,10 @@ export const actions = {
 			const id = data.get('id');
 			if (typeof id === 'string') {
 				const query = { _id: new mongodb.ObjectId(id) };
-				puzzlesCollection.deleteOne(query);
+				const isDeleted = await puzzlesCollection.deleteOne(query);
+				if (!isDeleted) {
+					throw new Error();
+				}
 			}
 		} catch {
 			throw new Error('Error: Unable to delete this puzzle');
