@@ -1,3 +1,4 @@
+import mongodb from 'mongodb';
 import { fail } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { ObjectId } from 'mongodb';
@@ -9,6 +10,42 @@ type Puzzle = Record<string, string>;
 type Props = {
 	puzzle: Puzzle;
 	isEditing: boolean;
+};
+
+export const load: PageServerLoad = async ({ params, url, locals }): Promise<Props> => {
+	let session;
+
+	try {
+		session = await locals.getSession();
+		if (!session) {
+			throw new Error('not authenticated');
+		}
+	} catch {
+		throw redirect(302, '/login');
+	}
+
+	try {
+		const unserializablePuzzle = await puzzlesCollection.findOne({
+			_id: new ObjectId(params.id)
+		});
+
+		if (unserializablePuzzle === null) {
+			return { puzzle: {}, isEditing: false };
+		}
+		const puzzle = {
+			...unserializablePuzzle,
+			_id: unserializablePuzzle._id.toString()
+		};
+
+		const edit = url.searchParams.get('edit');
+
+		return {
+			puzzle,
+			isEditing: edit === 'true'
+		};
+	} catch (error) {
+		return { puzzle: {}, isEditing: false };
+	}
 };
 
 export const actions = {
@@ -40,40 +77,18 @@ export const actions = {
 				error: error.message
 			});
 		}
-	}
-};
-
-export const load: PageServerLoad = async ({ params, url, locals }): Promise<Props> => {
-	let session;
-
-	try {
-		session = await locals.getSession();
-		if (!session) {
-			throw new Error('not authenticated');
+	},
+	delete: async ({ request }) => {
+		const data = await request.formData();
+		try {
+			const id = data.get('id');
+			if (typeof id === 'string') {
+				const query = { _id: new mongodb.ObjectId(id) };
+				puzzlesCollection.deleteOne(query);
+			}
+		} catch {
+			throw new Error('Error: Unable to delete this puzzle');
 		}
-	} catch {
-		throw redirect(302, '/login');
-	}
-
-	try {
-		const unserializablePuzzle = await puzzlesCollection.findOne({
-			_id: new ObjectId(params.id)
-		});
-
-		if (unserializablePuzzle === null) {
-			return { puzzle: {}, isEditing: false };
-		}
-		const puzzle = {
-			...unserializablePuzzle,
-			_id: unserializablePuzzle._id.toString()
-		};
-
-		const edit = url.searchParams.get('edit');
-		return {
-			puzzle,
-			isEditing: edit === 'true'
-		};
-	} catch (error) {
-		return { puzzle: {}, isEditing: false };
+		redirect(302, `/puzzles?isDeleteSuccess=true`);
 	}
 };

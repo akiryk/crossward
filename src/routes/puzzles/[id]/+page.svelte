@@ -2,6 +2,7 @@
 	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
 	import Crossword from '$lib/crossword/Crossword.svelte';
+	import Button from '$components/Button.svelte';
 
 	export let data: PageData;
 	export let form;
@@ -41,6 +42,12 @@
 						class="border-solid border-2 border-indigo-600 p-2"
 					/></label
 				>
+			</form>
+
+			<hr class="mb-10" />
+			<form method="POST" action="?/delete" use:enhance>
+				<input type="hidden" name="id" value={puzzle._id} />
+				<Button buttonType="submit" style="alert">Delete</Button>
 			</form>
 		{/if}
 	{:else}

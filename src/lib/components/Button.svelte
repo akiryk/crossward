@@ -1,22 +1,23 @@
 <script lang="ts">
-	export let type = 'primary';
+	const PRIMARY = 'primary';
+	const SECONDARY = 'secondary';
+	const ALERT = 'alert';
 
-	export let primary =
-		'text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700';
-	export let secondary = 'bg-lime-500 text-white';
+	type ButtonType = 'button' | 'submit';
 
-	let classes: string;
+	type Style = typeof PRIMARY | typeof SECONDARY | typeof ALERT;
 
-	switch (type) {
-		case 'primary':
-			classes = primary;
-			break;
-		case 'secondary':
-			classes = secondary;
-			break;
-		default:
-			classes = primary;
-	}
+	const styles = {
+		[PRIMARY]:
+			'text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700',
+		[SECONDARY]: 'bg-lime-500 text-white',
+		[ALERT]: 'bg-red-500 text-white py-2 px-4'
+	};
+
+	export let style: Style = PRIMARY;
+	export let buttonType: ButtonType = 'submit';
+
+	let classes: string = styles[style];
 </script>
 
-<button class={classes}><slot /></button>
+<button type={buttonType} class={classes}><slot /></button>
