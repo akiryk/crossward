@@ -9,11 +9,11 @@ type Props = {
 	puzzles: Array<Puzzle>;
 };
 
-export const load: PageServerLoad = async (props): Promise<Props> => {
+export const load: PageServerLoad = async ({ locals, url }): Promise<Props> => {
 	let session;
 
 	try {
-		session = await props.locals.getSession();
+		session = await locals.getSession();
 		if (!session) {
 			throw new Error('not authenticated');
 		}
@@ -34,8 +34,10 @@ export const load: PageServerLoad = async (props): Promise<Props> => {
 			_id: puzzle._id.toString()
 		})) as unknown as Puzzles;
 
+		const isDeleteSuccess = url.searchParams.get('isDeleteSuccess');
 		return {
-			puzzles
+			puzzles,
+			isDeleteSuccess: isDeleteSuccess === 'true'
 		};
 	} catch (error) {
 		console.log('error', error);
