@@ -14,13 +14,10 @@
 	export let data: PageData;
 	export let form;
 	// destructure puzzles from data
-	$: ({ puzzles, isDeleteSuccess, session } = data);
+	$: ({ puzzles, session } = data);
 </script>
 
 <section>
-	{#if isDeleteSuccess}
-		<p>You have success.</p>
-	{/if}
 	<h1 class="mb-2 mt-0 text-2xl font-medium leading-tight text-primary">Puzzles</h1>
 	<div class=" bg-slate-100 px-2 pt-2 pb-8 border-solid border border-gray-200 sm:max-w-lg bg-gray">
 		<h2 class="my-2 text-md font-medium">Create a puzzle</h2>

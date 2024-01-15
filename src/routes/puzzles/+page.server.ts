@@ -34,10 +34,8 @@ export const load: PageServerLoad = async ({ locals, url }): Promise<Props> => {
 			_id: puzzle._id.toString()
 		})) as unknown as Puzzles;
 
-		const isDeleteSuccess = url.searchParams.get('isDeleteSuccess');
 		return {
-			puzzles,
-			isDeleteSuccess: isDeleteSuccess === 'true'
+			puzzles
 		};
 	} catch (error) {
 		console.log('error', error);
@@ -47,6 +45,7 @@ export const load: PageServerLoad = async ({ locals, url }): Promise<Props> => {
 
 export const actions = {
 	create: async ({ request }) => {
+		let insertedId;
 		try {
 			const data = await request.formData();
 			const sizeName = data.get('size');
@@ -75,11 +74,11 @@ export const actions = {
 
 			try {
 				const result = await puzzlesCollection.insertOne(document);
-				if (result.insertedId) {
-					goto(`/puzzles/${result.insertedId}`);
-				} else {
-					throw new Error();
+
+				if (!result.insertedId) {
+					throw new Error('oh no! unable to save the new puzzle');
 				}
+				insertedId = result.insertedId;
 			} catch {
 				return fail(500, {
 					error:
@@ -91,5 +90,6 @@ export const actions = {
 				error: error.message
 			});
 		}
+		redirect(302, `/puzzles/${insertedId}`);
 	}
 };
