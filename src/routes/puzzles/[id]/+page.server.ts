@@ -1,21 +1,23 @@
-import mongodb from 'mongodb';
-import { handleSanitizeInput } from '$utils/sanitizers';
+import mongodb, { ObjectId } from 'mongodb';
 import { fail } from '@sveltejs/kit';
-import { puzzlesCollection } from '$db/puzzles';
-import { ObjectId } from 'mongodb';
-import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
-
-type Puzzle = Record<string, string>;
+import { handleSanitizeInput } from '$utils/sanitizers';
+import { puzzlesCollection } from '$db/puzzles';
+import type { PageServerLoad } from './$types';
+import type { Puzzle } from '$utils/types';
 
 type Props = {
-	puzzle: Puzzle;
+	puzzle: Puzzle | null;
 	isEditing: boolean;
+	isCreateSuccess: boolean;
 };
 
 export const load: PageServerLoad = async ({ params, url, locals }): Promise<Props> => {
 	let session;
 
+	/**
+	 * Redirect unauthorized users to login page!
+	 */
 	try {
 		session = await locals.getSession();
 		if (!session) {
@@ -25,24 +27,35 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 		throw redirect(302, '/login');
 	}
 
+	/**
+	 * Load the puzzle data
+	 */
 	try {
 		const puzzleFromDb = await puzzlesCollection.findOne({
 			_id: new ObjectId(params.id)
 		});
 
 		if (puzzleFromDb === null) {
-			return { puzzle: {}, isEditing: false };
+			return { puzzle: null, isEditing: false, isCreateSuccess: false };
 		}
 		const puzzle = {
 			...puzzleFromDb,
 			_id: puzzleFromDb._id.toString()
 		};
 
+		/**
+		 * Create the puzzle grid
+		 */
+		console.log('GRID');
+		console.log(puzzle.grid);
+
 		const edit = url.searchParams.get('edit');
+		const create = url.searchParams.get('create');
 
 		return {
 			puzzle,
-			isEditing: edit === 'true'
+			isEditing: edit === 'true',
+			isCreateSuccess: create === 'true'
 		};
 	} catch (error) {
 		// @ts-expect-error in catch block
@@ -75,9 +88,9 @@ export const actions = {
 				title: newTitle,
 				success: true
 			};
-		} catch (error: { message: string }) {
+		} catch (error) {
 			return fail(422, {
-				error: error.message
+				error
 			});
 		}
 	},

@@ -1,8 +1,9 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';
-import type { Puzzle, Puzzles, PublishStatus, PuzzleDocument } from '$utils/types';
+import type { Puzzle, Puzzles, PublishStatus, PuzzleDocument, PuzzleType } from '$utils/types';
 import { GRID_SIZES, DRAFT } from '$utils/constants';
+import { createInitialCellMap } from '$utils/helpers';
 import { handleSanitizeInput } from '$utils/sanitizers';
 
 type Props = {
@@ -12,6 +13,9 @@ type Props = {
 export const load: PageServerLoad = async ({ locals }): Promise<Props> => {
 	let session;
 
+	/**
+	 * Redirect unauthorized users to login page!
+	 */
 	try {
 		session = await locals.getSession();
 		if (!session) {
@@ -21,11 +25,14 @@ export const load: PageServerLoad = async ({ locals }): Promise<Props> => {
 		throw redirect(302, '/login');
 	}
 
+	/**
+	 * Load the first ten puzzles
+	 */
 	// MongoDB returns the _id field by default, which is unserializable.
 	// I could remove it with a projection, _id: 0, but we need it.
 	try {
 		const puzzlesFromDb = await puzzlesCollection
-			.find({}, { limit: 10, projection: { title: 1 } })
+			.find({}, { limit: 10, projection: { title: 1, publishStatus: 1 } })
 			.toArray();
 
 		// make the _id field serializable
@@ -62,6 +69,8 @@ export const actions = {
 			const dateCreated = new Date().toISOString();
 			const publishStatus: PublishStatus = DRAFT;
 
+			const cellMap = createInitialCellMap(acrossSpan, downSpan);
+
 			if (typeof sizeName !== 'string' || !(sizeName in GRID_SIZES)) {
 				throw new Error('Oops! Can you please select a size?');
 			}
@@ -76,22 +85,28 @@ export const actions = {
 				authorEmail: email,
 				dateCreated,
 				publishStatus,
-				puzzleType: sizeName,
+				puzzleType: sizeName as PuzzleType,
 				grid: {
 					acrossSpan,
 					downSpan,
-					cellMap: null,
+					cellMap,
 					acrossHints: [],
 					downHints: []
 				}
 			};
 
 			try {
+				/**
+				 * result will be an object with two fields:
+				 * acknowledged: true,
+				 * insertedId: new ObjectId('65a5829185a9dd4ebca2d1d9')
+				 */
 				const result = await puzzlesCollection.insertOne(document);
 
 				if (!result.insertedId) {
 					throw new Error('oh no! unable to save the new puzzle');
 				}
+
 				insertedId = result.insertedId;
 			} catch {
 				return fail(500, {
@@ -104,6 +119,6 @@ export const actions = {
 				error
 			});
 		}
-		redirect(302, `/puzzles/${insertedId}`);
+		redirect(302, `/puzzles/${insertedId}?create=true&edit=true`);
 	}
 };

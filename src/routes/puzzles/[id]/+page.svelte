@@ -6,20 +6,16 @@
 
 	export let data: PageData;
 	export let form;
-	console.log(data);
 	// destructure puzzles from data
-	$: ({ puzzle, isEditing } = data);
+	$: ({ puzzle, isEditing, isCreateSuccess } = data);
 </script>
 
 <div>
-	{#if puzzle.title}
+	{#if puzzle}
 		<h2>{form?.title || puzzle.title}</h2>
 
-		{#if !form}
-			<h2>Play the game</h2>
-			{#if puzzle.puzzle}
-				<Crossword grid={puzzle.puzzle} />
-			{/if}
+		{#if puzzle.grid}
+			<Crossword grid={puzzle.grid} {isEditing} />
 		{/if}
 
 		{#if form?.error}
@@ -28,6 +24,10 @@
 
 		{#if form?.success}
 			<p>You did it successfully.</p>
+		{/if}
+
+		{#if isCreateSuccess}
+			<p>Successfully created a new {puzzle.puzzleType} puzzle!</p>
 		{/if}
 
 		{#if isEditing}
@@ -43,20 +43,22 @@
 						class="border-solid border-2 border-indigo-600 p-2"
 					/></label
 				>
+				<Button buttonType="submit" style="primary">Update</Button>
 			</form>
 
-			<hr class="mb-10" />
+			<hr class="my-10" />
 			<form method="POST" action="?/delete" use:enhance>
 				<input type="hidden" name="id" value={puzzle._id} />
 				<Button buttonType="submit" style="alert">Delete</Button>
 			</form>
 		{/if}
 	{:else}
-		<h2>Hmmm, you seem lost.</h2>
+		<h2>Gee, something went wrong.</h2>
 		<p>
-			Are you lost? You might want to return to the <a class="text-sky-600" href="/puzzles"
-				>puzzles page</a
-			> and try again.
+			Wwe can't seem to find the puzzle you requested. You might want to return to the <a
+				class="text-sky-600"
+				href="/puzzles">puzzles page</a
+			> and try another.
 		</p>
 	{/if}
 </div>
