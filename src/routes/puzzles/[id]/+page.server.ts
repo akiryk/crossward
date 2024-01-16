@@ -41,13 +41,11 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 		const puzzle = {
 			...puzzleFromDb,
 			_id: puzzleFromDb._id.toString()
-		};
+		} as unknown as Puzzle;
 
 		/**
 		 * Create the puzzle grid
 		 */
-		console.log('GRID');
-		console.log(puzzle.grid);
 
 		const edit = url.searchParams.get('edit');
 		const create = url.searchParams.get('create');

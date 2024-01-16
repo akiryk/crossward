@@ -12,7 +12,13 @@
 
 <div>
 	{#if puzzle}
-		<h2>{form?.title || puzzle.title}</h2>
+		{#if isCreateSuccess}
+			<p class="text-lime-600 font-medium mb-3">
+				Yay, you created a new {puzzle.puzzleType} puzzle!
+			</p>
+		{/if}
+
+		<h2 class="font-medium text-xl mb-3">{form?.title || puzzle.title}</h2>
 
 		{#if puzzle.grid}
 			<Crossword grid={puzzle.grid} {isEditing} />
@@ -26,31 +32,31 @@
 			<p>You did it successfully.</p>
 		{/if}
 
-		{#if isCreateSuccess}
-			<p>Successfully created a new {puzzle.puzzleType} puzzle!</p>
-		{/if}
-
 		{#if isEditing}
-			<form method="POST" action="?/update" use:enhance>
-				<input type="hidden" name="originalTitle" value={puzzle.title} />
-				<label>
-					Title:
-					<input
-						type="text"
-						placeholder={puzzle.title}
-						name="title"
-						value={form?.title ?? ''}
-						class="border-solid border-2 border-indigo-600 p-2"
-					/></label
-				>
-				<Button buttonType="submit" style="primary">Update</Button>
-			</form>
-
 			<hr class="my-10" />
-			<form method="POST" action="?/delete" use:enhance>
-				<input type="hidden" name="id" value={puzzle._id} />
-				<Button buttonType="submit" style="alert">Delete</Button>
-			</form>
+			<div class="flex">
+				<div class="mr-auto">
+					<form method="POST" action="?/update" use:enhance>
+						<input type="hidden" name="originalTitle" value={puzzle.title} />
+						<label>
+							Edit the title:
+							<input
+								type="text"
+								placeholder={puzzle.title}
+								name="title"
+								value={form?.title ?? ''}
+								class="border-solid border-2 border-indigo-600 p-2"
+							/></label
+						>
+						<Button buttonType="submit" style="primary">Update</Button>
+					</form>
+				</div>
+				<form method="POST" action="?/delete" use:enhance>
+					<input type="hidden" name="id" value={puzzle._id} />
+					Danger Zone!
+					<Button buttonType="submit" style="primary">Delete</Button>
+				</form>
+			</div>
 		{/if}
 	{:else}
 		<h2>Gee, something went wrong.</h2>

@@ -1,13 +1,10 @@
 <script lang="ts">
-	import DeadCell from './DeadCell.svelte';
-	import Cell from './Cell.svelte';
-	import type { Grid } from '$utils/types';
+	import CellContainer from './CellContainer.svelte';
+
+	import type { Grid, Rows } from '$utils/types';
 
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
-
-	type Row = Array<Cell | null>;
-	type Rows = Array<Row>;
 
 	export let grid: Grid = {
 		acrossSpan: 15,
@@ -31,9 +28,8 @@
 	}
 </script>
 
-<p>Crossward</p>
 <table
-	class="relative w-fit m-auto table-fixed border-collapse"
+	class="relative w-fit mb-10 table-fixed border-collapse"
 	cellpadding="0"
 	cellspacing="0"
 	border="0"
@@ -42,25 +38,7 @@
 	{#each rows as row}
 		<tr class="flex justify-center flex-wrap" role="row">
 			{#each row as cell}
-				{#if cell?.correctValue === ''}
-					{#if isEditing}
-						<td
-							class={`${SHARED_CELL_STYLES} ${SHARED_CELL_FONT_STYLES} bg-white flex justify-center items-center`}
-							role="gridcell"
-						>
-							<Cell displayNumber={cell.displayNumber} value={cell.correctValue} />
-						</td>
-					{:else}
-						<DeadCell />
-					{/if}
-				{:else if cell}
-					<td
-						class={`${SHARED_CELL_STYLES} ${SHARED_CELL_FONT_STYLES} bg-white flex justify-center items-center`}
-						role="gridcell"
-					>
-						<Cell displayNumber={cell.displayNumber} value={cell.correctValue} />
-					</td>
-				{/if}
+				<CellContainer {isEditing} {cell} />
 			{/each}
 		</tr>
 	{/each}
