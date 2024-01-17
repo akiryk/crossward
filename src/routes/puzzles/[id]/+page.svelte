@@ -7,7 +7,7 @@
 	export let data: PageData;
 	export let form;
 	// destructure puzzles from data
-	$: ({ puzzle, isEditing, isCreateSuccess } = data);
+	$: ({ puzzle, isEditing, isCreateSuccess, dynamicGrid } = data);
 </script>
 
 <div>
@@ -20,8 +20,8 @@
 
 		<h2 class="font-medium text-xl mb-3">{form?.title || puzzle.title}</h2>
 
-		{#if puzzle.grid}
-			<Crossword grid={puzzle.grid} {isEditing} />
+		{#if dynamicGrid}
+			<Crossword {dynamicGrid} {isEditing} />
 		{/if}
 
 		{#if form?.error}
