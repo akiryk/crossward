@@ -2,21 +2,30 @@
 	import CellContainer from './CellContainer.svelte';
 	import type { DynamicCell, DynamicGrid } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
-	import { ensureRotationalSymmetry } from './utils/crosswordHelpers';
+	import { get } from 'svelte/store';
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
 
 	export let grid: DynamicGrid;
 	export let isEditing = false;
 
+	// The cell parameter is a cell with some updated properties
 	export const handleUpdateCell = (cell: DynamicCell) => {
-		if (grid) {
-			grid.cellMap[cell.id] = cell;
-			const index = cell.x + cell.y * 5;
-			grid.cellsArray[index] = cell;
-			grid.cellRows[cell.y][cell.x] = cell;
-			PuzzleStore.set(grid);
-		}
+		// handle symmetry index 24, id 4:4
+		const symmetricalCell = grid.cellMap['4:4'];
+		const symmetricalCellIndex = 24;
+		cell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
+		symmetricalCell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
+
+		grid.cellMap[cell.id] = cell;
+		grid.cellMap[symmetricalCell.id] = symmetricalCell;
+		const index = cell.x + cell.y * 5;
+		grid.cellsArray[index] = cell;
+		grid.cellsArray[symmetricalCellIndex] = symmetricalCell;
+		grid.cellRows[cell.y][cell.x] = cell;
+		grid.cellRows[symmetricalCell.y][symmetricalCell.x] = symmetricalCell;
+
+		PuzzleStore.set(grid);
 	};
 </script>
 

@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import mongodb, { ObjectId } from 'mongodb';
 import { fail } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
