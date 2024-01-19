@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { get } from 'svelte/store';
 	import CellContainer from './CellContainer.svelte';
-	import type { DynamicCell, DynamicGrid, Puzzle } from '$utils/types';
+	import type { DynamicCell, DynamicGrid } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
+	import { ensureRotationalSymmetry } from './utils/crosswordHelpers';
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
 
@@ -15,8 +15,8 @@
 			const index = cell.x + cell.y * 5;
 			grid.cellsArray[index] = cell;
 			grid.cellRows[cell.y][cell.x] = cell;
+			ensureRotationalSymmetry(grid, { x: cell.x, y: cell.y });
 			PuzzleStore.set(grid);
-			console.log(grid.cellsArray);
 		}
 	};
 </script>
