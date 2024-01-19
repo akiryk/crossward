@@ -15,7 +15,6 @@
 			const index = cell.x + cell.y * 5;
 			grid.cellsArray[index] = cell;
 			grid.cellRows[cell.y][cell.x] = cell;
-			ensureRotationalSymmetry(grid, { x: cell.x, y: cell.y });
 			PuzzleStore.set(grid);
 		}
 	};

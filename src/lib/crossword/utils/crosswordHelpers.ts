@@ -9,8 +9,3 @@ export const ensureRotationalSymmetry = (grid: DynamicGrid, coords: Coords) => {
 	grid.cellMap[`${x1}:${y1}`].isSymmetrical = !!value1 || !!value2 ? false : true;
 	grid.cellMap[`${x2}:${y2}`].isSymmetrical = !!value1 || !!value2 ? false : true;
 };
-
-function toggleIsSymmetrical(isSymmetrical = false) {
-	this.isSymmetrical = isSymmetrical;
-	this.update();
-}
