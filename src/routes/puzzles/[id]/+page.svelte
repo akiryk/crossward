@@ -1,70 +1,37 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import { enhance } from '$app/forms';
+	import { onDestroy, onMount } from 'svelte';
 	import Crossword from '$lib/crossword/Crossword.svelte';
-	import Button from '$components/Button.svelte';
+	import type { DynamicGrid } from '$utils/types';
+	import PuzzleStore from '../../../stores/PuzzleStore';
 
-	export let data: PageData;
-	export let form;
-	// destructure puzzles from data
-	$: ({ puzzle, isEditing, isCreateSuccess, dynamicGrid } = data);
+	export let storeGrid: DynamicGrid | null;
+
+	export let data;
+
+	$: ({ grid: ssrGrid } = data);
+
+	const unsubscribe = PuzzleStore.subscribe((data) => {
+		if (data) {
+			storeGrid = data;
+		}
+	});
+
+	onMount(() => {
+		PuzzleStore.set(ssrGrid);
+	});
+
+	onDestroy(() => {
+		unsubscribe();
+	});
 </script>
 
 <div>
-	{#if puzzle}
-		{#if isCreateSuccess}
-			<p class="text-lime-600 font-medium mb-3">
-				Yay, you created a new {puzzle.puzzleType} puzzle!
-			</p>
-		{/if}
+	<Crossword grid={storeGrid || ssrGrid} isEditing={true} />
 
-		<h2 class="font-medium text-xl mb-3">{form?.title || puzzle.title}</h2>
-
-		{#if dynamicGrid}
-			<Crossword {dynamicGrid} {isEditing} />
-		{/if}
-
-		{#if form?.error}
-			<p class="error">{form.error}</p>
-		{/if}
-
-		{#if form?.success}
-			<p>You did it successfully.</p>
-		{/if}
-
-		{#if isEditing}
-			<hr class="my-10" />
-			<div class="flex">
-				<div class="mr-auto">
-					<form method="POST" action="?/update" use:enhance>
-						<input type="hidden" name="originalTitle" value={puzzle.title} />
-						<label>
-							Edit the title:
-							<input
-								type="text"
-								placeholder={puzzle.title}
-								name="title"
-								value={form?.title ?? ''}
-								class="border-solid border-2 border-indigo-600 p-2"
-							/></label
-						>
-						<Button buttonType="submit" style="primary">Update</Button>
-					</form>
-				</div>
-				<form method="POST" action="?/delete" use:enhance>
-					<input type="hidden" name="id" value={puzzle._id} />
-					Danger Zone!
-					<Button buttonType="submit" style="primary">Delete</Button>
-				</form>
-			</div>
-		{/if}
-	{:else}
-		<h2>Gee, something went wrong.</h2>
-		<p>
-			Wwe can't seem to find the puzzle you requested. You might want to return to the <a
-				class="text-sky-600"
-				href="/puzzles">puzzles page</a
-			> and try another.
-		</p>
-	{/if}
+	<p>
+		The value is: {storeGrid?.cellMap['0:0'].value || ssrGrid.cellMap['0:0'].value}
+	</p>
+	<p class="mb-4">
+		The value is: {storeGrid?.cellMap['0:1'].value || ssrGrid.cellMap['0:1'].value}
+	</p>
 </div>

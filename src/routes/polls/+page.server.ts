@@ -4,7 +4,7 @@ import { redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { transformPuzzleForClient } from '$utils/helpers';
 import type { PageServerLoad } from './$types';
-import type { Puzzle, PuzzleWithId, DynamicGrid } from '$utils/types';
+import type { PuzzleWithId, DynamicGrid } from '$utils/types';
 
 type Props = {
 	grid: DynamicGrid;
