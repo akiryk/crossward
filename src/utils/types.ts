@@ -1,6 +1,5 @@
 import { MINI, DAILY, SUNDAY } from '$utils/constants';
 import { DRAFT, PUBLISHED } from '$utils/constants';
-import type DynamicCell from '$lib/crossword/utils/DynamicCell';
 export enum Direction {
 	GO_TOP_TO_BOTTOM,
 	GO_BOTTOM_TO_TOP,
@@ -23,7 +22,13 @@ export type Cell = {
 	value: string;
 };
 
+export interface DynamicCell extends Cell {
+	cellHasFocus: boolean;
+	isSymmetrical: boolean;
+}
+
 export type CellMap = Record<ID, Cell>;
+export type DynamicCellMap = Record<ID, DynamicCell>;
 
 export type GridSizes = {
 	[MINI]: number;
@@ -47,6 +52,17 @@ export type Grid = {
 	downHints: Array<Hint | undefined>;
 };
 
+export interface DynamicGrid extends Grid {
+	cellMap: DynamicCellMap;
+	cellRows: Array<Row>;
+	cellsArray: Array<DynamicCell>;
+	cellWithFocus: DynamicCell | null;
+	gridDirection: Direction;
+	currentRow: number;
+	currentColumn: number;
+	workingAnswersKey: Record<string, string>;
+}
+
 // PuzzleDocument is the type for new puzzles before being saved
 export type PuzzleDocument = {
 	title: string;
@@ -61,8 +77,13 @@ export interface PuzzleFromDb extends PuzzleDocument {
 	_id: () => string;
 }
 
+export interface PuzzleWithId extends PuzzleDocument {
+	_id: string;
+}
+
 export interface Puzzle extends PuzzleDocument {
 	_id: string;
+	grid: DynamicGrid;
 }
 
 export type Puzzles = Array<Puzzle>;

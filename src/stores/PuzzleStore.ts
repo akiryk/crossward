@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
-import type { Puzzle } from '$utils/types';
+import type { DynamicGrid } from '$utils/types';
 
-const puzzleStore = writable<Puzzle | null>(null);
+const puzzleStore = writable<DynamicGrid | null>(null);
 
 export default puzzleStore;

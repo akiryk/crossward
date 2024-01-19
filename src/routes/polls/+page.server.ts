@@ -2,11 +2,12 @@ import { ObjectId } from 'mongodb';
 import { fail } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
+import { transformPuzzleForClient } from '$utils/helpers';
 import type { PageServerLoad } from './$types';
-import type { Puzzle } from '$utils/types';
+import type { Puzzle, PuzzleWithId, DynamicGrid } from '$utils/types';
 
 type Props = {
-	puzzle: Puzzle;
+	grid: DynamicGrid;
 };
 
 export const load: PageServerLoad = async ({ locals }): Promise<Props> => {
@@ -37,17 +38,19 @@ export const load: PageServerLoad = async ({ locals }): Promise<Props> => {
 			// explaining that this puzzle may not exist anymore
 			throw redirect(300, '/');
 		}
-		const puzzle = {
+		const puzzleWithId = {
 			...puzzleFromDb,
 			_id: puzzleFromDb._id.toString()
-		} as unknown as Puzzle;
+		} as unknown as PuzzleWithId;
+
+		const puzzle = transformPuzzleForClient(puzzleWithId);
 
 		/**
 		 * Create the puzzle grid
 		 */
 
 		return {
-			puzzle
+			grid: puzzle.grid
 		};
 	} catch (error) {
 		// @ts-expect-error in catch block

@@ -1,69 +1,37 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import type { Puzzle } from '$utils/types';
+	import Crossword from '$lib/crossword/Crossword.svelte';
+	import type { DynamicGrid } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
 
-	export let storeData: Puzzle | null;
+	export let storeGrid: DynamicGrid | null;
 
 	export let data;
 
-	$: ({ puzzle: ssrData } = data);
+	$: ({ grid: ssrGrid } = data);
 
 	const unsubscribe = PuzzleStore.subscribe((data) => {
-		storeData = data;
+		if (data) {
+			storeGrid = data;
+		}
 	});
 
 	onMount(() => {
-		PuzzleStore.set(data.puzzle);
-		console.log('storeData');
+		PuzzleStore.set(ssrGrid);
 	});
 
 	onDestroy(() => {
 		unsubscribe();
 	});
-
-	export let handleChange1 = (e) => {
-		console.log(e.target.value);
-
-		storeData.grid.cellMap['0:0'].correctValue = e.target.value;
-		storeData.set({ ...storeData });
-	};
-
-	export let handleChange2 = (e) => {
-		storeData.grid.cellMap['0:1'].correctValue = e.target.value;
-		storeData.set({ ...storeData });
-	};
 </script>
 
 <div>
-	<h1 class="text-lg font-bold">{storeData?.title || ssrData.title}</h1>
+	<Crossword grid={storeGrid || ssrGrid} isEditing={true} />
+
 	<p>
-		The value is: {storeData?.grid.cellMap['0:0'].correctValue ||
-			ssrData.grid.cellMap['0:0'].correctValue}
+		The value is: {storeGrid?.cellMap['0:0'].value || ssrGrid.cellMap['0:0'].value}
 	</p>
 	<p class="mb-4">
-		The value is: {storeData?.grid.cellMap['0:1'].correctValue ||
-			ssrData.grid.cellMap['0:1'].correctValue}
+		The value is: {storeGrid?.cellMap['0:1'].value || ssrGrid.cellMap['0:1'].value}
 	</p>
-
-	<div class="mb-4">
-		<h1 class=" font-medium">Cell 0:0</h1>
-		<div class="mb-4">
-			<input
-				class="border border-solid border-gray-300 mb-4"
-				type="text"
-				on:input={handleChange1}
-			/>
-		</div>
-	</div>
-	<div class="mb-4">
-		<h1 class=" font-medium">Cell 0:1</h1>
-		<div class="mb-4">
-			<input
-				class="border border-solid border-gray-300 mb-4"
-				type="text"
-				on:input={handleChange2}
-			/>
-		</div>
-	</div>
 </div>

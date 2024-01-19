@@ -1,21 +1,18 @@
 <script lang="ts">
 	import Cell from './Cell.svelte';
 	import DeadCell from './DeadCell.svelte';
-	import type DynamicCell from '$lib/crossword/utils/DynamicCell';
-	import type DynamicGrid from '$lib/crossword/utils/DynamicGrid';
-
+	import type { DynamicCell } from '$utils/types';
 	export let cell: DynamicCell;
-	export let dynamicGrid: DynamicGrid;
 	export let isEditing: boolean;
-
+	export let updateCell: (cell: DynamicCell) => void;
 	export function handleInput(event: Event) {
-		const value = (event.target as HTMLSelectElement)?.value.trim();
-		cell.setValue(value);
-		if (isEditing) {
-			dynamicGrid.ensureRotationalSymmetry({ x: cell.x, y: cell.y });
-		} else {
-			// updateWorkingAnswers(cell);
-		}
+		const value = (event.target as HTMLSelectElement)?.value.trim().toUpperCase();
+		const newCell = {
+			...cell,
+			value,
+			correctValue: isEditing ? value : cell.correctValue
+		};
+		updateCell(newCell);
 	}
 </script>
 
