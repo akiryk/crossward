@@ -1,9 +1,9 @@
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async (loadResponse) => {
-	if (loadResponse?.data?.grid) {
+	if (loadResponse?.data?.puzzle) {
 		return {
-			grid: loadResponse.data.grid,
+			puzzle: loadResponse.data.puzzle,
 			isEditing: loadResponse.data.isEditing,
 			isCreateSuccess: loadResponse.data.isCreateSuccess
 		};

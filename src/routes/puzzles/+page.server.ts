@@ -3,8 +3,7 @@ import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';
 import type { Puzzle, Puzzles, PublishStatus, PuzzleDocument, PuzzleType } from '$utils/types';
 import { GRID_SIZES, DRAFT } from '$utils/constants';
-import { createInitialCellMap } from '$utils/helpers';
-import { handleSanitizeInput } from '$utils/sanitizers';
+import { createInitialCellMap, handleSanitizeInput } from '$utils/helpers';
 
 type Props = {
 	puzzles: Array<Puzzle>;

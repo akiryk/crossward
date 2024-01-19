@@ -1,6 +1,15 @@
 import type { CellMap, DynamicCellMap, Cell, ID, Puzzle, DynamicCell, PuzzleWithId } from './types';
-
 import { Direction } from './types';
+import sanitizeHtml from 'sanitize-html';
+import type { SanitizeInputParams } from './types';
+
+export const handleSanitizeInput = ({ data, inputName, fallback }: SanitizeInputParams) => {
+	const unsanitizedInput = data.get(inputName) || fallback;
+	if (typeof unsanitizedInput !== 'string') {
+		throw new Error('Oops! Title must be some text or left empty');
+	}
+	return sanitizeHtml(unsanitizedInput);
+};
 
 // When creating a puzzle (not updating), make a cellMap based on the span
 // and populate it with empty values. This ensures we save the new puzzle
