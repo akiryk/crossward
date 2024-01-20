@@ -7,7 +7,7 @@ export enum Direction {
 	GO_RIGHT_TO_LEFT
 }
 
-export type Row = Array<DynamicCell>;
+export type CellsArray = Array<DynamicCell>;
 export type ID = `${number}:${number}`;
 
 // We have two types of Grid and Cell
@@ -54,8 +54,8 @@ export type Grid = {
 
 export interface DynamicGrid extends Grid {
 	cellMap: DynamicCellMap;
-	cellRows: Array<Row>;
-	cellsArray: Array<DynamicCell>;
+	cellRows: Array<CellsArray>;
+	cellsArray: CellsArray;
 	cellWithFocus: DynamicCell | null;
 	gridDirection: Direction;
 	currentRow: number;

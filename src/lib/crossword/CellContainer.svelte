@@ -1,19 +1,22 @@
 <script lang="ts">
 	import Cell from './Cell.svelte';
 	import DeadCell from './DeadCell.svelte';
-	import type { DynamicCell } from '$utils/types';
+	import type { DynamicCell, Coords, ID } from '$utils/types';
 	import { KeyCodes } from './utils/keyCodes';
 	export let cell: DynamicCell;
 	export let isEditing: boolean;
 	export let updateCellSymmetry: (cell: DynamicCell) => void;
+	export let goToNextCell: (cell: DynamicCell) => void;
 
 	export function handleInput(event: Event) {
-		const value = (event.target as HTMLSelectElement)?.value.trim().toUpperCase();
+		console.log(event.target.value);
+		let value = (event.target as HTMLSelectElement)?.value.trim().substring(0, 1).toUpperCase();
 		cell.value = value;
 		if (isEditing) {
 			cell.correctValue = value;
 		}
 		updateCellSymmetry(cell);
+		goToNextCell(cell);
 	}
 
 	export function handleKeyDown(event: KeyboardEvent) {
@@ -54,6 +57,7 @@
 		onInput={handleInput}
 		onKeydown={handleKeyDown}
 		isSymmetrical={cell.isSymmetrical}
+		cellHasFocus={cell.cellHasFocus}
 	/>
 {:else}
 	<!-- DeadCell is a non-interactive black square -->

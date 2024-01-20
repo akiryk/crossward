@@ -1,4 +1,4 @@
-import type { ID, Coords, DynamicGrid, DynamicCell } from '$utils/types';
+import type { ID, Coords, DynamicGrid, DynamicCell, CellsArray } from '$utils/types';
 
 export const getSymmetricalCell = (grid: DynamicGrid, coords: Coords): DynamicCell => {
 	const { x: x1, y: y1 } = coords;
@@ -12,4 +12,11 @@ export const getSymmetricalCell = (grid: DynamicGrid, coords: Coords): DynamicCe
 
 export const getSymmetricalIndex = (cell: DynamicCell): number => {
 	return (cell.x + 1) * (cell.y + 1) - 1;
+};
+
+export const getIdFromCoords = (coords: Coords): ID => `${coords.x}:${coords.y}`;
+
+export const getCellArrayIndex = (cellsArray: CellsArray, id: ID): number => {
+	const index = cellsArray.findIndex((cell) => cell.id === id);
+	return index;
 };

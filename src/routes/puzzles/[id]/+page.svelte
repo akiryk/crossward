@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
+	import PuzzleStore from '../../../stores/PuzzleStore';
 	import { enhance } from '$app/forms';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import type { DynamicGrid } from '$utils/types';
-	import PuzzleStore from '../../../stores/PuzzleStore';
 	import Button from '$components/Button.svelte';
 
 	export let storeGrid: DynamicGrid | null;
@@ -13,15 +13,15 @@
 
 	$: ({ puzzle, isEditing, isCreateSuccess } = data);
 
-	const unsubscribe = PuzzleStore.subscribe((data) => {
-		if (data) {
-			storeGrid = data;
-		}
-	});
-
 	onMount(() => {
 		if (puzzle) {
 			PuzzleStore.set(puzzle.grid);
+		}
+	});
+
+	const unsubscribe = PuzzleStore.subscribe((data) => {
+		if (data) {
+			storeGrid = data;
 		}
 	});
 
