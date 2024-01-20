@@ -18,25 +18,17 @@
 		inputElement.focus();
 	}
 
-	function handleInput(event) {
-		console.log('input');
-		onInput(event);
-		event.target.select();
-	}
-
-	function handleFocus(event) {
-		console.log('focus!', event.target.value);
-	}
-
 	function handleKeydown(event) {
-		event.target.value = '';
+		if (event.code.toUpperCase() !== 'TAB') {
+			event.target.value = '';
+		}
 	}
 </script>
 
 <td class="relative" role="gridcell">
 	<input
 		type="text"
-		on:input={handleInput}
+		on:input={onInput}
 		on:keydown={handleKeydown}
 		class={inputClasses}
 		{value}

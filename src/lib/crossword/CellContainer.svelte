@@ -9,7 +9,6 @@
 	export let goToNextCell: (cell: DynamicCell) => void;
 
 	export function handleInput(event: Event) {
-		console.log(event.target.value);
 		let value = (event.target as HTMLSelectElement)?.value.trim().substring(0, 1).toUpperCase();
 		cell.value = value;
 		if (isEditing) {
@@ -22,6 +21,8 @@
 	export function handleKeyDown(event: KeyboardEvent) {
 		const code = event.code.toUpperCase();
 		switch (code) {
+			case KeyCodes.TAB_KEY:
+				cell.value = '';
 			case KeyCodes.SPACEBAR_KEY:
 				// toggleGridDirection(cell);
 				break;
