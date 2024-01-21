@@ -37,6 +37,7 @@
 				break;
 			case KeyCodes.DELETE_KEY:
 				cell.value = '';
+				previousValue = '';
 				if (isEditing) {
 					cell.correctValue = '';
 				}

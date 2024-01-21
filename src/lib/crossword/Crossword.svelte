@@ -97,35 +97,6 @@
 		updateCellWithFocus(nextCellCoords);
 	}
 
-	export function gridGoToNextCell2(cell: DynamicCell, direction: Direction) {
-		let nextCellFunction: (x: number, y: number) => Coords;
-		switch (direction) {
-			case Direction.GO_RIGHT:
-				nextCellFunction = getCellToTheRight;
-				break;
-			case Direction.GO_DOWN:
-				nextCellFunction = getCellBelow;
-				break;
-			case Direction.GO_UP:
-				nextCellFunction = getCellAbove;
-				break;
-			case Direction.GO_LEFT:
-				nextCellFunction = getCellToTheLeft;
-				break;
-			default:
-				nextCellFunction = getCellToTheRight;
-		}
-		// remove focus from current cell
-		const id = cell.id;
-		grid.cellMap[id].cellHasFocus = false;
-		const index = grid.cellMap[id].index;
-		grid.cellsArray[index].cellHasFocus = false;
-		grid.cellRows[cell.y][cell.x].cellHasFocus = false;
-		const nextCellCoords = nextCellFunction(cell.x, cell.y);
-		console.log('hi');
-		updateCellWithFocus(nextCellCoords);
-	}
-
 	function updateCellWithFocus(coords: Coords) {
 		const id = getIdFromCoords(coords);
 		const { x, y } = coords;
@@ -148,13 +119,7 @@
 		{#each grid.cellRows as row}
 			<tr class="flex justify-center flex-wrap" role="row">
 				{#each row as cell}
-					<CellContainer
-						{isEditing}
-						{cell}
-						{updateCellSymmetry}
-						goToNextCell={gridGoToNextCell}
-						goToNextCell2={gridGoToNextCell2}
-					/>
+					<CellContainer {isEditing} {cell} {updateCellSymmetry} goToNextCell={gridGoToNextCell} />
 				{/each}
 			</tr>
 		{/each}
