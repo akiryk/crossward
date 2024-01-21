@@ -39,7 +39,7 @@ export const createInitialCellMap = (acrossSpan: number, downSpan: number): Cell
 // to save the currently selected cell
 export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 	const cellWithFocus = null;
-	const gridDirection = Direction.GO_LEFT_TO_RIGHT;
+	const gridDirection = Direction.GO_RIGHT;
 	const currentRow = -1;
 	const currentColumn = -1;
 	const workingAnswersKey = {};

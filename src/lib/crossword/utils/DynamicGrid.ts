@@ -33,7 +33,7 @@ export default class DynamicGrid {
 		this.startCellsWordsAcross = [];
 		this.startCellsWordsDown = [];
 		this.cellWithFocus = null;
-		this.gridDirection = Direction.GO_LEFT_TO_RIGHT;
+		this.gridDirection = Direction.GO_RIGHT;
 		this.highlightedCells = [];
 		this.currentRow = -1;
 		this.currentColumn = -1;
@@ -118,9 +118,7 @@ export default class DynamicGrid {
 
 	toggleGridDirection() {
 		this.gridDirection =
-			this.gridDirection === Direction.GO_LEFT_TO_RIGHT
-				? Direction.GO_TOP_TO_BOTTOM
-				: Direction.GO_LEFT_TO_RIGHT;
+			this.gridDirection === Direction.GO_RIGHT ? Direction.GO_DOWN : Direction.GO_RIGHT;
 		this.currentColumn = -1;
 		this.currentRow = -1;
 	}

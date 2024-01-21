@@ -2,16 +2,16 @@
 	import { getCleanValueOfInput } from './utils/crosswordHelpers';
 	import Cell from './Cell.svelte';
 	import DeadCell from './DeadCell.svelte';
-	import type { DynamicCell } from '$utils/types';
+	import { Direction, type DynamicCell } from '$utils/types';
 	import { KeyCodes } from './utils/keyCodes';
 	export let cell: DynamicCell;
 	export let isEditing: boolean;
 	export let updateCellSymmetry: (cell: DynamicCell) => void;
-	export let goToNextCell: (cell: DynamicCell) => void;
+	export let goToNextCell: (cell: DynamicCell, direction: Direction) => void;
 
 	let previousValue = '';
 
-	export function handleInput(event: KeyboardEvent) {
+	export function handleInput(event: Event) {
 		const cleanValue = getCleanValueOfInput({ event, previousValue });
 		(event.target as HTMLInputElement).value = cleanValue;
 		cell.value = cleanValue;
@@ -20,10 +20,10 @@
 			cell.correctValue = cleanValue;
 		}
 		updateCellSymmetry(cell);
-		goToNextCell(cell);
+		goToNextCell(cell, Direction.GO_RIGHT);
 	}
 
-	export function handleOnBlur(event: Event) {
+	export function handleOnBlur() {
 		cell.cellHasFocus = false;
 	}
 
@@ -43,16 +43,16 @@
 				updateCellSymmetry(cell);
 				break;
 			case KeyCodes.LEFT_ARROW_KEY:
-				// goToNextCell({ row, column, overrideDirectionMode: GO_RIGHT_TO_LEFT });
+				goToNextCell(cell, Direction.GO_LEFT);
 				break;
 			case KeyCodes.RIGHT_ARROW_KEY:
-				// goToNextCell({ row, column, overrideDirectionMode: GO_LEFT_TO_RIGHT });
+				goToNextCell(cell, Direction.GO_RIGHT);
 				break;
 			case KeyCodes.UP_ARROW_KEY:
-				// goToNextCell({ row, column, overrideDirectionMode: GO_BOTTOM_TO_TOP });
+				goToNextCell(cell, Direction.GO_UP);
 				break;
 			case KeyCodes.DOWN_ARROW_KEY:
-				// goToNextCell({ row, column, overrideDirectionMode: GO_TOP_TO_BOTTOM });
+				goToNextCell(cell, Direction.GO_DOWN);
 				break;
 			default:
 				break;

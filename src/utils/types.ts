@@ -1,10 +1,10 @@
 import { MINI, DAILY, SUNDAY } from '$utils/constants';
 import { DRAFT, PUBLISHED } from '$utils/constants';
 export enum Direction {
-	GO_TOP_TO_BOTTOM,
-	GO_BOTTOM_TO_TOP,
-	GO_LEFT_TO_RIGHT,
-	GO_RIGHT_TO_LEFT
+	GO_DOWN,
+	GO_UP,
+	GO_RIGHT,
+	GO_LEFT
 }
 
 export type CellsArray = Array<DynamicCell>;

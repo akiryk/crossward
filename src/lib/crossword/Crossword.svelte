@@ -1,6 +1,6 @@
 <script lang="ts">
 	import CellContainer from './CellContainer.svelte';
-	import type { DynamicCell, DynamicGrid, Coords, ID } from '$utils/types';
+	import { type DynamicCell, type DynamicGrid, type Coords, Direction } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
 	import { getSymmetricalCell, getIdFromCoords } from './utils/crosswordHelpers';
 
@@ -25,8 +25,34 @@
 		PuzzleStore.set(grid);
 	}
 
-	export function getCellToTheRight(coords: Coords): Coords {
-		const { x, y } = coords;
+	export function getCellAbove(x: number, y: number): Coords {
+		let newY = y - 1;
+		let newX = x; // row = y
+		if (newY < 0) {
+			newY = grid.downSpan - 1;
+			newX = x - 1 < 0 ? grid.acrossSpan - 1 : x - 1;
+		}
+		return { x: newX, y: newY };
+	}
+	export function getCellBelow(x: number, y: number): Coords {
+		let newY = y + 1;
+		let newX = x; // row = y
+		if (newY >= grid.downSpan) {
+			newY = 0;
+			newX = x + 1 >= grid.acrossSpan ? 0 : x + 1;
+		}
+		return { x: newX, y: newY };
+	}
+	export function getCellToTheLeft(x: number, y: number): Coords {
+		let newX = x - 1; // column = x
+		let newY = y; // row = y
+		if (newX < 0) {
+			newX = grid.acrossSpan - 1;
+			newY = y - 1 < 0 ? grid.downSpan - 1 : y - 1;
+		}
+		return { x: newX, y: newY };
+	}
+	export function getCellToTheRight(x: number, y: number): Coords {
 		let newX = x + 1; // column = x
 		let newY = y; // row = y
 		if (newX >= grid.acrossSpan) {
@@ -43,24 +69,66 @@
 		return { x: newX, y: newY };
 	}
 
-	export function handleGoToNextCell(cell: DynamicCell) {
+	export function gridGoToNextCell(cell: DynamicCell, direction: Direction) {
+		let nextCellFunction: (x: number, y: number) => Coords;
+		switch (direction) {
+			case Direction.GO_RIGHT:
+				nextCellFunction = getCellToTheRight;
+				break;
+			case Direction.GO_DOWN:
+				nextCellFunction = getCellBelow;
+				break;
+			case Direction.GO_UP:
+				nextCellFunction = getCellAbove;
+				break;
+			case Direction.GO_LEFT:
+				nextCellFunction = getCellToTheLeft;
+				break;
+			default:
+				nextCellFunction = getCellToTheRight;
+		}
 		// remove focus from current cell
 		const id = cell.id;
 		grid.cellMap[id].cellHasFocus = false;
 		const index = grid.cellMap[id].index;
 		grid.cellsArray[index].cellHasFocus = false;
 		grid.cellRows[cell.y][cell.x].cellHasFocus = false;
-		const nextCellCoords = getCellToTheRight({
-			y: cell.y,
-			x: cell.x
-		});
+		const nextCellCoords = nextCellFunction(cell.x, cell.y);
+		updateCellWithFocus(nextCellCoords);
+	}
+
+	export function gridGoToNextCell2(cell: DynamicCell, direction: Direction) {
+		let nextCellFunction: (x: number, y: number) => Coords;
+		switch (direction) {
+			case Direction.GO_RIGHT:
+				nextCellFunction = getCellToTheRight;
+				break;
+			case Direction.GO_DOWN:
+				nextCellFunction = getCellBelow;
+				break;
+			case Direction.GO_UP:
+				nextCellFunction = getCellAbove;
+				break;
+			case Direction.GO_LEFT:
+				nextCellFunction = getCellToTheLeft;
+				break;
+			default:
+				nextCellFunction = getCellToTheRight;
+		}
+		// remove focus from current cell
+		const id = cell.id;
+		grid.cellMap[id].cellHasFocus = false;
+		const index = grid.cellMap[id].index;
+		grid.cellsArray[index].cellHasFocus = false;
+		grid.cellRows[cell.y][cell.x].cellHasFocus = false;
+		const nextCellCoords = nextCellFunction(cell.x, cell.y);
+		console.log('hi');
 		updateCellWithFocus(nextCellCoords);
 	}
 
 	function updateCellWithFocus(coords: Coords) {
 		const id = getIdFromCoords(coords);
 		const { x, y } = coords;
-		console.log('update with focus ', grid.cellMap[id].value);
 		grid.cellMap[id].cellHasFocus = true;
 		const index = grid.cellMap[id].index;
 		grid.cellsArray[index].cellHasFocus = true;
@@ -84,7 +152,8 @@
 						{isEditing}
 						{cell}
 						{updateCellSymmetry}
-						goToNextCell={handleGoToNextCell}
+						goToNextCell={gridGoToNextCell}
+						goToNextCell2={gridGoToNextCell2}
 					/>
 				{/each}
 			</tr>

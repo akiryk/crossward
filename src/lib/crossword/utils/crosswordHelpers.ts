@@ -16,7 +16,7 @@ export function getCleanValueOfInput({
 	event,
 	previousValue
 }: {
-	event: KeyboardEvent;
+	event: Event;
 	previousValue: string;
 }): string {
 	const value = (event.target as HTMLSelectElement)?.value

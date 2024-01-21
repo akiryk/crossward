@@ -14,16 +14,11 @@ export const GRID_SIZES = {
 export const DRAFT = 'draft';
 export const PUBLISHED = 'published';
 
-export const GO_TOP_TO_BOTTOM = 'GO_TOP_TO_BOTTOM';
-export const GO_BOTTOM_TO_TOP = 'GO_BOTTOM_TO_TOP';
-export const GO_LEFT_TO_RIGHT = 'GO_LEFT_TO_RIGHT';
-export const GO_RIGHT_TO_LEFT = 'GO_RIGHT_TO_LEFT';
-export const DIRECTION_MODES = [
-	GO_TOP_TO_BOTTOM,
-	GO_BOTTOM_TO_TOP,
-	GO_LEFT_TO_RIGHT,
-	GO_RIGHT_TO_LEFT
-];
+export const GO_DOWN = 'GO_DOWN';
+export const GO_UP = 'GO_UP';
+export const GO_RIGHT = 'GO_RIGHT';
+export const GO_LEFT = 'GO_LEFT';
+export const DIRECTION_MODES = [GO_DOWN, GO_UP, GO_RIGHT, GO_LEFT];
 
 // Cell Modes
 export const EDIT_MODE = 'EDIT_MODE';
