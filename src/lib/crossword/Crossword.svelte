@@ -64,7 +64,6 @@
 		const index = grid.cellMap[id].index;
 		grid.cellsArray[index].cellHasFocus = true;
 		grid.cellRows[y][x].cellHasFocus = true;
-
 		PuzzleStore.set(grid);
 	}
 </script>

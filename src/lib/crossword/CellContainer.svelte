@@ -9,13 +9,21 @@
 	export let goToNextCell: (cell: DynamicCell) => void;
 
 	export function handleInput(event: Event) {
-		let value = (event.target as HTMLSelectElement)?.value.trim().substring(0, 1).toUpperCase();
-		cell.value = value;
+		const cleanValue = (event.target as HTMLSelectElement)?.value
+			.trim()
+			.substring(0, 1)
+			.toUpperCase();
+		(event.target as HTMLInputElement).value = cleanValue;
+		cell.value = cleanValue;
 		if (isEditing) {
-			cell.correctValue = value;
+			cell.correctValue = cleanValue;
 		}
 		updateCellSymmetry(cell);
 		goToNextCell(cell);
+	}
+
+	export function handleOnBlur(event: Event) {
+		cell.cellHasFocus = false;
 	}
 
 	export function handleKeyDown(event: KeyboardEvent) {
@@ -57,6 +65,7 @@
 		value={isEditing ? cell.correctValue : cell.value}
 		onInput={handleInput}
 		onKeydown={handleKeyDown}
+		onBlur={handleOnBlur}
 		isSymmetrical={cell.isSymmetrical}
 		cellHasFocus={cell.cellHasFocus}
 	/>

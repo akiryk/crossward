@@ -6,6 +6,7 @@
 	export let cellHasFocus: boolean;
 	export let onInput: (event: Event) => void;
 	export let onKeydown: (event: KeyboardEvent) => void;
+	export let onBlur: (event: Event) => void;
 
 	let inputElement: HTMLInputElement;
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
@@ -17,22 +18,17 @@
 	$: if (cellHasFocus) {
 		inputElement.focus();
 	}
-
-	function handleKeydown(event) {
-		if (event.code.toUpperCase() !== 'TAB') {
-			event.target.value = '';
-		}
-	}
 </script>
 
 <td class="relative" role="gridcell">
 	<input
 		type="text"
-		on:input={onInput}
-		on:keydown={handleKeydown}
 		class={inputClasses}
-		{value}
+		on:input={onInput}
+		on:keydown={onKeydown}
 		bind:this={inputElement}
+		on:blur={onBlur}
+		{value}
 	/>
 	{#if !!displayNumber}
 		<span class="absolute left-0.5 top-px text-xs text-slate-600 pointer-events-none">
