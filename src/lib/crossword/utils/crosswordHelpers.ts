@@ -18,7 +18,13 @@ export function getCleanValueOfInput({
 }: {
 	event: KeyboardEvent;
 	previousValue: string;
-}) {
-	const newValue = (event.target as HTMLSelectElement)?.value.trim().toUpperCase();
-	return newValue.replace(previousValue, '');
+}): string {
+	const value = (event.target as HTMLSelectElement)?.value
+		.trim()
+		.toUpperCase()
+		.replace(previousValue, '');
+	if (value === '') {
+		return previousValue;
+	}
+	return value;
 }
