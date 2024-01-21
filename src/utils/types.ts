@@ -25,6 +25,7 @@ export type Cell = {
 export interface DynamicCell extends Cell {
 	cellHasFocus: boolean;
 	isSymmetrical: boolean;
+	index: number;
 }
 
 export type CellMap = Record<ID, Cell>;

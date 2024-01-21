@@ -2,12 +2,7 @@
 	import CellContainer from './CellContainer.svelte';
 	import type { DynamicCell, DynamicGrid, Coords, ID } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
-	import {
-		getSymmetricalIndex,
-		getSymmetricalCell,
-		getIdFromCoords,
-		getCellArrayIndex
-	} from './utils/crosswordHelpers';
+	import { getSymmetricalCell, getIdFromCoords } from './utils/crosswordHelpers';
 
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
@@ -18,17 +13,15 @@
 	// The cell parameter is a cell with some updated properties
 	export function updateCellSymmetry(cell: DynamicCell) {
 		const symmetricalCell = getSymmetricalCell(grid, { x: cell.x, y: cell.y });
-		const symmetricalCellIndex = getSymmetricalIndex(symmetricalCell);
+		const symmetricalCellIndex = symmetricalCell.index;
 		cell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
 		symmetricalCell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
 		grid.cellMap[cell.id] = cell;
 		grid.cellMap[symmetricalCell.id] = symmetricalCell;
-		const index = getCellArrayIndex(grid.cellsArray, cell.id); // this works only as long as grid is square
-		grid.cellsArray[index] = cell;
+		grid.cellsArray[cell.index] = cell;
 		grid.cellsArray[symmetricalCellIndex] = symmetricalCell;
 		grid.cellRows[cell.y][cell.x] = cell;
 		grid.cellRows[symmetricalCell.y][symmetricalCell.x] = symmetricalCell;
-
 		PuzzleStore.set(grid);
 	}
 
@@ -54,7 +47,7 @@
 		// remove focus from current cell
 		const id = cell.id;
 		grid.cellMap[id].cellHasFocus = false;
-		const index = getCellArrayIndex(grid.cellsArray, id);
+		const index = grid.cellMap[id].index;
 		grid.cellsArray[index].cellHasFocus = false;
 		grid.cellRows[cell.y][cell.x].cellHasFocus = false;
 		const nextCellCoords = getCellToTheRight({
@@ -68,7 +61,7 @@
 		const id = getIdFromCoords(coords);
 		const { x, y } = coords;
 		grid.cellMap[id].cellHasFocus = true;
-		const index = getCellArrayIndex(grid.cellsArray, id);
+		const index = grid.cellMap[id].index;
 		grid.cellsArray[index].cellHasFocus = true;
 		grid.cellRows[y][x].cellHasFocus = true;
 

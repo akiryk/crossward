@@ -68,15 +68,17 @@ function createCellArrays(puzzle: PuzzleWithId) {
 	const cellsArray = [];
 	const cellRows = [];
 	const dynamicCellMap: DynamicCellMap = {};
-	for (let y = 0; y < acrossSpan; y++) {
+	for (let y = 0; y < downSpan; y++) {
 		const row = [];
-		for (let x = 0; x < downSpan; x++) {
+		for (let x = 0; x < acrossSpan; x++) {
+			const index = y * downSpan + x;
 			const id: ID = `${x}:${y}`;
 			const cell = cellMap[id];
 			const dynamicCell: DynamicCell = {
 				...cell,
 				cellHasFocus: false,
-				isSymmetrical: false
+				isSymmetrical: false,
+				index
 			};
 			dynamicCellMap[id] = dynamicCell;
 			row.push(dynamicCell);
