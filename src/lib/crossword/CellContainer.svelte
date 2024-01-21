@@ -1,20 +1,21 @@
 <script lang="ts">
+	import { getCleanValueOfInput } from './utils/crosswordHelpers';
 	import Cell from './Cell.svelte';
 	import DeadCell from './DeadCell.svelte';
-	import type { DynamicCell, Coords, ID } from '$utils/types';
+	import type { DynamicCell } from '$utils/types';
 	import { KeyCodes } from './utils/keyCodes';
 	export let cell: DynamicCell;
 	export let isEditing: boolean;
 	export let updateCellSymmetry: (cell: DynamicCell) => void;
 	export let goToNextCell: (cell: DynamicCell) => void;
 
-	export function handleInput(event: Event) {
-		const cleanValue = (event.target as HTMLSelectElement)?.value
-			.trim()
-			.substring(0, 1)
-			.toUpperCase();
+	let previousValue = '';
+
+	export function handleInput(event: KeyboardEvent) {
+		const cleanValue = getCleanValueOfInput({ event, previousValue });
 		(event.target as HTMLInputElement).value = cleanValue;
 		cell.value = cleanValue;
+		previousValue = cleanValue;
 		if (isEditing) {
 			cell.correctValue = cleanValue;
 		}

@@ -60,6 +60,7 @@
 	function updateCellWithFocus(coords: Coords) {
 		const id = getIdFromCoords(coords);
 		const { x, y } = coords;
+		console.log('update with focus ', grid.cellMap[id].value);
 		grid.cellMap[id].cellHasFocus = true;
 		const index = grid.cellMap[id].index;
 		grid.cellsArray[index].cellHasFocus = true;

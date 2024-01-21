@@ -11,3 +11,14 @@ export const getSymmetricalCell = (grid: DynamicGrid, coords: Coords): DynamicCe
 };
 
 export const getIdFromCoords = (coords: Coords): ID => `${coords.x}:${coords.y}`;
+
+export function getCleanValueOfInput({
+	event,
+	previousValue
+}: {
+	event: KeyboardEvent;
+	previousValue: string;
+}) {
+	const newValue = (event.target as HTMLSelectElement)?.value.trim().toUpperCase();
+	return newValue.replace(previousValue, '');
+}
