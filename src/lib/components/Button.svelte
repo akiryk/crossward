@@ -16,8 +16,10 @@
 
 	export let style: Style = PRIMARY;
 	export let buttonType: ButtonType = 'submit';
-
+	export let handler: () => void = () => {};
 	let classes: string = styles[style];
 </script>
 
-<button type={buttonType} class={classes}><slot /></button>
+<button on:click={buttonType === 'button' ? handler : null} type={buttonType} class={classes}
+	><slot /></button
+>

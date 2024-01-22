@@ -28,6 +28,10 @@
 	onDestroy(() => {
 		unsubscribe();
 	});
+
+	function handleClick() {
+		console.log(puzzle);
+	}
 </script>
 
 <div>
@@ -52,6 +56,9 @@
 		{/if}
 		{#if isEditing}
 			<hr class="my-10" />
+			<div>
+				<Button handler={handleClick} buttonType="button">Click</Button>
+			</div>
 			<div class="flex">
 				<div class="mr-auto">
 					<form method="POST" action="?/update" use:enhance>
