@@ -7,7 +7,7 @@ export type DynamicCellMap = Record<ID, DynamicCell>;
 export default class DynamicCell {
 	x: number;
 	y: number;
-	cellHasFocus: boolean;
+	hasFocus: boolean;
 	isSymmetrical: boolean;
 	isInSelectedRowOrColumn: boolean;
 	id: string;
@@ -35,7 +35,7 @@ export default class DynamicCell {
 		this.displayNumber = 0;
 		this.acrossWord = '';
 		this.downWord = '';
-		this.cellHasFocus = false;
+		this.hasFocus = false;
 		this.firstCellInAcrossWordXCoord = -1;
 		this.lastCellInAcrossWordXCoord = -1;
 		this.firstCellInDownWordYCoord = -1;
@@ -73,7 +73,7 @@ export default class DynamicCell {
 		this.isInSelectedRowOrColumn = false;
 		this.acrossWord = '';
 		this.downWord = '';
-		this.cellHasFocus = false;
+		this.hasFocus = false;
 		this.firstCellInAcrossWordXCoord = -1;
 		this.lastCellInAcrossWordXCoord = -1;
 		this.firstCellInDownWordYCoord = -1;
@@ -102,7 +102,6 @@ export default class DynamicCell {
 	}
 
 	toggleIsSymmetrical(isSymmetrical = false) {
-		console.log('True toggle!', this.id);
 		this.isSymmetrical = isSymmetrical;
 		this.update();
 	}
@@ -113,15 +112,15 @@ export default class DynamicCell {
 	}
 
 	enableFocus() {
-		if (!this.cellHasFocus) {
-			this.cellHasFocus = true;
+		if (!this.hasFocus) {
+			this.hasFocus = true;
 			this.update();
 		}
 	}
 
 	disableFocus() {
-		if (this.cellHasFocus) {
-			this.cellHasFocus = false;
+		if (this.hasFocus) {
+			this.hasFocus = false;
 			this.update();
 		}
 	}

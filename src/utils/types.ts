@@ -4,7 +4,8 @@ export enum Direction {
 	GO_DOWN,
 	GO_UP,
 	GO_RIGHT,
-	GO_LEFT
+	GO_LEFT,
+	GO_FORWARD
 }
 
 export type CellsArray = Array<DynamicCell>;
@@ -23,7 +24,7 @@ export type Cell = {
 };
 
 export interface DynamicCell extends Cell {
-	cellHasFocus: boolean;
+	hasFocus: boolean;
 	isSymmetrical: boolean;
 	index: number;
 }
@@ -57,11 +58,13 @@ export interface DynamicGrid extends Grid {
 	cellMap: DynamicCellMap;
 	cellRows: Array<CellsArray>;
 	cellsArray: CellsArray;
+	highlightedCells: CellsArray;
 	cellWithFocus: DynamicCell | null;
 	gridDirection: Direction;
 	currentRow: number;
 	currentColumn: number;
 	workingAnswersKey: Record<string, string>;
+	highlightedCellIds: Array<ID>;
 }
 
 // PuzzleDocument is the type for new puzzles before being saved
@@ -96,3 +99,9 @@ export type SanitizeInputParams = {
 };
 
 export type Coords = { x: number; y: number };
+
+export type GetNextCellProps = {
+	coords: Coords;
+	acrossSpan: number;
+	downSpan: number;
+};

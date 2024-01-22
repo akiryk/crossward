@@ -4,11 +4,19 @@
 	import DeadCell from './DeadCell.svelte';
 	import { Direction, type DynamicCell } from '$utils/types';
 	import { KeyCodes } from './utils/keyCodes';
+
+	// Props
 	export let cell: DynamicCell;
 	export let isEditing: boolean;
+	export let isHighlighted: boolean;
 	export let updateCellSymmetry: (cell: DynamicCell) => void;
 	export let goToNextCell: (cell: DynamicCell, direction: Direction) => void;
+	export let toggleGridDirection: (cell: DynamicCell) => void;
 
+	// Track previous value so that we can be sure to always save only
+	// the most recently entered value. Using event.target.value.slice(-1)
+	// gets the last value, but this isn't always the last value entered
+	// by the user.
 	let previousValue = '';
 
 	export function handleInput(event: Event) {
@@ -20,11 +28,11 @@
 			cell.correctValue = cleanValue;
 		}
 		updateCellSymmetry(cell);
-		goToNextCell(cell, Direction.GO_RIGHT);
+		goToNextCell(cell, Direction.GO_FORWARD);
 	}
 
 	export function handleOnBlur() {
-		cell.cellHasFocus = false;
+		cell.hasFocus = false;
 	}
 
 	export function handleKeyDown(event: KeyboardEvent) {
@@ -33,7 +41,10 @@
 			case KeyCodes.TAB_KEY:
 				cell.value = '';
 			case KeyCodes.SPACEBAR_KEY:
-				// toggleGridDirection(cell);
+				// prevent default so spacebar doesn't insert a blank space
+				// and move cursor to next cell
+				event.preventDefault();
+				toggleGridDirection(cell);
 				break;
 			case KeyCodes.DELETE_KEY:
 				cell.value = '';
@@ -69,7 +80,8 @@
 		onKeydown={handleKeyDown}
 		onBlur={handleOnBlur}
 		isSymmetrical={cell.isSymmetrical}
-		cellHasFocus={cell.cellHasFocus}
+		hasFocus={cell.hasFocus}
+		{isHighlighted}
 	/>
 {:else}
 	<!-- DeadCell is a non-interactive black square -->

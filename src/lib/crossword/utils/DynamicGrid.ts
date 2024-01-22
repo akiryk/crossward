@@ -81,7 +81,7 @@ export default class DynamicGrid {
 				const id = cell.id as ID;
 				cell.correctValue = data.cellMap[`${id}`]?.correctValue;
 				cell.value = data.cellMap[`${id}`]?.value;
-				cell.cellHasFocus = false;
+				cell.hasFocus = false;
 				cell.displayNumber = data.cellMap[`${id}`]?.displayNumber;
 				this.cellsArray.push(cell);
 				cells.push(cell);

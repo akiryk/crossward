@@ -43,6 +43,7 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 	const currentRow = -1;
 	const currentColumn = -1;
 	const workingAnswersKey = {};
+	const highlightedCellIds = [];
 	const { cellRows, cellsArray, dynamicCellMap } = createCellArrays(puzzle);
 
 	const dynamicPuzzle = {
@@ -56,7 +57,8 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 			gridDirection,
 			currentRow,
 			currentColumn,
-			workingAnswersKey
+			workingAnswersKey,
+			highlightedCellIds
 		}
 	};
 
@@ -76,7 +78,7 @@ function createCellArrays(puzzle: PuzzleWithId) {
 			const cell = cellMap[id];
 			const dynamicCell: DynamicCell = {
 				...cell,
-				cellHasFocus: false,
+				hasFocus: false,
 				isSymmetrical: false,
 				index
 			};

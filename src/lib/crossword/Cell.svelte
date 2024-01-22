@@ -3,7 +3,8 @@
 	export let value: string;
 	export let displayNumber: number;
 	export let isSymmetrical: boolean;
-	export let cellHasFocus: boolean;
+	export let hasFocus: boolean;
+	export let isHighlighted: boolean;
 	export let onInput: (event: Event) => void;
 	export let onKeydown: (event: KeyboardEvent) => void;
 	export let onBlur: (event: Event) => void;
@@ -13,9 +14,12 @@
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
 	export const SHARED_INPUT_STYLES =
 		'caret-transparent cursor-pointer selection:bg-transparent focus:bg-cyan-300';
-	export const CLASSES = `${SHARED_INPUT_STYLES} ${SHARED_CELL_FONT_STYLES} ${SHARED_CELL_STYLES}`;
+
+	export const CLASSES = `${SHARED_INPUT_STYLES} ${SHARED_CELL_FONT_STYLES} ${SHARED_CELL_STYLES} ${
+		isHighlighted ? 'bg-red-700' : ''
+	}`;
 	$: inputClasses = value || isSymmetrical ? `${CLASSES} bg-white` : `${CLASSES} bg-gray-200`;
-	$: if (cellHasFocus) {
+	$: if (hasFocus) {
 		inputElement.focus();
 	}
 </script>
