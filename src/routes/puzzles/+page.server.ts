@@ -85,13 +85,11 @@ export const actions = {
 				dateCreated,
 				publishStatus,
 				puzzleType: sizeName as PuzzleType,
-				grid: {
-					acrossSpan,
-					downSpan,
-					cellMap,
-					acrossHints: [],
-					downHints: []
-				}
+				acrossSpan,
+				downSpan,
+				cellMap,
+				acrossHints: [],
+				downHints: []
 			};
 
 			try {

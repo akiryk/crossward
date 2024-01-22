@@ -75,12 +75,15 @@
 				break;
 		}
 	}
+
+	$: cellValue = cell.value;
+	$: cellCorrectValue = cell.correctValue;
 </script>
 
 {#if cell}
 	<Cell
 		displayNumber={cell.displayNumber}
-		value={isEditing ? cell.correctValue : cell.value}
+		value={isEditing ? cellCorrectValue : cellValue}
 		onInput={handleInput}
 		onKeydown={handleKeyDown}
 		onFocus={handleOnFocus}

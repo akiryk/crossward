@@ -3,10 +3,10 @@
 	import PuzzleStore from '../../../stores/PuzzleStore';
 	import { enhance } from '$app/forms';
 	import Crossword from '$lib/crossword/Crossword.svelte';
-	import type { DynamicGrid } from '$utils/types';
+	import type { Puzzle } from '$utils/types';
 	import Button from '$components/Button.svelte';
 
-	export let storeGrid: DynamicGrid | null;
+	export let dynamicPuzzle: Puzzle | null;
 
 	export let data;
 	export let form;
@@ -15,23 +15,19 @@
 
 	onMount(() => {
 		if (puzzle) {
-			PuzzleStore.set(puzzle.grid);
+			PuzzleStore.set(puzzle);
 		}
 	});
 
 	const unsubscribe = PuzzleStore.subscribe((data) => {
 		if (data) {
-			storeGrid = data;
+			dynamicPuzzle = data;
 		}
 	});
 
 	onDestroy(() => {
 		unsubscribe();
 	});
-
-	function handleClick() {
-		console.log(puzzle);
-	}
 </script>
 
 <div>
@@ -42,9 +38,18 @@
 			</p>
 		{/if}
 
-		<h2 class="font-medium text-xl mb-3">{form?.title || puzzle.title}</h2>
-		{#if storeGrid || puzzle.grid}
-			<Crossword grid={storeGrid || puzzle.grid} isEditing={true} />
+		<h2 class="font-medium text-xl mb-3">{puzzle.title}</h2>
+		{#if dynamicPuzzle || puzzle}
+			<form method="POST" action={'?/updateCellMap'}>
+				<input type="hidden" name="cellMap" value={JSON.stringify(dynamicPuzzle?.cellMap)} />
+				<input type="hidden" name="id" value={puzzle._id} />
+				<div class="mb-5">
+					<Crossword puzzle={dynamicPuzzle || puzzle} isEditing={true} />
+				</div>
+				<div class="mb-5">
+					<Button buttonType="submit">Create Hints and Answers</Button>
+				</div>
+			</form>
 		{/if}
 
 		{#if form?.error}
@@ -56,12 +61,9 @@
 		{/if}
 		{#if isEditing}
 			<hr class="my-10" />
-			<div>
-				<Button handler={handleClick} buttonType="button">Click</Button>
-			</div>
 			<div class="flex">
 				<div class="mr-auto">
-					<form method="POST" action="?/update" use:enhance>
+					<form method="POST" action="?/updateTitle" use:enhance>
 						<input type="hidden" name="originalTitle" value={puzzle.title} />
 						<label>
 							Edit the title:

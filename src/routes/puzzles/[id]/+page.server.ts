@@ -2,9 +2,9 @@ import mongodb, { ObjectId } from 'mongodb';
 import { fail } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
-import { handleSanitizeInput, transformPuzzleForClient } from '$utils/helpers';
+import { cleanCellMapForDb, handleSanitizeInput, transformPuzzleForClient } from '$utils/helpers';
 import type { PageServerLoad } from './$types';
-import type { PuzzleWithId, Puzzle } from '$utils/types';
+import type { PuzzleWithId, Puzzle, CellMap } from '$utils/types';
 
 type Props = {
 	puzzle: Puzzle;
@@ -14,7 +14,6 @@ type Props = {
 
 export const load: PageServerLoad = async ({ params, url, locals }): Promise<Props> => {
 	let session;
-
 	/**
 	 * Redirect unauthorized users to login page!
 	 */
@@ -40,19 +39,21 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 			// explaining that this puzzle may not exist anymore
 			throw redirect(300, '/');
 		}
+
+		// console.log(puzzleFromDb.title);
+		// console.log(puzzleFromDb.cellMap['0:0']);
+
 		const puzzleWithId = {
 			...puzzleFromDb,
 			_id: puzzleFromDb._id.toString()
 		} as unknown as PuzzleWithId;
-
 		const puzzle = transformPuzzleForClient(puzzleWithId);
-
 		const edit = url.searchParams.get('edit');
 		const create = url.searchParams.get('create');
 
 		return {
 			puzzle,
-			isEditing: edit === 'true',
+			isEditing: edit === 'true' || url.search === '?/updateCellMap',
 			isCreateSuccess: create === 'true'
 		};
 	} catch (error) {
@@ -64,7 +65,44 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 };
 
 export const actions = {
-	update: async ({ request }) => {
+	updateCellMap: async ({ request }) => {
+		const data = await request.formData();
+		const cellMap = data.get('cellMap');
+		const id = data.get('id');
+		if (!id || typeof id !== 'string') {
+			// log error
+			return;
+		}
+		if (!cellMap || typeof cellMap !== 'string') {
+			// TODO: log error
+			return;
+		}
+
+		const parsedCellMap = JSON.parse(cellMap);
+		const cleanedCellMap: CellMap = cleanCellMapForDb(parsedCellMap);
+
+		const filter = {
+			_id: new ObjectId(id)
+		};
+		const updateDocument = {
+			$set: {
+				cellMap: cleanedCellMap
+			}
+		};
+
+		try {
+			await puzzlesCollection.updateOne(filter, updateDocument);
+			return {
+				status: 303, // HTTP status for "See Other"
+				headers: {
+					location: `/puzzles/${id}?edit=true`
+				}
+			};
+		} catch {
+			//
+		}
+	},
+	updateTitle: async ({ request }) => {
 		const data = await request.formData();
 		const originalTitle = data.get('originalTitle');
 		const newTitle = handleSanitizeInput({

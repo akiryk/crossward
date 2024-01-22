@@ -1,6 +1,6 @@
 <script lang="ts">
 	import CellContainer from './CellContainer.svelte';
-	import type { DynamicCell, DynamicGrid, Coords, GetNextCellProps, ID } from '$utils/types';
+	import type { DynamicCell, Puzzle, Coords, GetNextCellProps, ID } from '$utils/types';
 	import { Direction } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
 	import {
@@ -16,7 +16,7 @@
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
 
-	export let grid: DynamicGrid;
+	export let puzzle: Puzzle;
 	export let isEditing = false;
 	let currentDirection = Direction.GO_RIGHT;
 
@@ -25,11 +25,11 @@
 		const currentCellX = cell.x;
 		const currentCellY = cell.y;
 		if (currentDirection === Direction.GO_RIGHT) {
-			for (let x = 0; x < grid.acrossSpan; x++) {
+			for (let x = 0; x < puzzle.acrossSpan; x++) {
 				highlightedCellIds.push(getId(x, currentCellY));
 			}
 		} else {
-			for (let y = 0; y < grid.downSpan; y++) {
+			for (let y = 0; y < puzzle.downSpan; y++) {
 				highlightedCellIds.push(getId(currentCellX, y));
 			}
 		}
@@ -39,12 +39,12 @@
 	function updateCellWithFocus(coords: Coords) {
 		const id = getIdFromCoords(coords);
 		const { x, y } = coords;
-		grid.cellMap[id].hasFocus = true;
-		const index = grid.cellMap[id].index;
-		grid.cellsArray[index].hasFocus = true;
-		grid.cellRows[y][x].hasFocus = true;
-		grid.highlightedCellIds = getHighlightedCell(grid.cellMap[id]);
-		PuzzleStore.set(grid);
+		puzzle.cellMap[id].hasFocus = true;
+		const index = puzzle.cellMap[id].index;
+		puzzle.cellsArray[index].hasFocus = true;
+		puzzle.cellRows[y][x].hasFocus = true;
+		puzzle.highlightedCellIds = getHighlightedCell(puzzle.cellMap[id]);
+		PuzzleStore.set(puzzle);
 	}
 
 	/**
@@ -78,37 +78,37 @@
 		}
 		// remove focus from current cell
 		const id = cell.id;
-		grid.cellMap[id].hasFocus = false;
-		const index = grid.cellMap[id].index;
-		grid.cellsArray[index].hasFocus = false;
-		grid.cellRows[cell.y][cell.x].hasFocus = false;
+		puzzle.cellMap[id].hasFocus = false;
+		const index = puzzle.cellMap[id].index;
+		puzzle.cellsArray[index].hasFocus = false;
+		puzzle.cellRows[cell.y][cell.x].hasFocus = false;
 		const nextCellCoords = nextCellFunction({
 			coords: { x: cell.x, y: cell.y },
-			acrossSpan: grid.acrossSpan,
-			downSpan: grid.downSpan
+			acrossSpan: puzzle.acrossSpan,
+			downSpan: puzzle.downSpan
 		});
 		updateCellWithFocus(nextCellCoords);
 	}
 
 	export function updateCellSymmetry(cell: DynamicCell) {
-		const symmetricalCell = getSymmetricalCell(grid, { x: cell.x, y: cell.y });
+		const symmetricalCell = getSymmetricalCell(puzzle, { x: cell.x, y: cell.y });
 		const symmetricalCellIndex = symmetricalCell.index;
 		cell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
 		symmetricalCell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
-		grid.cellMap[cell.id] = cell;
-		grid.cellMap[symmetricalCell.id] = symmetricalCell;
-		grid.cellsArray[cell.index] = cell;
-		grid.cellsArray[symmetricalCellIndex] = symmetricalCell;
-		grid.cellRows[cell.y][cell.x] = cell;
-		grid.cellRows[symmetricalCell.y][symmetricalCell.x] = symmetricalCell;
-		PuzzleStore.set(grid);
+		puzzle.cellMap[cell.id] = cell;
+		puzzle.cellMap[symmetricalCell.id] = symmetricalCell;
+		puzzle.cellsArray[cell.index] = cell;
+		puzzle.cellsArray[symmetricalCellIndex] = symmetricalCell;
+		puzzle.cellRows[cell.y][cell.x] = cell;
+		puzzle.cellRows[symmetricalCell.y][symmetricalCell.x] = symmetricalCell;
+		PuzzleStore.set(puzzle);
 	}
 
 	export function toggleGridDirection(cell: DynamicCell) {
 		currentDirection =
 			currentDirection === Direction.GO_RIGHT ? Direction.GO_DOWN : Direction.GO_RIGHT;
-		grid.highlightedCellIds = getHighlightedCell(grid.cellMap[cell.id]);
-		PuzzleStore.set(grid);
+		puzzle.highlightedCellIds = getHighlightedCell(puzzle.cellMap[cell.id]);
+		PuzzleStore.set(puzzle);
 	}
 </script>
 
@@ -119,8 +119,8 @@
 	border="0"
 	role="grid"
 >
-	{#if grid}
-		{#each grid.cellRows as row}
+	{#if puzzle}
+		{#each puzzle.cellRows as row}
 			<tr class="flex justify-center flex-wrap" role="row">
 				{#each row as cell}
 					<CellContainer
@@ -130,7 +130,7 @@
 						{toggleGridDirection}
 						{goToNextCell}
 						{updateCellWithFocus}
-						isHighlighted={grid.highlightedCellIds.includes(cell.id)}
+						isHighlighted={puzzle.highlightedCellIds.includes(cell.id)}
 					/>
 				{/each}
 			</tr>

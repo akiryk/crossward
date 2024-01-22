@@ -45,7 +45,7 @@
 		bind:this={inputElement}
 		on:focus={onFocus}
 		on:blur={onBlur}
-		{value}
+		bind:value
 	/>
 	{#if !!displayNumber}
 		<span class="absolute left-0.5 top-px text-xs text-slate-600 pointer-events-none">

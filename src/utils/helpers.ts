@@ -43,30 +43,40 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 	const currentRow = -1;
 	const currentColumn = -1;
 	const workingAnswersKey = {};
-	const highlightedCellIds = [];
+	const highlightedCellIds: Array<ID> = [];
 	const { cellRows, cellsArray, dynamicCellMap } = createCellArrays(puzzle);
 
 	const dynamicPuzzle = {
 		...puzzle,
-		grid: {
-			...puzzle.grid,
-			cellMap: dynamicCellMap,
-			cellRows,
-			cellsArray,
-			cellWithFocus,
-			gridDirection,
-			currentRow,
-			currentColumn,
-			workingAnswersKey,
-			highlightedCellIds
-		}
+		cellMap: dynamicCellMap,
+		cellRows,
+		cellsArray,
+		cellWithFocus,
+		gridDirection,
+		currentRow,
+		currentColumn,
+		workingAnswersKey,
+		highlightedCellIds
 	};
 
 	return dynamicPuzzle;
 };
 
+export function cleanCellMapForDb(cellMap: DynamicCellMap): CellMap {
+	const entries = Object.entries(cellMap); // [[0:0, {}], [1:1, {}], ]
+	console.log(Array.isArray(entries));
+	const newCellMap = Object.fromEntries(
+		entries.map(([key, cell]) => {
+			// destructure dynamic cell to get only the fields we want
+			const { id, displayNumber, correctValue, value, x, y, index } = cell;
+			return [key, { id, displayNumber, correctValue, value, x, y, index }];
+		})
+	);
+	return newCellMap;
+}
+
 function createCellArrays(puzzle: PuzzleWithId) {
-	const { acrossSpan, downSpan, cellMap } = puzzle.grid;
+	const { acrossSpan, downSpan, cellMap } = puzzle;
 	const cellsArray = [];
 	const cellRows = [];
 	const dynamicCellMap: DynamicCellMap = {};

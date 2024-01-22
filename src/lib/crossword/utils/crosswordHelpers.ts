@@ -1,14 +1,14 @@
-import type { ID, Coords, DynamicGrid, DynamicCell, GetNextCellProps } from '$utils/types';
+import type { ID, Coords, Puzzle, DynamicCell, GetNextCellProps } from '$utils/types';
 
 // Find the cell that has rotational symmetry with the updated cell,
 // e.g. the cell in the upper left corner has rotational symmetry with
 // the cell in the lower right corner.
-export const getSymmetricalCell = (grid: DynamicGrid, coords: Coords): DynamicCell => {
+export const getSymmetricalCell = (puzzle: Puzzle, coords: Coords): DynamicCell => {
 	const { x: x1, y: y1 } = coords;
-	const x2 = grid.acrossSpan - x1 - 1;
-	const y2 = grid.downSpan - y1 - 1;
+	const x2 = puzzle.acrossSpan - x1 - 1;
+	const y2 = puzzle.downSpan - y1 - 1;
 	const id: ID = `${x2}:${y2}`;
-	const cell = grid.cellMap[id];
+	const cell = puzzle.cellMap[id];
 	return cell;
 };
 

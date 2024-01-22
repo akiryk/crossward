@@ -32,7 +32,7 @@ export interface DynamicCell extends Cell {
 export type CellMap = Record<ID, Cell>;
 export type DynamicCellMap = Record<ID, DynamicCell>;
 
-export type GridSizes = {
+export type PuzzleSizes = {
 	[MINI]: number;
 	[DAILY]: number;
 	[SUNDAY]: number;
@@ -46,27 +46,6 @@ export type Hint = {
 	answer: string;
 };
 
-export type Grid = {
-	acrossSpan: number;
-	downSpan: number;
-	cellMap: CellMap;
-	acrossHints: Array<Hint | undefined>;
-	downHints: Array<Hint | undefined>;
-};
-
-export interface DynamicGrid extends Grid {
-	cellMap: DynamicCellMap;
-	cellRows: Array<CellsArray>;
-	cellsArray: CellsArray;
-	highlightedCells: CellsArray;
-	cellWithFocus: DynamicCell | null;
-	gridDirection: Direction;
-	currentRow: number;
-	currentColumn: number;
-	workingAnswersKey: Record<string, string>;
-	highlightedCellIds: Array<ID>;
-}
-
 // PuzzleDocument is the type for new puzzles before being saved
 export type PuzzleDocument = {
 	title: string;
@@ -74,7 +53,11 @@ export type PuzzleDocument = {
 	dateCreated: string;
 	publishStatus: PublishStatus;
 	puzzleType: PuzzleType;
-	grid: Grid;
+	cellMap: CellMap;
+	acrossSpan: number;
+	downSpan: number;
+	acrossHints: Array<Hint | undefined>;
+	downHints: Array<Hint | undefined>;
 };
 
 export interface PuzzleFromDb extends PuzzleDocument {
@@ -87,7 +70,15 @@ export interface PuzzleWithId extends PuzzleDocument {
 
 export interface Puzzle extends PuzzleDocument {
 	_id: string;
-	grid: DynamicGrid;
+	cellMap: DynamicCellMap;
+	cellRows: Array<CellsArray>;
+	cellsArray: CellsArray;
+	cellWithFocus: DynamicCell | null;
+	gridDirection: Direction;
+	currentRow: number;
+	currentColumn: number;
+	workingAnswersKey: Record<string, string>;
+	highlightedCellIds: Array<ID>;
 }
 
 export type Puzzles = Array<Puzzle>;
