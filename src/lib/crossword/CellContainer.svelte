@@ -2,7 +2,7 @@
 	import { getCleanValueOfInput } from './utils/crosswordHelpers';
 	import Cell from './Cell.svelte';
 	import DeadCell from './DeadCell.svelte';
-	import { Direction, type DynamicCell } from '$utils/types';
+	import { Direction, type DynamicCell, type Coords } from '$utils/types';
 	import { KeyCodes } from './utils/keyCodes';
 
 	// Props
@@ -12,6 +12,7 @@
 	export let updateCellSymmetry: (cell: DynamicCell) => void;
 	export let goToNextCell: (cell: DynamicCell, direction: Direction) => void;
 	export let toggleGridDirection: (cell: DynamicCell) => void;
+	export let updateCellWithFocus: (coords: Coords) => void;
 
 	// Track previous value so that we can be sure to always save only
 	// the most recently entered value. Using event.target.value.slice(-1)
@@ -29,6 +30,10 @@
 		}
 		updateCellSymmetry(cell);
 		goToNextCell(cell, Direction.GO_FORWARD);
+	}
+
+	export function handleOnFocus() {
+		updateCellWithFocus({ x: cell.x, y: cell.y });
 	}
 
 	export function handleOnBlur() {
@@ -78,6 +83,7 @@
 		value={isEditing ? cell.correctValue : cell.value}
 		onInput={handleInput}
 		onKeydown={handleKeyDown}
+		onFocus={handleOnFocus}
 		onBlur={handleOnBlur}
 		isSymmetrical={cell.isSymmetrical}
 		hasFocus={cell.hasFocus}

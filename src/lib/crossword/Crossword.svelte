@@ -44,7 +44,6 @@
 		grid.cellsArray[index].hasFocus = true;
 		grid.cellRows[y][x].hasFocus = true;
 		grid.highlightedCellIds = getHighlightedCell(grid.cellMap[id]);
-		console.log(grid.highlightedCellIds);
 		PuzzleStore.set(grid);
 	}
 
@@ -105,9 +104,11 @@
 		PuzzleStore.set(grid);
 	}
 
-	export function toggleGridDirection() {
+	export function toggleGridDirection(cell: DynamicCell) {
 		currentDirection =
 			currentDirection === Direction.GO_RIGHT ? Direction.GO_DOWN : Direction.GO_RIGHT;
+		grid.highlightedCellIds = getHighlightedCell(grid.cellMap[cell.id]);
+		PuzzleStore.set(grid);
 	}
 </script>
 
@@ -128,6 +129,7 @@
 						{updateCellSymmetry}
 						{toggleGridDirection}
 						{goToNextCell}
+						{updateCellWithFocus}
 						isHighlighted={grid.highlightedCellIds.includes(cell.id)}
 					/>
 				{/each}
