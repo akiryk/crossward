@@ -53,7 +53,7 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 
 		return {
 			puzzle,
-			isEditing: edit === 'true' || url.search === '?/updateCellMap',
+			isEditing: edit === 'true',
 			isCreateSuccess: create === 'true'
 		};
 	} catch (error) {
