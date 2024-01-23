@@ -166,8 +166,6 @@ export function createDisplayNumbers(cellMap: DynamicCellMap, cellsArray: CellsA
 				value = cellMap[`${currentX}:${y}`]?.value;
 			}
 
-			console.log(`word is ${word}`);
-
 			// TODO: Do we need this?
 			// Now we know the first and last cells in the word
 			// const startX = cell.x;
