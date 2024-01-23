@@ -21,12 +21,12 @@ export type Cell = {
 	displayNumber: number;
 	correctValue: string;
 	value: string;
+	isSymmetrical: boolean;
+	index: number;
 };
 
 export interface DynamicCell extends Cell {
 	hasFocus: boolean;
-	isSymmetrical: boolean;
-	index: number;
 }
 
 export type CellMap = Record<ID, Cell>;

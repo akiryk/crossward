@@ -19,10 +19,10 @@
 	// the most recently entered value. Using event.target.value.slice(-1)
 	// gets the last value, but this isn't always the last value entered
 	// by the user.
-	let previousValue = '';
+	let previousValue = cell.value;
 
 	export function handleInput(event: Event) {
-		const cleanValue = getCleanValueOfInput({ event, previousValue });
+		const cleanValue = getCleanValueOfInput({ event, previousValue: cell.value });
 		(event.target as HTMLInputElement).value = cleanValue;
 		cell.value = cleanValue;
 		previousValue = cleanValue;

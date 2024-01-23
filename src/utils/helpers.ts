@@ -19,13 +19,16 @@ export const createInitialCellMap = (acrossSpan: number, downSpan: number): Cell
 	for (let y = 0; y < downSpan; y++) {
 		for (let x = 0; x < acrossSpan; x++) {
 			const id: ID = `${x}:${y}`;
+			const index = y * downSpan + x;
 			const cell: Cell = {
 				id,
 				displayNumber: 0,
 				correctValue: '',
 				value: '',
 				x,
-				y
+				y,
+				index,
+				isSymmetrical: false
 			};
 			map[id] = cell;
 		}
@@ -67,8 +70,8 @@ export function cleanCellMapForDb(cellMap: DynamicCellMap): CellMap {
 	const newCellMap = Object.fromEntries(
 		entries.map(([key, cell]) => {
 			// destructure dynamic cell to get only the fields we want
-			const { id, displayNumber, correctValue, value, x, y, index } = cell;
-			return [key, { id, displayNumber, correctValue, value, x, y, index }];
+			const { id, displayNumber, correctValue, value, x, y, index, isSymmetrical } = cell;
+			return [key, { id, displayNumber, correctValue, value, x, y, index, isSymmetrical }];
 		})
 	);
 	return newCellMap;
@@ -82,14 +85,11 @@ function createCellArrays(puzzle: PuzzleWithId) {
 	for (let y = 0; y < downSpan; y++) {
 		const row = [];
 		for (let x = 0; x < acrossSpan; x++) {
-			const index = y * downSpan + x;
 			const id: ID = `${x}:${y}`;
 			const cell = cellMap[id];
 			const dynamicCell: DynamicCell = {
 				...cell,
-				hasFocus: false,
-				isSymmetrical: false,
-				index
+				hasFocus: false
 			};
 			dynamicCellMap[id] = dynamicCell;
 			row.push(dynamicCell);
