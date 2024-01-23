@@ -1,4 +1,4 @@
-import { MINI, DAILY, SUNDAY } from '$utils/constants';
+import { MINI, DAILY, SUNDAY, EDIT_PUZZLE, EDIT_HINTS } from '$utils/constants';
 import { DRAFT, PUBLISHED } from '$utils/constants';
 export enum Direction {
 	GO_DOWN,
@@ -38,7 +38,7 @@ export type PuzzleSizes = {
 	[SUNDAY]: number;
 };
 export type PuzzleType = typeof MINI | typeof DAILY | typeof SUNDAY;
-export type PublishStatus = typeof DRAFT | typeof PUBLISHED;
+export type PublishStatus = typeof EDIT_PUZZLE | typeof EDIT_HINTS | typeof PUBLISHED;
 
 export type Hint = {
 	displayNumber: string;

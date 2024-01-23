@@ -8,7 +8,6 @@ import type { PuzzleWithId, Puzzle, CellMap } from '$utils/types';
 
 type Props = {
 	puzzle: Puzzle;
-	isEditing: boolean;
 	isCreateSuccess: boolean;
 };
 
@@ -45,12 +44,10 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 			_id: puzzleFromDb._id.toString()
 		} as unknown as PuzzleWithId;
 		const puzzle = transformPuzzleForClient(puzzleWithId);
-		const edit = url.searchParams.get('edit');
 		const create = url.searchParams.get('create');
 
 		return {
 			puzzle,
-			isEditing: edit === 'true',
 			isCreateSuccess: create === 'true'
 		};
 	} catch (error) {
@@ -92,7 +89,7 @@ export const actions = {
 			return {
 				status: 303, // HTTP status for "See Other"
 				headers: {
-					location: `/puzzles/${id}?edit=true`
+					location: `/puzzles/${id}`
 				}
 			};
 		} catch {

@@ -2,7 +2,7 @@ import { redirect, fail } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';
 import type { Puzzle, Puzzles, PublishStatus, PuzzleDocument, PuzzleType } from '$utils/types';
-import { GRID_SIZES, DRAFT } from '$utils/constants';
+import { GRID_SIZES, EDIT_PUZZLE } from '$utils/constants';
 import { createInitialCellMap, handleSanitizeInput } from '$utils/helpers';
 
 type Props = {
@@ -66,7 +66,7 @@ export const actions = {
 			const acrossSpan = GRID_SIZES[sizeName as keyof typeof GRID_SIZES];
 			const downSpan = GRID_SIZES[sizeName as keyof typeof GRID_SIZES];
 			const dateCreated = new Date().toISOString();
-			const publishStatus: PublishStatus = DRAFT;
+			const publishStatus: PublishStatus = EDIT_PUZZLE;
 
 			const cellMap = createInitialCellMap(acrossSpan, downSpan);
 
@@ -116,6 +116,6 @@ export const actions = {
 				error
 			});
 		}
-		redirect(302, `/puzzles/${insertedId}/edit?create=true`);
+		redirect(302, `/puzzles/${insertedId}/editPuzzle?create=true`);
 	}
 };

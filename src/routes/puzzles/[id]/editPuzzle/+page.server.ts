@@ -2,6 +2,7 @@ import mongodb, { ObjectId } from 'mongodb';
 import { fail } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
+import { EDIT_HINTS } from '$utils/constants';
 import { cleanCellMapForDb, handleSanitizeInput, transformPuzzleForClient } from '$utils/helpers';
 import type { PageServerLoad } from './$types';
 import type { PuzzleWithId, Puzzle, CellMap } from '$utils/types';
@@ -81,7 +82,8 @@ export const actions = {
 		};
 		const updateDocument = {
 			$set: {
-				cellMap: cleanedCellMap
+				cellMap: cleanedCellMap,
+				publishStatus: EDIT_HINTS
 			}
 		};
 
@@ -91,7 +93,7 @@ export const actions = {
 			return {
 				status: 303, // HTTP status for "See Other"
 				headers: {
-					location: `/puzzles/${id}/create`
+					location: `/puzzles/${id}/editHints`
 				}
 			};
 		} catch {

@@ -3,7 +3,7 @@
 
 	import type { PageData } from './$types';
 	import type { Puzzles } from '$utils/types';
-	import { DRAFT, PUBLISHED, MINI, DAILY, SUNDAY } from '$utils/constants';
+	import { EDIT_PUZZLE, PUBLISHED, MINI, DAILY, SUNDAY } from '$utils/constants';
 
 	import List from '$components/List.svelte';
 	import ListItem from '$components/ListItem.svelte';
@@ -62,10 +62,15 @@
 			<ListItem>
 				{#if puzzle.publishStatus === PUBLISHED}
 					<a href="/puzzles/{puzzle._id}" class="text-sky-600">{puzzle.title}</a>
-					<span><a href="/puzzles/{puzzle._id}/edit" class="text-gray-400">edit</a></span>
+					<span><a href="/puzzles/{puzzle._id}/editPuzzle" class="text-gray-400">edit</a></span>
 				{:else}
 					<span
-						><a href="/puzzles/{puzzle._id}/edit" class="text-sky-400">Edit {puzzle.title}</a></span
+						><a
+							href="/puzzles/{puzzle._id}/{puzzle.publishStatus === EDIT_PUZZLE
+								? 'editPuzzle'
+								: 'editHints'}"
+							class="text-sky-400">Edit {puzzle.title}</a
+						></span
 					>
 				{/if}
 			</ListItem>
