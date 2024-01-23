@@ -2,18 +2,57 @@
 	import { getCleanValueOfInput } from './utils/crosswordHelpers';
 	import Cell from './Cell.svelte';
 	import DeadCell from './DeadCell.svelte';
-	import { Direction, type DynamicCell, type Coords } from '$utils/types';
+	import PreviewCell from './PreviewCell.svelte';
+	import { Direction, GameStatus, CellStatus, type DynamicCell, type Coords } from '$utils/types';
 	import { KeyCodes } from './utils/keyCodes';
 
 	// Props
 	export let cell: DynamicCell;
-	export let isEditing: boolean;
+	export let gameStatus: GameStatus;
 	export let isHighlighted: boolean;
 	export let currentDirection: Direction;
 	export let updateCellSymmetry: (cell: DynamicCell) => void;
 	export let goToNextCell: (cell: DynamicCell, direction: Direction) => void;
 	export let toggleGridDirection: (cell: DynamicCell) => void;
 	export let updateCellWithFocus: (coords: Coords) => void;
+
+	$: cellStatus = getCellStatus(cell, gameStatus);
+
+	function getCellStatus(cell: DynamicCell, gameStatus: GameStatus) {
+		if (!cell) {
+			return CellStatus.DEAD_CELL;
+		}
+		switch (gameStatus) {
+			case GameStatus.EDIT_GRID:
+				return CellStatus.EDIT_CELL;
+			case GameStatus.EDIT_HINTS:
+				return cell.correctValue ? CellStatus.PREVIEW_CELL : CellStatus.DEAD_CELL;
+			case GameStatus.PREVIEW:
+				return CellStatus.PREVIEW_CELL;
+			case GameStatus.PLAY:
+				return CellStatus.PLAY_CELL;
+			default:
+				return CellStatus.PLAY_CELL;
+		}
+	}
+
+	function getCellStyle(cell: DynamicCell, gameStatus: GameStatus) {
+		if (!cell) {
+			return CellStatus.DEAD_CELL;
+		}
+		switch (gameStatus) {
+			case GameStatus.EDIT_GRID:
+				return CellStatus.EDIT_CELL;
+			case GameStatus.EDIT_HINTS:
+				return CellStatus.PREVIEW_CELL;
+			case GameStatus.PREVIEW:
+				return CellStatus.PREVIEW_CELL;
+			case GameStatus.PLAY:
+				return CellStatus.PLAY_CELL;
+			default:
+				return CellStatus.PLAY_CELL;
+		}
+	}
 
 	// Track previous value so that we can be sure to always save only
 	// the most recently entered value. Using event.target.value.slice(-1)
@@ -26,7 +65,7 @@
 		(event.target as HTMLInputElement).value = cleanValue;
 		cell.value = cleanValue;
 		previousValue = cleanValue;
-		if (isEditing) {
+		if (gameStatus === GameStatus.EDIT_GRID) {
 			cell.correctValue = cleanValue;
 		}
 		updateCellSymmetry(cell);
@@ -56,7 +95,7 @@
 				cell.value = '';
 				updateCellSymmetry(cell);
 				previousValue = '';
-				if (isEditing) {
+				if (gameStatus === GameStatus.EDIT_GRID) {
 					cell.correctValue = '';
 				}
 				setTimeout(() => {
@@ -86,10 +125,10 @@
 	$: cellCorrectValue = cell.correctValue;
 </script>
 
-{#if cell}
+{#if cellStatus === CellStatus.EDIT_CELL}
 	<Cell
 		displayNumber={cell.displayNumber}
-		value={isEditing ? cellCorrectValue : cellValue}
+		value={cellCorrectValue}
 		onInput={handleInput}
 		onKeydown={handleKeyDown}
 		onFocus={handleOnFocus}
@@ -98,6 +137,8 @@
 		hasFocus={cell.hasFocus}
 		{isHighlighted}
 	/>
+{:else if cellStatus === CellStatus.PREVIEW_CELL}
+	<PreviewCell displayNumber={cell.displayNumber} value={cellCorrectValue} />
 {:else}
 	<!-- DeadCell is a non-interactive black square -->
 	<DeadCell />

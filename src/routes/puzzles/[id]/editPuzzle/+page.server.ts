@@ -1,9 +1,15 @@
+// [id]/editPuzzle/page.server.ts
 import mongodb, { ObjectId } from 'mongodb';
 import { fail } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { EDIT_HINTS } from '$utils/constants';
-import { cleanCellMapForDb, handleSanitizeInput, transformPuzzleForClient } from '$utils/helpers';
+import {
+	cleanCellMapForDb,
+	handleSanitizeInput,
+	transformPuzzleForClient,
+	createDisplayNumbers
+} from '$utils/helpers';
 import type { PageServerLoad } from './$types';
 import type { PuzzleWithId, Puzzle, CellMap } from '$utils/types';
 
@@ -62,20 +68,33 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 export const actions = {
 	createHints: async ({ request }) => {
 		const data = await request.formData();
-		const cellMap = data.get('cellMap');
+		const cellMapString = data.get('cellMap');
+		const cellsArrayString = data.get('cellsArray');
 
 		const id = data.get('id');
 		if (!id || typeof id !== 'string') {
 			// log error
 			return;
 		}
-		if (!cellMap || typeof cellMap !== 'string') {
+		if (
+			!cellMapString ||
+			typeof cellMapString !== 'string' ||
+			!cellsArrayString ||
+			typeof cellsArrayString !== 'string'
+		) {
 			// TODO: log error
 			return;
 		}
 
-		const parsedCellMap = JSON.parse(cellMap);
-		const cleanedCellMap: CellMap = cleanCellMapForDb(parsedCellMap);
+		const cellMap = JSON.parse(cellMapString);
+
+		const cellsArray = JSON.parse(cellsArrayString);
+		createDisplayNumbers(cellMap, cellsArray);
+
+		const cleanedCellMap: CellMap = cleanCellMapForDb({
+			cellMap,
+			clearValues: true
+		});
 
 		const filter = {
 			_id: new ObjectId(id)
@@ -115,7 +134,7 @@ export const actions = {
 		}
 
 		const parsedCellMap = JSON.parse(cellMap);
-		const cleanedCellMap: CellMap = cleanCellMapForDb(parsedCellMap);
+		const cleanedCellMap: CellMap = cleanCellMapForDb({ cellMap: parsedCellMap });
 
 		const filter = {
 			_id: new ObjectId(id)

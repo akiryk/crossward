@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { CellStatus, type Coords } from '$utils/types';
 	// Props
 	export let value: string;
 	export let displayNumber: number;

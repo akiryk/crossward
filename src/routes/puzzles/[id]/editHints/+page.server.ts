@@ -2,16 +2,15 @@ import mongodb, { ObjectId } from 'mongodb';
 import { fail } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
-import { cleanCellMapForDb, handleSanitizeInput, transformPuzzleForClient } from '$utils/helpers';
+import { handleSanitizeInput, transformPuzzleForClient } from '$utils/helpers';
 import type { PageServerLoad } from './$types';
-import type { PuzzleWithId, Puzzle, CellMap } from '$utils/types';
+import type { PuzzleWithId, Puzzle } from '$utils/types';
 
 type Props = {
 	puzzle: Puzzle;
-	isCreateSuccess: boolean;
 };
 
-export const load: PageServerLoad = async ({ params, url, locals }): Promise<Props> => {
+export const load: PageServerLoad = async ({ params, locals }): Promise<Props> => {
 	let session;
 	/**
 	 * Redirect unauthorized users to login page!
@@ -44,10 +43,8 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 			_id: puzzleFromDb._id.toString()
 		} as unknown as PuzzleWithId;
 		const puzzle = transformPuzzleForClient(puzzleWithId);
-		const create = url.searchParams.get('create');
 		return {
-			puzzle,
-			isCreateSuccess: create === 'true'
+			puzzle
 		};
 	} catch (error) {
 		// @ts-expect-error in catch block
@@ -58,82 +55,6 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 };
 
 export const actions = {
-	createHints: async ({ request }) => {
-		const data = await request.formData();
-		const cellMap = data.get('cellMap');
-
-		const id = data.get('id');
-		if (!id || typeof id !== 'string') {
-			// log error
-			return;
-		}
-		if (!cellMap || typeof cellMap !== 'string') {
-			// TODO: log error
-			return;
-		}
-
-		const parsedCellMap = JSON.parse(cellMap);
-		const cleanedCellMap: CellMap = cleanCellMapForDb(parsedCellMap);
-
-		const filter = {
-			_id: new ObjectId(id)
-		};
-		const updateDocument = {
-			$set: {
-				cellMap: cleanedCellMap
-			}
-		};
-
-		try {
-			await puzzlesCollection.updateOne(filter, updateDocument);
-			return {
-				status: 303, // HTTP status for "See Other"
-				headers: {
-					location: `/puzzles/${id}/create`
-				}
-			};
-		} catch {
-			//
-		}
-	},
-	updateCellMap: async ({ request }) => {
-		const data = await request.formData();
-		const cellMap = data.get('cellMap');
-
-		const id = data.get('id');
-		if (!id || typeof id !== 'string') {
-			// log error
-			return;
-		}
-		if (!cellMap || typeof cellMap !== 'string') {
-			// TODO: log error
-			return;
-		}
-
-		const parsedCellMap = JSON.parse(cellMap);
-		const cleanedCellMap: CellMap = cleanCellMapForDb(parsedCellMap);
-
-		const filter = {
-			_id: new ObjectId(id)
-		};
-		const updateDocument = {
-			$set: {
-				cellMap: cleanedCellMap
-			}
-		};
-
-		try {
-			await puzzlesCollection.updateOne(filter, updateDocument);
-			return {
-				status: 303, // HTTP status for "See Other"
-				headers: {
-					location: `/puzzles/${id}`
-				}
-			};
-		} catch {
-			//
-		}
-	},
 	updateTitle: async ({ request }) => {
 		const data = await request.formData();
 		const originalTitle = data.get('originalTitle');

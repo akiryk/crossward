@@ -1,3 +1,4 @@
+// [id] page.server.ts
 import { redirect, fail } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';

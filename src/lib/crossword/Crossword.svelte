@@ -1,7 +1,7 @@
 <script lang="ts">
 	import CellContainer from './CellContainer.svelte';
 	import type { DynamicCell, Puzzle, Coords, GetNextCellProps, ID } from '$utils/types';
-	import { Direction } from '$utils/types';
+	import { Direction, GameStatus } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
 	import {
 		getSymmetricalCell,
@@ -17,7 +17,7 @@
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
 
 	export let puzzle: Puzzle;
-	export let isEditing = false;
+	export let gameStatus: GameStatus;
 	let currentDirection = Direction.GO_RIGHT;
 
 	function getHighlightedCell(cell: DynamicCell) {
@@ -124,7 +124,7 @@
 			<tr class="flex justify-center flex-wrap" role="row">
 				{#each row as cell}
 					<CellContainer
-						{isEditing}
+						{gameStatus}
 						{cell}
 						{updateCellSymmetry}
 						{toggleGridDirection}

@@ -1,11 +1,26 @@
-import { MINI, DAILY, SUNDAY, EDIT_PUZZLE, EDIT_HINTS } from '$utils/constants';
-import { DRAFT, PUBLISHED } from '$utils/constants';
+import { MINI, DAILY, SUNDAY, EDIT_PUZZLE, EDIT_HINTS, PUBLISHED } from '$utils/constants';
+
 export enum Direction {
 	GO_DOWN,
 	GO_UP,
 	GO_RIGHT,
 	GO_LEFT,
 	GO_FORWARD
+}
+
+export enum GameStatus {
+	EDIT_GRID,
+	EDIT_HINTS,
+	PREVIEW,
+	PLAY
+}
+
+export enum CellStatus {
+	DEAD_CELL,
+	EDIT_CELL,
+	PLAY_CELL,
+	PREVIEW_CELL,
+	HIGHLIGHTED_CELL
 }
 
 export type CellsArray = Array<DynamicCell>;

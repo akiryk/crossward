@@ -1,4 +1,13 @@
-import type { CellMap, DynamicCellMap, Cell, ID, Puzzle, DynamicCell, PuzzleWithId } from './types';
+import type {
+	CellMap,
+	DynamicCellMap,
+	Cell,
+	ID,
+	Puzzle,
+	DynamicCell,
+	PuzzleWithId,
+	CellsArray
+} from './types';
 import { Direction } from './types';
 import sanitizeHtml from 'sanitize-html';
 import type { SanitizeInputParams } from './types';
@@ -65,13 +74,32 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 	return dynamicPuzzle;
 };
 
-export function cleanCellMapForDb(cellMap: DynamicCellMap): CellMap {
+export function cleanCellMapForDb({
+	cellMap,
+	clearValues = false
+}: {
+	cellMap: DynamicCellMap;
+	clearValues?: boolean;
+}): CellMap {
 	const entries = Object.entries(cellMap); // [[0:0, {}], [1:1, {}], ]
 	const newCellMap = Object.fromEntries(
 		entries.map(([key, cell]) => {
 			// destructure dynamic cell to get only the fields we want
 			const { id, displayNumber, correctValue, value, x, y, index, isSymmetrical } = cell;
-			return [key, { id, displayNumber, correctValue, value, x, y, index, isSymmetrical }];
+			// reset value to '' because the grid is now fixed; only correctValues or player-entered ones matter
+			return [
+				key,
+				{
+					id,
+					displayNumber,
+					correctValue,
+					value: clearValues ? '' : value,
+					x,
+					y,
+					index,
+					isSymmetrical
+				}
+			];
 		})
 	);
 	return newCellMap;
@@ -98,4 +126,62 @@ function createCellArrays(puzzle: PuzzleWithId) {
 		cellRows.push(row);
 	}
 	return { cellRows, cellsArray, dynamicCellMap };
+}
+
+export function createDisplayNumbers(cellMap: DynamicCellMap, cellsArray: CellsArray) {
+	// use cellsArray to create all the displayNumbers, hints, and words
+	// - acrossWord
+	// - firstCellInAcrossWordXCoord
+	// - lastCellInAcrossWordXCoord
+	// - downWord
+	// - firstCellInDownWordXCoord
+	// - lastCellInDownWordXCoord
+	// - displayNumber
+	// TODO: Move this!
+
+	for (let i = 0; i < cellsArray.length; i++) {
+		const cell: DynamicCell = cellsArray[i];
+		if (!cell.value) {
+			continue;
+		}
+		// console.log(`cell.value: ${cell.value}`);
+
+		const x: number = cell.x;
+		const y: number = cell.y;
+		let word;
+
+		const leftCellId: ID = `${x - 1}:${y}`;
+		const rightCellId: ID = `${x + 1}:${y}`;
+		if (!cellMap[leftCellId]?.correctValue && cellMap[rightCellId]?.correctValue) {
+			let value = cell.correctValue;
+			word = '';
+			let currentX = x;
+
+			// Check if it starts a horizontal word
+			// The cell starts a word if the previous cell does not have value
+			// and the next cell does have value
+			while (value) {
+				word = `${word}${value}`;
+				currentX++;
+				value = cellMap[`${currentX}:${y}`]?.value;
+			}
+
+			console.log(`word is ${word}`);
+
+			// TODO: Do we need this?
+			// Now we know the first and last cells in the word
+			// const startX = cell.x;
+			// const endX = currentX;
+
+			// TODO: Do we need the final parts?
+			// reset currentX and the value, and loop through the word again,
+			// this time so we can give each cell context about where it is in the word
+			// for (let x = startX; x < endX; x++) {
+			// 	// setAcrossWordData
+			// 	// firstCellInAcrossWordXCoord: startX,
+			// 	// lastCellInAcrossWordXCoord: endX,
+			// 	// console.log(`word is ${word} and start is ${startX}`);
+			// }
+		}
+	}
 }

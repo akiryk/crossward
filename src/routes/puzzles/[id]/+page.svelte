@@ -4,14 +4,14 @@
 	import { enhance } from '$app/forms';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import type { Puzzle } from '$utils/types';
+	import { GameStatus } from '$utils/types';
 	import Button from '$components/Button.svelte';
 
 	export let dynamicPuzzle: Puzzle | null;
 
 	export let data;
-	export let form;
 
-	$: ({ puzzle, isEditing, isCreateSuccess } = data);
+	$: ({ puzzle, isCreateSuccess } = data);
 
 	onMount(() => {
 		if (puzzle) {
@@ -54,7 +54,7 @@
 				<input type="hidden" name="cellMap" value={JSON.stringify(dynamicPuzzle?.cellMap)} />
 				<input type="hidden" name="id" value={puzzle._id} />
 				<div class="mb-5">
-					<Crossword puzzle={dynamicPuzzle || puzzle} isEditing={true} />
+					<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDIT_GRID} />
 				</div>
 				<div class="mb-5">
 					<Button buttonType="submit">Save</Button>
