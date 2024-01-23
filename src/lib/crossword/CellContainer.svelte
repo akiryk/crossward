@@ -9,6 +9,7 @@
 	export let cell: DynamicCell;
 	export let isEditing: boolean;
 	export let isHighlighted: boolean;
+	export let currentDirection: Direction;
 	export let updateCellSymmetry: (cell: DynamicCell) => void;
 	export let goToNextCell: (cell: DynamicCell, direction: Direction) => void;
 	export let toggleGridDirection: (cell: DynamicCell) => void;
@@ -53,11 +54,16 @@
 				break;
 			case KeyCodes.DELETE_KEY:
 				cell.value = '';
+				updateCellSymmetry(cell);
 				previousValue = '';
 				if (isEditing) {
 					cell.correctValue = '';
 				}
-				updateCellSymmetry(cell);
+				setTimeout(() => {
+					const direction =
+						currentDirection === Direction.GO_RIGHT ? Direction.GO_LEFT : Direction.GO_UP;
+					goToNextCell(cell, direction);
+				}, 0);
 				break;
 			case KeyCodes.LEFT_ARROW_KEY:
 				goToNextCell(cell, Direction.GO_LEFT);

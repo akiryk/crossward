@@ -131,6 +131,7 @@
 						{goToNextCell}
 						{updateCellWithFocus}
 						isHighlighted={puzzle.highlightedCellIds.includes(cell.id)}
+						{currentDirection}
 					/>
 				{/each}
 			</tr>
