@@ -1,6 +1,5 @@
 <script>
 	import { page } from '$app/stores';
-	console.log('PAGE', page);
 </script>
 
 {#if $page.status && $page.status >= 400 && $page.status < 500}

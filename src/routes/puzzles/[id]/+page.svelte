@@ -57,48 +57,14 @@
 					<Crossword puzzle={dynamicPuzzle || puzzle} isEditing={true} />
 				</div>
 				<div class="mb-5">
-					<Button buttonType="submit">Create Hints and Answers</Button>
+					<Button buttonType="submit">Save</Button>
 				</div>
 			</form>
-		{/if}
-
-		{#if form?.error}
-			<p class="error">{form.error}</p>
-		{/if}
-
-		{#if form?.success}
-			<p>You did it successfully.</p>
-		{/if}
-		{#if isEditing}
-			<hr class="my-10" />
-			<div class="flex">
-				<div class="mr-auto">
-					<form method="POST" action="?/updateTitle" use:enhance>
-						<input type="hidden" name="originalTitle" value={puzzle.title} />
-						<label>
-							Edit the title:
-							<input
-								type="text"
-								placeholder={puzzle.title}
-								name="title"
-								value={form?.title ?? ''}
-								class="border-solid border-2 border-indigo-600 p-2"
-							/></label
-						>
-						<Button buttonType="submit" style="primary">Update</Button>
-					</form>
-				</div>
-				<form method="POST" action="?/delete" use:enhance>
-					<input type="hidden" name="id" value={puzzle._id} />
-					Danger Zone!
-					<Button buttonType="submit" style="primary">Delete</Button>
-				</form>
-			</div>
 		{/if}
 	{:else}
 		<h2>Gee, something went wrong.</h2>
 		<p>
-			Wwe can't seem to find the puzzle you requested. You might want to return to the <a
+			We can't seem to find the puzzle you requested. You might want to return to the <a
 				class="text-sky-600"
 				href="/puzzles">puzzles page</a
 			> and try another.

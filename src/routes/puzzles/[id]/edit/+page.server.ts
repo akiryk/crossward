@@ -8,7 +8,6 @@ import type { PuzzleWithId, Puzzle, CellMap } from '$utils/types';
 
 type Props = {
 	puzzle: Puzzle;
-	isEditing: boolean;
 	isCreateSuccess: boolean;
 };
 
@@ -45,12 +44,10 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 			_id: puzzleFromDb._id.toString()
 		} as unknown as PuzzleWithId;
 		const puzzle = transformPuzzleForClient(puzzleWithId);
-		const edit = url.searchParams.get('edit');
 		const create = url.searchParams.get('create');
 
 		return {
 			puzzle,
-			isEditing: edit === 'true',
 			isCreateSuccess: create === 'true'
 		};
 	} catch (error) {
@@ -62,9 +59,49 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 };
 
 export const actions = {
+	createHints: async ({ request }) => {
+		const data = await request.formData();
+		const cellMap = data.get('cellMap');
+
+		const id = data.get('id');
+		if (!id || typeof id !== 'string') {
+			// log error
+			return;
+		}
+		if (!cellMap || typeof cellMap !== 'string') {
+			// TODO: log error
+			return;
+		}
+
+		const parsedCellMap = JSON.parse(cellMap);
+		const cleanedCellMap: CellMap = cleanCellMapForDb(parsedCellMap);
+
+		const filter = {
+			_id: new ObjectId(id)
+		};
+		const updateDocument = {
+			$set: {
+				cellMap: cleanedCellMap
+			}
+		};
+
+		try {
+			await puzzlesCollection.updateOne(filter, updateDocument);
+			// throw redirect(303, `/puzzles/${id}/create`);
+			return {
+				status: 303, // HTTP status for "See Other"
+				headers: {
+					location: `/puzzles/${id}/create`
+				}
+			};
+		} catch {
+			//
+		}
+	},
 	updateCellMap: async ({ request }) => {
 		const data = await request.formData();
 		const cellMap = data.get('cellMap');
+
 		const id = data.get('id');
 		if (!id || typeof id !== 'string') {
 			// log error
@@ -92,11 +129,11 @@ export const actions = {
 			return {
 				status: 303, // HTTP status for "See Other"
 				headers: {
-					location: `/puzzles/${id}?edit=true`
+					location: `/puzzles/${id}/edit`
 				}
 			};
 		} catch {
-			//
+			//ol,.
 		}
 	},
 	updateTitle: async ({ request }) => {

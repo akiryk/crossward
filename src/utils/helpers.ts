@@ -64,7 +64,6 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 
 export function cleanCellMapForDb(cellMap: DynamicCellMap): CellMap {
 	const entries = Object.entries(cellMap); // [[0:0, {}], [1:1, {}], ]
-	console.log(Array.isArray(entries));
 	const newCellMap = Object.fromEntries(
 		entries.map(([key, cell]) => {
 			// destructure dynamic cell to get only the fields we want

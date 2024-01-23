@@ -62,11 +62,10 @@
 			<ListItem>
 				{#if puzzle.publishStatus === PUBLISHED}
 					<a href="/puzzles/{puzzle._id}" class="text-sky-600">{puzzle.title}</a>
-					<span><a href="/puzzles/{puzzle._id}?edit=true" class="text-gray-400">edit</a></span>
+					<span><a href="/puzzles/{puzzle._id}/edit" class="text-gray-400">edit</a></span>
 				{:else}
 					<span
-						><a href="/puzzles/{puzzle._id}?edit=true" class="text-sky-400">Edit {puzzle.title}</a
-						></span
+						><a href="/puzzles/{puzzle._id}/edit" class="text-sky-400">Edit {puzzle.title}</a></span
 					>
 				{/if}
 			</ListItem>
