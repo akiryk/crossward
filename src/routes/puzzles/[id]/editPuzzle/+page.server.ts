@@ -131,7 +131,7 @@ export const actions = {
 			return {
 				status: 303, // HTTP status for "See Other"
 				headers: {
-					location: `/puzzles/${id}/edit`
+					location: `/puzzles/${id}/editPuzzle`
 				}
 			};
 		} catch {

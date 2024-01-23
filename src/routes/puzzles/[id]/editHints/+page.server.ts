@@ -45,7 +45,6 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 		} as unknown as PuzzleWithId;
 		const puzzle = transformPuzzleForClient(puzzleWithId);
 		const create = url.searchParams.get('create');
-
 		return {
 			puzzle,
 			isCreateSuccess: create === 'true'
