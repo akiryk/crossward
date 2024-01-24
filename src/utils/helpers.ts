@@ -139,9 +139,9 @@ export function createDisplayNumbers(cellMap: DynamicCellMap, cellsArray: CellsA
 	// - displayNumber
 
 	let cellDisplayNumber = 1;
-	let shouldIncrementCount = false;
 
 	for (let i = 0; i < cellsArray.length; i++) {
+		let shouldIncrementCount = false;
 		const cell: DynamicCell = cellsArray[i];
 		if (!cell.value) {
 			continue;
@@ -169,20 +169,47 @@ export function createDisplayNumbers(cellMap: DynamicCellMap, cellsArray: CellsA
 				value = cellMap[`${currentX}:${y}`]?.value;
 			}
 
-			// TODO: Do we need this?
-			// Now we know the first and last cells in the word
-			// const startX = cell.x;
-			// const endX = currentX;
+			// Get first/last cells in word to help with highlighting
+			const startX = cell.x;
+			const endX = currentX;
+			console.log('startX', startX);
+			console.log('endX', endX);
+			for (let x = startX; x < endX; x++) {
+				//      cell.firstCellInAcrossWordXCoord = startX;
+				//      cell.lastCellInAcrossWordXCoord = endX;
+				//      cell.acrossWord = word;
+			}
+			shouldIncrementCount = true;
+		}
 
-			// TODO: Do we need the final parts?
-			// reset currentX and the value, and loop through the word again,
-			// this time so we can give each cell context about where it is in the word
-			// for (let x = startX; x < endX; x++) {
-			// 	// setAcrossWordData
-			// 	// firstCellInAcrossWordXCoord: startX,
-			// 	// lastCellInAcrossWordXCoord: endX,
-			// 	// console.log(`word is ${word} and start is ${startX}`);
-			// }
+		// Down Words!
+		const aboveCellId: ID = `${x}:${y - 1}`;
+		const bottomCellId: ID = `${x}:${y + 1}`;
+		if (!cellMap[aboveCellId]?.correctValue && cellMap[bottomCellId]?.correctValue) {
+			let value = cell.correctValue;
+			word = '';
+			let currentY = y;
+
+			// Check if it starts a horizontal word
+			// The cell starts a word if the previous cell does not have value
+			// and the next cell does have value
+			while (value) {
+				word = `${word}${value}`;
+				currentY++;
+				value = cellMap[`${x}:${currentY}`]?.value;
+			}
+
+			// Get first/last cells in word to help with highlighting
+			const startY = cell.y;
+			const endY = currentY;
+
+			for (let y = startY; y < endY; y++) {}
+			shouldIncrementCount = true;
+		}
+
+		if (shouldIncrementCount) {
+			cell.displayNumber = cellDisplayNumber;
+			cellDisplayNumber++;
 		}
 	}
 }
