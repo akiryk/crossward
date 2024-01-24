@@ -137,7 +137,9 @@ export function createDisplayNumbers(cellMap: DynamicCellMap, cellsArray: CellsA
 	// - firstCellInDownWordXCoord
 	// - lastCellInDownWordXCoord
 	// - displayNumber
-	// TODO: Move this!
+
+	let cellDisplayNumber = 1;
+	let shouldIncrementCount = false;
 
 	for (let i = 0; i < cellsArray.length; i++) {
 		const cell: DynamicCell = cellsArray[i];
@@ -150,6 +152,7 @@ export function createDisplayNumbers(cellMap: DynamicCellMap, cellsArray: CellsA
 		const y: number = cell.y;
 		let word;
 
+		// Across Words!
 		const leftCellId: ID = `${x - 1}:${y}`;
 		const rightCellId: ID = `${x + 1}:${y}`;
 		if (!cellMap[leftCellId]?.correctValue && cellMap[rightCellId]?.correctValue) {
