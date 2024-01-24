@@ -39,14 +39,6 @@ export const actions = {
 			cellMap,
 			clearValues: true
 		});
-		console.log(acrossHints);
-		console.log(`
-
-		`);
-		console.log(downHints);
-		console.log(`
-
-		`);
 
 		const filter = {
 			_id: new ObjectId(id)
