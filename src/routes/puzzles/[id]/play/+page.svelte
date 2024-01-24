@@ -1,20 +1,17 @@
 <script lang="ts">
-	// [id]/editHints/page.svelte
 	import { onDestroy, onMount } from 'svelte';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import ErrorMessage from '$lib/crossword/ErrorMessage.svelte';
-	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import Hints from '$lib/crossword/Hints.svelte';
-	import { GameStatus, type Puzzle } from '$utils/types';
+	import type { Puzzle } from '$utils/types';
+	import { GameStatus } from '$utils/types';
 
 	export let dynamicPuzzle: Puzzle | null;
 
 	export let data;
-	export let form;
 
-	$: ({ puzzle } = data);
+	$: ({ puzzle, isCreateSuccess } = data);
 
 	onMount(() => {
 		if (puzzle) {
@@ -37,7 +34,7 @@
 	{#if puzzle}
 		<PuzzleHeading
 			puzzleType={puzzle.puzzleType}
-			gameStatus={GameStatus.EDIT_HINTS}
+			gameStatus={GameStatus.PLAY}
 			title={puzzle.title}
 		/>
 
@@ -45,17 +42,7 @@
 			<div class="mb-5">
 				<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDIT_HINTS} />
 			</div>
-			<Hints />
 		{/if}
-
-		<hr class="my-10" />
-
-		<EditPuzzleTitle
-			error={form?.error}
-			success={form?.success}
-			title={puzzle.title}
-			id={puzzle._id}
-		/>
 	{:else}
 		<ErrorMessage />
 	{/if}

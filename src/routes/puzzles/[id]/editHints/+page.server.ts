@@ -1,61 +1,15 @@
-import mongodb, { ObjectId } from 'mongodb';
+import mongodb from 'mongodb';
 import { fail } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
-import { handleSanitizeInput, transformPuzzleForClient } from '$utils/helpers';
-import type { PageServerLoad } from './$types';
-import type { PuzzleWithId, Puzzle } from '$utils/types';
+import { handleSanitizeInput } from '$utils/helpers';
+import type { RequestEvent } from './$types';
+import { pageServerLoad } from '../serverHelpers';
 
-type Props = {
-	puzzle: Puzzle;
-};
-
-export const load: PageServerLoad = async ({ params, locals }): Promise<Props> => {
-	let session;
-	/**
-	 * Redirect unauthorized users to login page!
-	 */
-	try {
-		session = await locals.getSession();
-		if (!session) {
-			throw new Error('not authenticated');
-		}
-	} catch {
-		throw redirect(302, '/login');
-	}
-
-	/**
-	 * Load the puzzle data
-	 */
-	try {
-		const puzzleFromDb = await puzzlesCollection.findOne({
-			_id: new ObjectId(params.id)
-		});
-
-		if (puzzleFromDb === null) {
-			// TODO: Redirect to somekind of help page
-			// explaining that this puzzle may not exist anymore
-			throw redirect(300, '/');
-		}
-
-		const puzzleWithId = {
-			...puzzleFromDb,
-			_id: puzzleFromDb._id.toString()
-		} as unknown as PuzzleWithId;
-		const puzzle = transformPuzzleForClient(puzzleWithId);
-		return {
-			puzzle
-		};
-	} catch (error) {
-		// @ts-expect-error in catch block
-		return fail(422, {
-			error
-		});
-	}
-};
+export const load = pageServerLoad;
 
 export const actions = {
-	updateTitle: async ({ request }) => {
+	updateTitle: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const originalTitle = data.get('originalTitle');
 		const newTitle = handleSanitizeInput({
@@ -83,7 +37,7 @@ export const actions = {
 			});
 		}
 	},
-	delete: async ({ request }) => {
+	delete: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		try {
 			const id = data.get('id');

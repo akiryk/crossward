@@ -6,14 +6,16 @@
 	export let gameStatus: GameStatus;
 	export let title: string;
 
-	$: headingText = getHeadingText(gameStatus);
+	$: headingText = getHeadingText(gameStatus, title);
 
-	function getHeadingText(gameStatus: GameStatus) {
+	function getHeadingText(gameStatus: GameStatus, title: string) {
 		switch (gameStatus) {
 			case GameStatus.EDIT_GRID:
-				return 'Create the Puzzle';
+				return `Create ${title}`;
 			case GameStatus.EDIT_HINTS:
 				return 'Create hints';
+			case GameStatus.PLAY:
+				return `Play ${title}`;
 			default:
 				return '';
 		}
@@ -27,5 +29,5 @@
 {/if}
 
 <h2 class="font-medium text-xl mb-3">
-	{headingText}<span class="font-light text-gray-400 pl-3">{title}</span>
+	{headingText}
 </h2>

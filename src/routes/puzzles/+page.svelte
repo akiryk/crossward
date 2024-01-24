@@ -61,13 +61,13 @@
 		{#each puzzles as puzzle}
 			<ListItem>
 				{#if puzzle.publishStatus === PUBLISHED}
-					<a href="/puzzles/{puzzle._id}" class="text-sky-600">{puzzle.title}</a>
-					<span><a href="/puzzles/{puzzle._id}/editPuzzle" class="text-gray-400">edit</a></span>
+					<a href="/puzzles/{puzzle._id}/play" class="text-sky-600">{puzzle.title}</a>
+					<span><a href="/puzzles/{puzzle._id}/edit" class="text-gray-400">edit</a></span>
 				{:else}
 					<span
 						><a
 							href="/puzzles/{puzzle._id}/{puzzle.publishStatus === EDIT_PUZZLE
-								? 'editPuzzle'
+								? 'edit'
 								: 'editHints'}"
 							class="text-sky-400">Edit {puzzle.title}</a
 						></span

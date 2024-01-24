@@ -1,10 +1,11 @@
 <script lang="ts">
-	// [id]/editPuzzle/page.svelte
+	// [id]/edit/page.svelte
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import { enhance } from '$app/forms';
 	import Crossword from '$lib/crossword/Crossword.svelte';
+	import ErrorMessage from '$lib/crossword/ErrorMessage.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import { GameStatus, type Puzzle } from '$utils/types';
@@ -85,12 +86,6 @@
 			id={puzzle._id}
 		/>
 	{:else}
-		<h2>Gee, something went wrong.</h2>
-		<p>
-			We can't seem to find the puzzle you requested. You might want to return to the <a
-				class="text-sky-600"
-				href="/puzzles">puzzles page</a
-			> and try another.
-		</p>
+		<ErrorMessage />
 	{/if}
 </div>

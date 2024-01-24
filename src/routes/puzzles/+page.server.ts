@@ -117,6 +117,6 @@ export const actions = {
 				error
 			});
 		}
-		redirect(302, `/puzzles/${insertedId}/editPuzzle?create=true`);
+		redirect(302, `/puzzles/${insertedId}/edit?create=true`);
 	}
 };
