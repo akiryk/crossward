@@ -150,95 +150,9 @@ function createCellArrays(puzzle: PuzzleWithId) {
 	return { cellRows, cellsArray, dynamicCellMap };
 }
 
-// TODO: THis can be deleted it isn't used!!
-// But we might want to use it if performance of the loop in a loop is slow
-export function XcreateDisplayNumbersFromArray(cellMap: DynamicCellMap, cellsArray: CellsArray) {
-	// use cellsArray to create all the displayNumbers, hints, and words
-	// - acrossWord
-	// - firstCellInAcrossWordXCoord
-	// - lastCellInAcrossWordXCoord
-	// - downWord
-	// - firstCellInDownWordXCoord
-	// - lastCellInDownWordXCoord
-	// - displayNumber
-
-	let cellDisplayNumber = 1;
-
-	for (let i = 0; i < cellsArray.length; i++) {
-		let shouldIncrementCount = false;
-		const cell: DynamicCell = cellsArray[i];
-		if (!cell.value) {
-			continue;
-		}
-		// console.log(`cell.value: ${cell.value}`);
-
-		const x: number = cell.x;
-		const y: number = cell.y;
-		let word;
-
-		// Across Words!
-		const leftCellId: ID = `${x - 1}:${y}`;
-		const rightCellId: ID = `${x + 1}:${y}`;
-		if (!cellMap[leftCellId]?.correctValue && cellMap[rightCellId]?.correctValue) {
-			let value = cell.correctValue;
-			word = '';
-			let currentX = x;
-
-			// Check if it starts a horizontal word
-			// The cell starts a word if the previous cell does not have value
-			// and the next cell does have value
-			while (value) {
-				word = `${word}${value}`;
-				currentX++;
-				value = cellMap[`${currentX}:${y}`]?.value;
-			}
-
-			// Get first/last cells in word to help with highlighting
-			const startX = cell.x;
-			const endX = currentX;
-			for (let x = startX; x < endX; x++) {
-				//      cell.firstCellInAcrossWordXCoord = startX;
-				//      cell.lastCellInAcrossWordXCoord = endX;
-				//      cell.acrossWord = word;
-			}
-			shouldIncrementCount = true;
-		}
-
-		// Down Words!
-		const aboveCellId: ID = `${x}:${y - 1}`;
-		const bottomCellId: ID = `${x}:${y + 1}`;
-		if (!cellMap[aboveCellId]?.correctValue && cellMap[bottomCellId]?.correctValue) {
-			let value = cell.correctValue;
-			word = '';
-			let currentY = y;
-
-			// Check if it starts a horizontal word
-			// The cell starts a word if the previous cell does not have value
-			// and the next cell does have value
-			while (value) {
-				word = `${word}${value}`;
-				currentY++;
-				value = cellMap[`${x}:${currentY}`]?.value;
-			}
-
-			// Get first/last cells in word to help with highlighting
-			const startY = cell.y;
-			const endY = currentY;
-
-			for (let y = startY; y < endY; y++) {}
-			shouldIncrementCount = true;
-		}
-
-		if (shouldIncrementCount) {
-			cell.displayNumber = cellDisplayNumber;
-			cellDisplayNumber++;
-		}
-	}
-}
-
 // THis is slower than from array because it requires a loop within a loop?
 export function getCleanCellMapForDb({
-	cellMap: currentCellMap,
+	cellMap: initialCellMap,
 	clearValues = false
 }: {
 	cellMap: DynamicCellMap;
@@ -246,7 +160,7 @@ export function getCleanCellMapForDb({
 }): CellMap {
 	let cellDisplayNumber = 1;
 
-	const copiedCellMap: DynamicCellMap = Object.assign({}, currentCellMap);
+	const copiedCellMap: DynamicCellMap = Object.assign({}, initialCellMap);
 	const cellMap: CellMap = {};
 	const downSpan = 5;
 	const acrossSpan = 5;
@@ -269,7 +183,7 @@ export function getCleanCellMapForDb({
 			const leftCellId: ID = getId({ x: x - 1, y });
 			const rightCellId: ID = getId({ x: x + 1, y });
 
-			if (!cellMap[leftCellId]?.correctValue && cellMap[rightCellId]?.correctValue) {
+			if (!initialCellMap[leftCellId]?.correctValue && initialCellMap[rightCellId]?.correctValue) {
 				let value = cell.correctValue;
 				word = '';
 				let currentX = x;
@@ -281,7 +195,7 @@ export function getCleanCellMapForDb({
 					word = `${word}${value}`;
 					currentX++;
 					const id = getId({ x: currentX, y });
-					value = cellMap[id]?.value;
+					value = initialCellMap[id]?.value;
 				}
 				// Get first/last cells in word to help with highlighting
 				const startX = x;
@@ -297,7 +211,10 @@ export function getCleanCellMapForDb({
 			// Down Words!
 			const aboveCellId: ID = getId({ x, y: y - 1 });
 			const bottomCellId: ID = getId({ x, y: y + 1 });
-			if (!cellMap[aboveCellId]?.correctValue && cellMap[bottomCellId]?.correctValue) {
+			if (
+				!initialCellMap[aboveCellId]?.correctValue &&
+				initialCellMap[bottomCellId]?.correctValue
+			) {
 				let value = cell.correctValue;
 				word = '';
 				let currentY = y;
@@ -309,7 +226,7 @@ export function getCleanCellMapForDb({
 					word = `${word}${value}`;
 					currentY++;
 					const id = getId({ x, y: currentY });
-					value = cellMap[id]?.value;
+					value = initialCellMap[id]?.value;
 				}
 
 				// Get first/last cells in word to help with highlighting
