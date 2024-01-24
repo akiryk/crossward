@@ -2,6 +2,7 @@
 	import CellContainer from './CellContainer.svelte';
 	import type { DynamicCell, Puzzle, Coords, GetNextCellProps, ID } from '$utils/types';
 	import { Direction, GameStatus } from '$utils/types';
+	import { getId } from '$utils/helpers';
 	import PuzzleStore from '../../stores/PuzzleStore';
 	import {
 		getSymmetricalCell,
@@ -9,8 +10,7 @@
 		getCellAbove,
 		getCellBelow,
 		getCellToTheLeft,
-		getCellToTheRight,
-		getId
+		getCellToTheRight
 	} from './utils/crosswordHelpers';
 
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
@@ -26,11 +26,11 @@
 		const currentCellY = cell.y;
 		if (currentDirection === Direction.GO_RIGHT) {
 			for (let x = 0; x < puzzle.acrossSpan; x++) {
-				highlightedCellIds.push(getId(x, currentCellY));
+				highlightedCellIds.push(getId({ x, y: currentCellY }));
 			}
 		} else {
 			for (let y = 0; y < puzzle.downSpan; y++) {
-				highlightedCellIds.push(getId(currentCellX, y));
+				highlightedCellIds.push(getId({ x: currentCellX, y }));
 			}
 		}
 		return highlightedCellIds;

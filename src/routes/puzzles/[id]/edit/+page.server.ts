@@ -35,12 +35,12 @@ export const actions = {
 
 		// Use array of cells to create display numbers
 		const cellsArray = JSON.parse(cellsArrayString);
-		createDisplayNumbers(cellMap, cellsArray);
+		createDisplayNumbers(cellMap);
 		console.log(`
 
 
 		`);
-		console.log(cellsArray);
+		console.log(cellMap);
 
 		const cleanedCellMap: CellMap = cleanCellMapForDb({
 			cellMap,

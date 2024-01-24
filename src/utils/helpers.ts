@@ -128,7 +128,7 @@ function createCellArrays(puzzle: PuzzleWithId) {
 	return { cellRows, cellsArray, dynamicCellMap };
 }
 
-export function createDisplayNumbers(cellMap: DynamicCellMap, cellsArray: CellsArray) {
+export function createDisplayNumbersFromArray(cellMap: DynamicCellMap, cellsArray: CellsArray) {
 	// use cellsArray to create all the displayNumbers, hints, and words
 	// - acrossWord
 	// - firstCellInAcrossWordXCoord
@@ -212,4 +212,96 @@ export function createDisplayNumbers(cellMap: DynamicCellMap, cellsArray: CellsA
 			cellDisplayNumber++;
 		}
 	}
+}
+
+export function createDisplayNumbers(cellMap: DynamicCellMap) {
+	// use cellsArray to create all the displayNumbers, hints, and words
+	// - acrossWord
+	// - firstCellInAcrossWordXCoord
+	// - lastCellInAcrossWordXCoord
+	// - downWord
+	// - firstCellInDownWordXCoord
+	// - lastCellInDownWordXCoord
+	// - displayNumber
+
+	let cellDisplayNumber = 1;
+
+	const downSpan = 5;
+	const acrossSpan = 5;
+	for (let y = 0; y < downSpan; y++) {
+		for (let x = 0; x < acrossSpan; x++) {
+			let shouldIncrementCount = false;
+			const id: ID = getId({ x, y });
+			const cell: DynamicCell = cellMap[id];
+			if (!cell.value) {
+				continue;
+			}
+
+			let word;
+
+			// Across Words!
+			const leftCellId: ID = getId({ x: x - 1, y });
+			const rightCellId: ID = getId({ x: x + 1, y });
+
+			if (!cellMap[leftCellId]?.correctValue && cellMap[rightCellId]?.correctValue) {
+				let value = cell.correctValue;
+				word = '';
+				let currentX = x;
+
+				// Check if it starts a horizontal word
+				// The cell starts a word if the previous cell does not have value
+				// and the next cell does have value
+				while (value) {
+					word = `${word}${value}`;
+					currentX++;
+					const id = getId({ x: currentX, y });
+					value = cellMap[id]?.value;
+				}
+				// Get first/last cells in word to help with highlighting
+				const startX = x;
+				const endX = currentX;
+				for (let i = startX; i < endX; i++) {
+					//      cell.firstCellInAcrossWordXCoord = startX;
+					//      cell.lastCellInAcrossWordXCoord = endX;
+					//      cell.acrossWord = word;
+				}
+				shouldIncrementCount = true;
+			}
+
+			// Down Words!
+			const aboveCellId: ID = getId({ x, y: y - 1 });
+			const bottomCellId: ID = getId({ x, y: y + 1 });
+			if (!cellMap[aboveCellId]?.correctValue && cellMap[bottomCellId]?.correctValue) {
+				let value = cell.correctValue;
+				word = '';
+				let currentY = y;
+
+				// Check if it starts a horizontal word
+				// The cell starts a word if the previous cell does not have value
+				// and the next cell does have value
+				while (value) {
+					word = `${word}${value}`;
+					currentY++;
+					const id = getId({ x, y: currentY });
+					value = cellMap[id]?.value;
+				}
+
+				// Get first/last cells in word to help with highlighting
+				const startY = y;
+				const endY = currentY;
+
+				for (let i = startY; i < endY; i++) {}
+				shouldIncrementCount = true;
+			}
+
+			if (shouldIncrementCount) {
+				cell.displayNumber = cellDisplayNumber;
+				cellDisplayNumber++;
+			}
+		}
+	}
+}
+
+export function getId({ x, y }: { x: number; y: number }): ID {
+	return `${x}:${y}`;
 }

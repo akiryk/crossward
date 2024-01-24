@@ -84,7 +84,3 @@ export function getCellToTheRight({ coords, acrossSpan, downSpan }: GetNextCellP
 	// }
 	return { x: newX, y: newY };
 }
-
-export function getId(x: number, y: number): ID {
-	return `${x}:${y}`;
-}
