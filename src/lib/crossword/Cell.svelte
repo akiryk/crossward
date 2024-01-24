@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { CellStatus, type Coords } from '$utils/types';
+	import { type Coords } from '$utils/types';
 	// Props
 	export let value: string;
 	export let displayNumber: number;
@@ -8,7 +8,7 @@
 	export let isHighlighted: boolean;
 	export let onInput: (event: Event) => void;
 	export let onKeydown: (event: KeyboardEvent) => void;
-	export let onFocus: (coords: Coords) => void;
+	export let onFocus: (event: Event) => void;
 	export let onBlur: (event: Event) => void;
 
 	let inputElement: HTMLInputElement;
