@@ -72,8 +72,6 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 		highlightedCellIds
 	};
 
-	console.log(dynamicPuzzle.acrossHints);
-
 	return dynamicPuzzle;
 };
 

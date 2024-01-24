@@ -31,13 +31,22 @@ export const actions = {
 		};
 		const updateDocument = {
 			$set: {
-				acrossHints,
-				downHints
+				acrossHints: JSON.parse(acrossHints),
+				downHints: JSON.parse(downHints)
 			}
 		};
 
 		try {
-		} catch {}
+			await puzzlesCollection.updateOne(filter, updateDocument);
+			return {
+				status: 303, // HTTP status for "See Other"
+				headers: {
+					location: `/puzzles/${id}/editHints`
+				}
+			};
+		} catch {
+			//
+		}
 	},
 	updateTitle: async ({ request }: RequestEvent) => {
 		const data = await request.formData();

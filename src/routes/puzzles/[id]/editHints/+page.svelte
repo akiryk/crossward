@@ -68,10 +68,7 @@
 					value={JSON.stringify(dynamicPuzzle?.acrossHints)}
 				/>
 				<input type="hidden" name="downHints" value={JSON.stringify(dynamicPuzzle?.downHints)} />
-				<Hints
-					downHints={dynamicPuzzle ? dynamicPuzzle.downHints : puzzle.downHints}
-					acrossHints={dynamicPuzzle ? dynamicPuzzle.acrossHints : puzzle.acrossHints}
-				/>
+				<Hints puzzle={dynamicPuzzle || puzzle} />
 			</form>
 		{/if}
 

@@ -71,8 +71,8 @@ export type PuzzleDocument = {
 	cellMap: CellMap;
 	acrossSpan: number;
 	downSpan: number;
-	acrossHints: Array<Hint | undefined>;
-	downHints: Array<Hint | undefined>;
+	acrossHints: Array<Hint>;
+	downHints: Array<Hint>;
 };
 
 export interface PuzzleFromDb extends PuzzleDocument {

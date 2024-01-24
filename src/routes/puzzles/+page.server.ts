@@ -5,6 +5,7 @@ import type { PageServerLoad } from './$types';
 import type { Puzzle, Puzzles, PublishStatus, PuzzleDocument, PuzzleType } from '$utils/types';
 import { GRID_SIZES, EDIT_PUZZLE } from '$utils/constants';
 import { createInitialCellMap, handleSanitizeInput } from '$utils/helpers';
+import type { RequestEvent } from '../$types';
 
 type Props = {
 	puzzles: Array<Puzzle>;
@@ -45,13 +46,13 @@ export const load: PageServerLoad = async ({ locals }): Promise<Props> => {
 			puzzles: shapedPuzzles
 		};
 	} catch (error) {
-		console.log('error', error);
+		console.error('error', error);
 		return { puzzles: [] };
 	}
 };
 
 export const actions = {
-	create: async ({ request }) => {
+	create: async ({ request }: RequestEvent) => {
 		let insertedId;
 		try {
 			const data = await request.formData();
