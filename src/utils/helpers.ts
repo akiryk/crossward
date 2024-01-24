@@ -150,7 +150,6 @@ function createCellArrays(puzzle: PuzzleWithId) {
 	return { cellRows, cellsArray, dynamicCellMap };
 }
 
-// THis is slower than from array because it requires a loop within a loop?
 export function getCleanCellMapForDb({
 	cellMap: initialCellMap,
 	clearValues = false
@@ -159,16 +158,18 @@ export function getCleanCellMapForDb({
 	clearValues?: boolean;
 }): CellMap {
 	let cellDisplayNumber = 1;
-
-	const copiedCellMap: DynamicCellMap = Object.assign({}, initialCellMap);
 	const cellMap: CellMap = {};
 	const downSpan = 5;
 	const acrossSpan = 5;
+
+	// Nested loop with a time complexity of O(n^2)
+	// I don't think this is a big problem since the loops won't be huge.
+	// TODO: Monitor and possibly refactor to use a singly array rather than nested loops.
 	for (let y = 0; y < downSpan; y++) {
 		for (let x = 0; x < acrossSpan; x++) {
 			let shouldIncrementCount = false;
 			const id: ID = getId({ x, y });
-			const currentCell: DynamicCell = copiedCellMap[id];
+			const currentCell: DynamicCell = initialCellMap[id];
 			const cell: Cell = transformCellShapeForDb({ cell: currentCell, clearValues });
 
 			// Copy the transformed cell into the new cellmap
