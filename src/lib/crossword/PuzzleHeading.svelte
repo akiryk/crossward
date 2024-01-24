@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { type PuzzleType, GameStatus } from '$utils/types';
+
 	// PROPS
 	export let isCreateSuccess: Boolean = false;
 	export let puzzleType: PuzzleType;
@@ -13,7 +14,7 @@
 			case GameStatus.EDIT_GRID:
 				return `Create ${title}`;
 			case GameStatus.EDIT_HINTS:
-				return 'Create hints';
+				return `Add hints for ${title}`;
 			case GameStatus.PLAY:
 				return `Play ${title}`;
 			default:

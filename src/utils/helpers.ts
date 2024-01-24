@@ -74,37 +74,6 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 	return dynamicPuzzle;
 };
 
-export function XcleanCellMapForDb({
-	cellMap,
-	clearValues = false
-}: {
-	cellMap: DynamicCellMap;
-	clearValues?: boolean;
-}): CellMap {
-	const entries = Object.entries(cellMap); // [[0:0, {}], [1:1, {}], ]
-	const newCellMap = Object.fromEntries(
-		entries.map(([key, cell]) => {
-			// destructure dynamic cell to get only the fields we want
-			const { id, displayNumber, correctValue, value, x, y, index, isSymmetrical } = cell;
-			// reset value to '' because the grid is now fixed; only correctValues or player-entered ones matter
-			return [
-				key,
-				{
-					id,
-					displayNumber,
-					correctValue,
-					value: clearValues ? '' : value,
-					x,
-					y,
-					index,
-					isSymmetrical
-				}
-			];
-		})
-	);
-	return newCellMap;
-}
-
 function transformCellShapeForDb({
 	cell,
 	clearValues
@@ -159,91 +128,88 @@ export function getCleanCellMapForDb({
 }): CellMap {
 	let cellDisplayNumber = 1;
 	const cellMap: CellMap = {};
-	const downSpan = 5;
-	const acrossSpan = 5;
+	const cellsArray: CellsArray = Object.values(initialCellMap);
 
 	// Nested loop with a time complexity of O(n^2)
 	// I don't think this is a big problem since the loops won't be huge.
 	// TODO: Monitor and possibly refactor to use a singly array rather than nested loops.
-	for (let y = 0; y < downSpan; y++) {
-		for (let x = 0; x < acrossSpan; x++) {
-			let shouldIncrementCount = false;
-			const id: ID = getId({ x, y });
-			const currentCell: DynamicCell = initialCellMap[id];
-			const cell: Cell = transformCellShapeForDb({ cell: currentCell, clearValues });
+	for (let i = 0; i < cellsArray.length; i++) {
+		let shouldIncrementCount = false;
+		const initialCell: DynamicCell = cellsArray[i];
 
-			// Copy the transformed cell into the new cellmap
-			cellMap[getId({ x, y })] = cell;
+		// Get the transformed cell and work with it from here on.
+		const cell: Cell = transformCellShapeForDb({ cell: initialCell, clearValues });
+		const id: ID = getId({ x: cell.x, y: cell.y });
+		// Copy the transformed cell into the new cellmap
+		cellMap[id] = cell;
 
-			if (!cell.correctValue) {
-				continue;
+		if (!cell.correctValue) {
+			continue;
+		}
+
+		const { x, y } = cell;
+		let word;
+
+		// Find the across words
+		const leftCellId: ID = getId({ x: x - 1, y });
+		const rightCellId: ID = getId({ x: x + 1, y });
+
+		if (!initialCellMap[leftCellId]?.correctValue && initialCellMap[rightCellId]?.correctValue) {
+			let value = cell.correctValue;
+			word = '';
+			let currentX = x;
+
+			// Check if it starts a horizontal word
+			// The cell starts a word if the previous cell does not have value
+			// and the next cell does have value
+			while (value) {
+				word = `${word}${value}`;
+				currentX++;
+				const id = getId({ x: currentX, y });
+				value = initialCellMap[id]?.value;
 			}
-			let word;
+			// Get first/last cells in word to help with highlighting
+			const startX = x;
+			const endX = currentX;
+			for (let i = startX; i < endX; i++) {
+				//      cell.firstCellInAcrossWordXCoord = startX;
+				//      cell.lastCellInAcrossWordXCoord = endX;
+				//      cell.acrossWord = word;
+			}
+			shouldIncrementCount = true;
+		}
 
-			// Across Words!
-			const leftCellId: ID = getId({ x: x - 1, y });
-			const rightCellId: ID = getId({ x: x + 1, y });
+		// Down Words!
+		const aboveCellId: ID = getId({ x, y: y - 1 });
+		const bottomCellId: ID = getId({ x, y: y + 1 });
+		if (!initialCellMap[aboveCellId]?.correctValue && initialCellMap[bottomCellId]?.correctValue) {
+			let value = cell.correctValue;
+			word = '';
+			let currentY = y;
 
-			if (!initialCellMap[leftCellId]?.correctValue && initialCellMap[rightCellId]?.correctValue) {
-				let value = cell.correctValue;
-				word = '';
-				let currentX = x;
-
-				// Check if it starts a horizontal word
-				// The cell starts a word if the previous cell does not have value
-				// and the next cell does have value
-				while (value) {
-					word = `${word}${value}`;
-					currentX++;
-					const id = getId({ x: currentX, y });
-					value = initialCellMap[id]?.value;
-				}
-				// Get first/last cells in word to help with highlighting
-				const startX = x;
-				const endX = currentX;
-				for (let i = startX; i < endX; i++) {
-					//      cell.firstCellInAcrossWordXCoord = startX;
-					//      cell.lastCellInAcrossWordXCoord = endX;
-					//      cell.acrossWord = word;
-				}
-				shouldIncrementCount = true;
+			// Check if it starts a horizontal word
+			// The cell starts a word if the previous cell does not have value
+			// and the next cell does have value
+			while (value) {
+				word = `${word}${value}`;
+				currentY++;
+				const id = getId({ x, y: currentY });
+				value = initialCellMap[id]?.value;
 			}
 
-			// Down Words!
-			const aboveCellId: ID = getId({ x, y: y - 1 });
-			const bottomCellId: ID = getId({ x, y: y + 1 });
-			if (
-				!initialCellMap[aboveCellId]?.correctValue &&
-				initialCellMap[bottomCellId]?.correctValue
-			) {
-				let value = cell.correctValue;
-				word = '';
-				let currentY = y;
+			// Get first/last cells in word to help with highlighting
+			const startY = y;
+			const endY = currentY;
 
-				// Check if it starts a horizontal word
-				// The cell starts a word if the previous cell does not have value
-				// and the next cell does have value
-				while (value) {
-					word = `${word}${value}`;
-					currentY++;
-					const id = getId({ x, y: currentY });
-					value = initialCellMap[id]?.value;
-				}
-
-				// Get first/last cells in word to help with highlighting
-				const startY = y;
-				const endY = currentY;
-
-				for (let i = startY; i < endY; i++) {}
-				shouldIncrementCount = true;
-			}
-			if (shouldIncrementCount) {
-				cell.displayNumber = cellDisplayNumber;
-				cellDisplayNumber++;
-			}
+			for (let i = startY; i < endY; i++) {}
+			shouldIncrementCount = true;
+		}
+		if (shouldIncrementCount) {
+			cell.displayNumber = cellDisplayNumber;
+			cellDisplayNumber++;
 		}
 	}
-	console.log(cellMap[getId({ x: 0, y: 0 })]);
+
 	return cellMap;
 }
 
