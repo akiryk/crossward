@@ -1,4 +1,4 @@
-import mongodb from 'mongodb';
+import mongodb, { ObjectId } from 'mongodb';
 import { fail } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
@@ -9,6 +9,36 @@ import { pageServerLoad } from '../serverHelpers';
 export const load = pageServerLoad;
 
 export const actions = {
+	saveHints: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+		const acrossHints = await data.get('acrossHints');
+		const downHints = await data.get('downHints');
+		const id = data.get('id');
+		if (
+			!id ||
+			typeof id !== 'string' ||
+			!acrossHints ||
+			typeof acrossHints !== 'string' ||
+			!downHints ||
+			typeof downHints !== 'string'
+		) {
+			// log error
+			return;
+		}
+
+		const filter = {
+			_id: new ObjectId(id)
+		};
+		const updateDocument = {
+			$set: {
+				acrossHints,
+				downHints
+			}
+		};
+
+		try {
+		} catch {}
+	},
 	updateTitle: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const originalTitle = data.get('originalTitle');

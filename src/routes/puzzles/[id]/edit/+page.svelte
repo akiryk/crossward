@@ -59,7 +59,6 @@
 				}}
 			>
 				<input type="hidden" name="cellMap" value={JSON.stringify(dynamicPuzzle?.cellMap)} />
-				<input type="hidden" name="cellsArray" value={JSON.stringify(dynamicPuzzle?.cellsArray)} />
 				<input type="hidden" name="id" value={puzzle._id} />
 				<div class="mb-5">
 					<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDIT_GRID} />
