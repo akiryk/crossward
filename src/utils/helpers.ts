@@ -6,7 +6,8 @@ import type {
 	Puzzle,
 	DynamicCell,
 	PuzzleWithId,
-	CellsArray
+	CellsArray,
+	Hint
 } from './types';
 import { Direction } from './types';
 import sanitizeHtml from 'sanitize-html';
@@ -71,6 +72,8 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 		highlightedCellIds
 	};
 
+	console.log(dynamicPuzzle.acrossHints);
+
 	return dynamicPuzzle;
 };
 
@@ -125,11 +128,12 @@ export function getCleanCellMapForDb({
 }: {
 	cellMap: DynamicCellMap;
 	clearValues?: boolean;
-}): CellMap {
+}): { cleanedCellMap: CellMap; acrossHints: Array<Hint>; downHints: Array<Hint> } {
 	let cellDisplayNumber = 1;
 	const cellMap: CellMap = {};
 	const cellsArray: CellsArray = Object.values(initialCellMap);
-
+	const acrossHints = [];
+	const downHints = [];
 	// Nested loop with a time complexity of O(n^2)
 	// I don't think this is a big problem since the loops won't be huge.
 	// TODO: Monitor and possibly refactor to use a singly array rather than nested loops.
@@ -176,6 +180,12 @@ export function getCleanCellMapForDb({
 				//      cell.lastCellInAcrossWordXCoord = endX;
 				//      cell.acrossWord = word;
 			}
+			const hint: Hint = {
+				displayNumber: cellDisplayNumber,
+				hint: '',
+				answer: word
+			};
+			acrossHints.push(hint);
 			shouldIncrementCount = true;
 		}
 
@@ -202,6 +212,12 @@ export function getCleanCellMapForDb({
 			const endY = currentY;
 
 			for (let i = startY; i < endY; i++) {}
+			const hint: Hint = {
+				displayNumber: cellDisplayNumber,
+				hint: '',
+				answer: word
+			};
+			downHints.push(hint);
 			shouldIncrementCount = true;
 		}
 		if (shouldIncrementCount) {
@@ -210,7 +226,7 @@ export function getCleanCellMapForDb({
 		}
 	}
 
-	return cellMap;
+	return { cleanedCellMap: cellMap, acrossHints, downHints };
 }
 
 export function getId({ x, y }: { x: number; y: number }): ID {

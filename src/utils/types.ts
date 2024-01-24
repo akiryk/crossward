@@ -56,7 +56,7 @@ export type PuzzleType = typeof MINI | typeof DAILY | typeof SUNDAY;
 export type PublishStatus = typeof EDIT_PUZZLE | typeof EDIT_HINTS | typeof PUBLISHED;
 
 export type Hint = {
-	displayNumber: string;
+	displayNumber: number;
 	hint: string;
 	answer: string;
 };

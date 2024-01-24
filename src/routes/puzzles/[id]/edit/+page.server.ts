@@ -6,7 +6,7 @@ import { EDIT_HINTS } from '$utils/constants';
 import { getCleanCellMapForDb, handleSanitizeInput } from '$utils/helpers';
 import { pageServerLoad } from '../serverHelpers';
 import type { RequestEvent } from './$types';
-import type { CellMap, DynamicCellMap } from '$utils/types';
+import type { CellMap, DynamicCellMap, Hint } from '$utils/types';
 
 export const load = pageServerLoad;
 
@@ -14,7 +14,6 @@ export const actions = {
 	createHints: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const cellMapString = data.get('cellMap');
-		const cellsArrayString = data.get('cellsArray');
 
 		const id = data.get('id');
 		if (!id || typeof id !== 'string') {
@@ -28,10 +27,26 @@ export const actions = {
 
 		const cellMap = JSON.parse(cellMapString);
 
-		const cleanedCellMap: CellMap = getCleanCellMapForDb({
+		const {
+			cleanedCellMap,
+			acrossHints,
+			downHints
+		}: {
+			cleanedCellMap: CellMap;
+			acrossHints: Array<Hint>;
+			downHints: Array<Hint>;
+		} = getCleanCellMapForDb({
 			cellMap,
 			clearValues: true
 		});
+		console.log(acrossHints);
+		console.log(`
+
+		`);
+		console.log(downHints);
+		console.log(`
+
+		`);
 
 		const filter = {
 			_id: new ObjectId(id)
@@ -39,7 +54,9 @@ export const actions = {
 		const updateDocument = {
 			$set: {
 				cellMap: cleanedCellMap,
-				publishStatus: EDIT_HINTS
+				publishStatus: EDIT_HINTS,
+				downHints,
+				acrossHints
 			}
 		};
 
