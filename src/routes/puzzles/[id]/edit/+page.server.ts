@@ -3,10 +3,10 @@ import mongodb, { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { EDIT_HINTS } from '$utils/constants';
-import { cleanCellMapForDb, handleSanitizeInput, createDisplayNumbers } from '$utils/helpers';
+import { getCleanCellMapForDb, handleSanitizeInput } from '$utils/helpers';
 import { pageServerLoad } from '../serverHelpers';
 import type { RequestEvent } from './$types';
-import type { CellMap } from '$utils/types';
+import type { CellMap, DynamicCellMap } from '$utils/types';
 
 export const load = pageServerLoad;
 
@@ -21,28 +21,14 @@ export const actions = {
 			// log error
 			return;
 		}
-		if (
-			!cellMapString ||
-			typeof cellMapString !== 'string' ||
-			!cellsArrayString ||
-			typeof cellsArrayString !== 'string'
-		) {
+		if (!cellMapString || typeof cellMapString !== 'string') {
 			// TODO: log error
 			return;
 		}
 
 		const cellMap = JSON.parse(cellMapString);
 
-		// Use array of cells to create display numbers
-		const cellsArray = JSON.parse(cellsArrayString);
-		createDisplayNumbers(cellMap);
-		console.log(`
-
-
-		`);
-		console.log(cellMap);
-
-		const cleanedCellMap: CellMap = cleanCellMapForDb({
+		const cleanedCellMap: CellMap = getCleanCellMapForDb({
 			cellMap,
 			clearValues: true
 		});
@@ -84,8 +70,10 @@ export const actions = {
 			return;
 		}
 
-		const parsedCellMap = JSON.parse(cellMap);
-		const cleanedCellMap: CellMap = cleanCellMapForDb({ cellMap: parsedCellMap });
+		const parsedCellMap: DynamicCellMap = JSON.parse(cellMap);
+		const cleanedCellMap: CellMap = getCleanCellMapForDb({
+			cellMap: parsedCellMap
+		});
 
 		const filter = {
 			_id: new ObjectId(id)

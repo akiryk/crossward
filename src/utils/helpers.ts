@@ -74,7 +74,7 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 	return dynamicPuzzle;
 };
 
-export function cleanCellMapForDb({
+export function XcleanCellMapForDb({
 	cellMap,
 	clearValues = false
 }: {
@@ -105,6 +105,28 @@ export function cleanCellMapForDb({
 	return newCellMap;
 }
 
+function transformCellShapeForDb({
+	cell,
+	clearValues
+}: {
+	cell: DynamicCell;
+	clearValues: boolean;
+}): Cell {
+	const { id, displayNumber, correctValue, value, x, y, index, isSymmetrical } = cell;
+	// reset value to '' because the grid is now fixed; only correctValues or player-entered ones matter
+
+	return {
+		id,
+		displayNumber,
+		correctValue,
+		value: clearValues ? '' : value,
+		x,
+		y,
+		index,
+		isSymmetrical
+	};
+}
+
 function createCellArrays(puzzle: PuzzleWithId) {
 	const { acrossSpan, downSpan, cellMap } = puzzle;
 	const cellsArray = [];
@@ -128,7 +150,9 @@ function createCellArrays(puzzle: PuzzleWithId) {
 	return { cellRows, cellsArray, dynamicCellMap };
 }
 
-export function createDisplayNumbersFromArray(cellMap: DynamicCellMap, cellsArray: CellsArray) {
+// TODO: THis can be deleted it isn't used!!
+// But we might want to use it if performance of the loop in a loop is slow
+export function XcreateDisplayNumbersFromArray(cellMap: DynamicCellMap, cellsArray: CellsArray) {
 	// use cellsArray to create all the displayNumbers, hints, and words
 	// - acrossWord
 	// - firstCellInAcrossWordXCoord
@@ -172,8 +196,6 @@ export function createDisplayNumbersFromArray(cellMap: DynamicCellMap, cellsArra
 			// Get first/last cells in word to help with highlighting
 			const startX = cell.x;
 			const endX = currentX;
-			console.log('startX', startX);
-			console.log('endX', endX);
 			for (let x = startX; x < endX; x++) {
 				//      cell.firstCellInAcrossWordXCoord = startX;
 				//      cell.lastCellInAcrossWordXCoord = endX;
@@ -214,29 +236,33 @@ export function createDisplayNumbersFromArray(cellMap: DynamicCellMap, cellsArra
 	}
 }
 
-export function createDisplayNumbers(cellMap: DynamicCellMap) {
-	// use cellsArray to create all the displayNumbers, hints, and words
-	// - acrossWord
-	// - firstCellInAcrossWordXCoord
-	// - lastCellInAcrossWordXCoord
-	// - downWord
-	// - firstCellInDownWordXCoord
-	// - lastCellInDownWordXCoord
-	// - displayNumber
-
+// THis is slower than from array because it requires a loop within a loop?
+export function getCleanCellMapForDb({
+	cellMap: currentCellMap,
+	clearValues = false
+}: {
+	cellMap: DynamicCellMap;
+	clearValues?: boolean;
+}): CellMap {
 	let cellDisplayNumber = 1;
 
+	const copiedCellMap: DynamicCellMap = Object.assign({}, currentCellMap);
+	const cellMap: CellMap = {};
 	const downSpan = 5;
 	const acrossSpan = 5;
 	for (let y = 0; y < downSpan; y++) {
 		for (let x = 0; x < acrossSpan; x++) {
 			let shouldIncrementCount = false;
 			const id: ID = getId({ x, y });
-			const cell: DynamicCell = cellMap[id];
-			if (!cell.value) {
+			const currentCell: DynamicCell = copiedCellMap[id];
+			const cell: Cell = transformCellShapeForDb({ cell: currentCell, clearValues });
+
+			// Copy the transformed cell into the new cellmap
+			cellMap[getId({ x, y })] = cell;
+
+			if (!cell.correctValue) {
 				continue;
 			}
-
 			let word;
 
 			// Across Words!
@@ -293,13 +319,14 @@ export function createDisplayNumbers(cellMap: DynamicCellMap) {
 				for (let i = startY; i < endY; i++) {}
 				shouldIncrementCount = true;
 			}
-
 			if (shouldIncrementCount) {
 				cell.displayNumber = cellDisplayNumber;
 				cellDisplayNumber++;
 			}
 		}
 	}
+	console.log(cellMap[getId({ x: 0, y: 0 })]);
+	return cellMap;
 }
 
 export function getId({ x, y }: { x: number; y: number }): ID {
