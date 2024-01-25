@@ -9,40 +9,6 @@ import { PUBLISHED } from '$utils/constants';
 
 export const load = pageServerLoad;
 
-async function getFilterAndUpdateDocument(
-	request: Request,
-	publishStatus: string
-): Promise<{ id: string; filter: mongodb.Filter<mongodb.BSON.Document>; updateDocument: any }> {
-	const data = await request.formData();
-	const acrossHints = await data.get('acrossHints');
-	const downHints = await data.get('downHints');
-	const id = data.get('id');
-	if (
-		!id ||
-		typeof id !== 'string' ||
-		!acrossHints ||
-		typeof acrossHints !== 'string' ||
-		!downHints ||
-		typeof downHints !== 'string'
-	) {
-		// log error
-		throw new Error('no hinting data');
-	}
-
-	const filter = {
-		_id: new ObjectId(id)
-	};
-	const updateDocument = {
-		$set: {
-			acrossHints: JSON.parse(acrossHints),
-			downHints: JSON.parse(downHints),
-			publishStatus
-		}
-	};
-
-	return { filter, updateDocument, id };
-}
-
 export const actions = {
 	saveHints: async ({ request }: RequestEvent) => {
 		updatePuzzle({ request, isPublish: false });
