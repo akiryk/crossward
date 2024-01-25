@@ -3,7 +3,7 @@ import mongodb, { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { EDITING_HINTS } from '$utils/constants';
-import { getCleanCellMapForDb, handleSanitizeInput } from '$utils/helpers';
+import { getCleanCellMapForDb, handleSanitizeInput } from '$utils/serverHelpers';
 import { pageServerLoad } from '../serverHelpers';
 import type { RequestEvent } from './$types';
 import type { CellMap, DynamicCellMap, Hint } from '$utils/types';

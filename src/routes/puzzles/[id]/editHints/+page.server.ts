@@ -2,7 +2,7 @@ import mongodb, { ObjectId } from 'mongodb';
 import { fail } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
-import { handleSanitizeInput } from '$utils/helpers';
+import { handleSanitizeInput } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { pageServerLoad } from '../serverHelpers';
 import { PUBLISHED } from '$utils/constants';

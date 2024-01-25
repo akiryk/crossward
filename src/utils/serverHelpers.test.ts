@@ -1,5 +1,5 @@
 import { it, expect } from 'vitest';
-import { getId } from './helpers';
+import { getId } from './serverHelpers';
 
 it('returns a string from coords', () => {
 	expect(getId({ x: 1, y: 2 })).toBe('1:2');

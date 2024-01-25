@@ -7,11 +7,11 @@ import type {
 	DynamicCell,
 	PuzzleWithId,
 	CellsArray,
-	Hint
-} from './types';
-import { Direction } from './types';
+	Hint,
+	SanitizeInputParams
+} from '$utils/types';
+import { Direction } from '$utils/types';
 import sanitizeHtml from 'sanitize-html';
-import type { SanitizeInputParams } from './types';
 
 export const handleSanitizeInput = ({ data, inputName, fallback }: SanitizeInputParams) => {
 	const unsanitizedInput = data.get(inputName) || fallback;
