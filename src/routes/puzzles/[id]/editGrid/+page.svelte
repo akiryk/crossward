@@ -1,5 +1,5 @@
 <script lang="ts">
-	// [id]/edit/page.svelte
+	// [id]/editGrid/page.svelte
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import PuzzleStore from '../../../../stores/PuzzleStore';

@@ -66,7 +66,7 @@
 					<span
 						><a
 							href="/puzzles/{puzzle._id}/{puzzle.publishStatus === EDIT_PUZZLE
-								? 'edit'
+								? 'editGrid'
 								: 'editHints'}"
 							class="text-sky-400">Edit {puzzle.title}</a
 						></span

@@ -1,15 +1,15 @@
 // [id]/editPuzzle/page.server.ts
-import mongodb, { ObjectId } from 'mongodb';
-import { fail, redirect } from '@sveltejs/kit';
+import { ObjectId } from 'mongodb';
 import { puzzlesCollection } from '$db/puzzles';
-import { EDITING_HINTS } from '$utils/constants';
 import {
+	pageServerLoad,
+	handleUpdateTitle,
+	handleDelete,
 	transformCellMapForDb,
-	handleSanitizeInput,
 	transformPuzzleDataForCreatingHints
 } from '$utils/serverHelpers';
-import { pageServerLoad } from '../serverHelpers';
 import type { RequestEvent } from './$types';
+import { EDITING_HINTS } from '$utils/constants';
 import type { CellMap, DynamicCellMap, Hint } from '$utils/types';
 
 export const load = pageServerLoad;
@@ -103,55 +103,13 @@ export const actions = {
 			return {
 				status: 303, // HTTP status for "See Other"
 				headers: {
-					location: `/puzzles/${id}/edit`
+					location: `/puzzles/${id}/editGrid`
 				}
 			};
 		} catch {
 			//ol,.
 		}
 	},
-	updateTitle: async ({ request }: RequestEvent) => {
-		const data = await request.formData();
-		const originalTitle = data.get('originalTitle');
-		const newTitle = handleSanitizeInput({
-			data,
-			inputName: 'title',
-			fallback: new Date().toLocaleString()
-		});
-
-		try {
-			const filter = { title: originalTitle };
-			// Specify the update to set a value for the plot field
-			const updateDocument = {
-				$set: {
-					title: newTitle
-				}
-			};
-			await puzzlesCollection.updateOne(filter, updateDocument);
-			return {
-				title: newTitle,
-				success: true
-			};
-		} catch (error) {
-			return fail(422, {
-				error
-			});
-		}
-	},
-	delete: async ({ request }: RequestEvent) => {
-		const data = await request.formData();
-		try {
-			const id = data.get('id');
-			if (typeof id === 'string') {
-				const query = { _id: new mongodb.ObjectId(id) };
-				const isDeleted = await puzzlesCollection.deleteOne(query);
-				if (!isDeleted) {
-					throw new Error();
-				}
-			}
-		} catch {
-			throw new Error('Error: Unable to delete this puzzle');
-		}
-		redirect(302, `/puzzles?isDeleteSuccess=true`);
-	}
+	updateTitle: handleUpdateTitle,
+	delete: handleDelete
 };

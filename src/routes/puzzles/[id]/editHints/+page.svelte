@@ -69,7 +69,7 @@
 					value={JSON.stringify(dynamicPuzzle?.acrossHints)}
 				/>
 				<input type="hidden" name="downHints" value={JSON.stringify(dynamicPuzzle?.downHints)} />
-				<Hints puzzle={dynamicPuzzle || puzzle} />
+				<Hints puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDITING_HINTS} />
 				<div class="mb-5 flex">
 					<div class="mr-5">
 						<Button buttonType="submit">Save for later</Button>

@@ -118,6 +118,6 @@ export const actions = {
 				error
 			});
 		}
-		redirect(302, `/puzzles/${insertedId}/edit?create=true`);
+		redirect(302, `/puzzles/${insertedId}/editGrid?create=true`);
 	}
 };
