@@ -1,6 +1,5 @@
 <script lang="ts">
-	import type { Hint, Puzzle } from '$utils/types';
-	import Button from '$components/Button.svelte';
+	import type { Puzzle } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
 
 	export let puzzle: Puzzle;
@@ -74,15 +73,5 @@
 				</div>
 			{/each}
 		</div>
-	</div>
-	<div class="mb-5 flex">
-		<div class="mr-5">
-			<Button buttonType="submit">Save for later</Button>
-		</div>
-		<button
-			formaction="?/publish"
-			class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
-			>Publish</button
-		>
 	</div>
 {/if}

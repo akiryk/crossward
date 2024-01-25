@@ -40,7 +40,7 @@
 
 		{#if dynamicPuzzle || puzzle}
 			<div class="mb-5">
-				<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDIT_HINTS} />
+				<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDITING_HINTS} />
 			</div>
 		{/if}
 	{:else}

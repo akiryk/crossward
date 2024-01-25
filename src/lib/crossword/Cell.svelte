@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { type Coords } from '$utils/types';
+	const noop = () => {};
 	// Props
 	export let value: string;
 	export let displayNumber: number;
-	export let isSymmetrical: boolean;
+	export let isSymmetrical: boolean = false;
 	export let hasFocus: boolean;
 	export let isHighlighted: boolean;
 	export let onInput: (event: Event) => void;

@@ -40,7 +40,7 @@
 		<PuzzleHeading
 			isCreateSuccess={isCreateSuccess ? true : false}
 			puzzleType={puzzle.puzzleType}
-			gameStatus={GameStatus.EDIT_GRID}
+			gameStatus={GameStatus.EDITING_CELLS}
 			title={puzzle.title}
 		/>
 		{#if dynamicPuzzle || puzzle}
@@ -61,7 +61,7 @@
 				<input type="hidden" name="cellMap" value={JSON.stringify(dynamicPuzzle?.cellMap)} />
 				<input type="hidden" name="id" value={puzzle._id} />
 				<div class="mb-5">
-					<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDIT_GRID} />
+					<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDITING_CELLS} />
 				</div>
 				<div class="mb-5 flex">
 					<div class="mr-5">

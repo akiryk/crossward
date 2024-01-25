@@ -14,7 +14,7 @@ export const GRID_SIZES = {
 export const DRAFT = 'draft';
 export const PUBLISHED = 'published';
 export const EDIT_PUZZLE = 'editPuzzle';
-export const EDIT_HINTS = 'editHints';
+export const EDITING_HINTS = 'editHints';
 
 // export const GO_DOWN = 'GO_DOWN';
 // export const GO_UP = 'GO_UP';

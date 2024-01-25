@@ -11,9 +11,9 @@
 
 	function getHeadingText(gameStatus: GameStatus, title: string) {
 		switch (gameStatus) {
-			case GameStatus.EDIT_GRID:
+			case GameStatus.EDITING_CELLS:
 				return `Create ${title}`;
-			case GameStatus.EDIT_HINTS:
+			case GameStatus.EDITING_HINTS:
 				return `Add hints for ${title}`;
 			case GameStatus.PLAY:
 				return `Play ${title}`;

@@ -2,7 +2,7 @@
 import mongodb, { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
-import { EDIT_HINTS } from '$utils/constants';
+import { EDITING_HINTS } from '$utils/constants';
 import { getCleanCellMapForDb, handleSanitizeInput } from '$utils/helpers';
 import { pageServerLoad } from '../serverHelpers';
 import type { RequestEvent } from './$types';
@@ -46,7 +46,7 @@ export const actions = {
 		const updateDocument = {
 			$set: {
 				cellMap: cleanedCellMap,
-				publishStatus: EDIT_HINTS,
+				publishStatus: EDITING_HINTS,
 				downHints,
 				acrossHints
 			}
