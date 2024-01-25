@@ -1,5 +1,4 @@
 <script lang="ts">
-	const noop = () => {};
 	// Props
 	export let value: string;
 	export let displayNumber: number;
