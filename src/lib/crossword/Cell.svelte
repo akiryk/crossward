@@ -1,15 +1,18 @@
 <script lang="ts">
-	import { type Coords } from '$utils/types';
+	import { GameStatus } from '$utils/types';
+
 	// Props
 	export let value: string;
 	export let displayNumber: number;
-	export let isSymmetrical: boolean;
 	export let hasFocus: boolean;
+	export let gameStatus: GameStatus;
+	export let isSymmetrical: boolean = false;
 	export let isHighlighted: boolean;
 	export let onInput: (event: Event) => void;
 	export let onKeydown: (event: KeyboardEvent) => void;
 	export let onFocus: (event: Event) => void;
 	export let onBlur: (event: Event) => void;
+	export let onClick: (event: MouseEvent) => void;
 
 	let inputElement: HTMLInputElement;
 	const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
@@ -27,7 +30,7 @@
 
 	function getStyles(value: string, isSymmetrical: boolean, isHighlighted: boolean) {
 		let style = 'bg-gray-100';
-		if (value || isSymmetrical) {
+		if (gameStatus === GameStatus.PLAY || value || isSymmetrical) {
 			style = 'bg-white';
 		}
 		if (isHighlighted) {
@@ -47,6 +50,7 @@
 		on:focus={onFocus}
 		on:blur={onBlur}
 		bind:value
+		on:click={onClick}
 	/>
 	{#if !!displayNumber}
 		<span class="absolute left-0.5 top-px text-xs text-slate-600 pointer-events-none">

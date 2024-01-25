@@ -41,7 +41,6 @@
 		const { x, y } = coords;
 		puzzle.cellMap[id].hasFocus = true;
 		const index = puzzle.cellMap[id].index;
-		puzzle.cellsArray[index].hasFocus = true;
 		puzzle.cellRows[y][x].hasFocus = true;
 		puzzle.highlightedCellIds = getHighlightedCell(puzzle.cellMap[id]);
 		PuzzleStore.set(puzzle);
@@ -80,7 +79,6 @@
 		const id = cell.id;
 		puzzle.cellMap[id].hasFocus = false;
 		const index = puzzle.cellMap[id].index;
-		puzzle.cellsArray[index].hasFocus = false;
 		puzzle.cellRows[cell.y][cell.x].hasFocus = false;
 		const nextCellCoords = nextCellFunction({
 			coords: { x: cell.x, y: cell.y },
@@ -97,8 +95,6 @@
 		symmetricalCell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
 		puzzle.cellMap[cell.id] = cell;
 		puzzle.cellMap[symmetricalCell.id] = symmetricalCell;
-		puzzle.cellsArray[cell.index] = cell;
-		puzzle.cellsArray[symmetricalCellIndex] = symmetricalCell;
 		puzzle.cellRows[cell.y][cell.x] = cell;
 		puzzle.cellRows[symmetricalCell.y][symmetricalCell.x] = symmetricalCell;
 		PuzzleStore.set(puzzle);

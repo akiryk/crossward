@@ -4,7 +4,7 @@ import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';
 import type { Puzzle, Puzzles, PublishStatus, PuzzleDocument, PuzzleType } from '$utils/types';
 import { GRID_SIZES, EDIT_PUZZLE } from '$utils/constants';
-import { createInitialCellMap, handleSanitizeInput } from '$utils/helpers';
+import { createInitialCellMap, handleSanitizeInput } from '$utils/serverHelpers';
 import type { RequestEvent } from '../$types';
 
 type Props = {

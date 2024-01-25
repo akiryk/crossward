@@ -4,6 +4,7 @@
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import ErrorMessage from '$lib/crossword/ErrorMessage.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
+	import Hints from '$lib/crossword/Hints.svelte';
 	import type { Puzzle } from '$utils/types';
 	import { GameStatus } from '$utils/types';
 
@@ -40,8 +41,9 @@
 
 		{#if dynamicPuzzle || puzzle}
 			<div class="mb-5">
-				<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDIT_HINTS} />
+				<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.PLAY} />
 			</div>
+			<Hints puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.PLAY} />
 		{/if}
 	{:else}
 		<ErrorMessage />

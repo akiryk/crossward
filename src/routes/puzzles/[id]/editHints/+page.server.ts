@@ -2,10 +2,10 @@ import mongodb, { ObjectId } from 'mongodb';
 import { fail } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
-import { handleSanitizeInput } from '$utils/helpers';
+import { handleSanitizeInput } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { pageServerLoad } from '../serverHelpers';
-import { GRID_SIZES, EDIT_PUZZLE, PUBLISHED, EDIT_HINTS } from '$utils/constants';
+import { PUBLISHED } from '$utils/constants';
 
 export const load = pageServerLoad;
 
@@ -45,32 +45,14 @@ async function getFilterAndUpdateDocument(
 
 export const actions = {
 	saveHints: async ({ request }: RequestEvent) => {
-		try {
-			const { filter, updateDocument, id } = await getFilterAndUpdateDocument(request, EDIT_HINTS);
-			await puzzlesCollection.updateOne(filter, updateDocument);
-			return {
-				status: 303, // HTTP status for "See Other"
-				headers: {
-					location: `/puzzles/${id}/editHints`
-				}
-			};
-		} catch {
-			//
-		}
+		updatePuzzle({ request, isPublish: false });
 	},
 	publish: async ({ request }: RequestEvent) => {
-		try {
-			const { filter, updateDocument, id } = await getFilterAndUpdateDocument(request, PUBLISHED);
-			await puzzlesCollection.updateOne(filter, updateDocument);
-			return {
-				status: 303, // HTTP status for "See Other"
-				headers: {
-					location: `/puzzles/${id}/play`
-				}
-			};
-		} catch {
-			//
+		const res = await updatePuzzle({ request, isPublish: true });
+		if (res?.status === 303) {
+			return res;
 		}
+		// handle error
 	},
 	updateTitle: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
@@ -117,3 +99,57 @@ export const actions = {
 		redirect(302, `/puzzles?isDeleteSuccess=true`);
 	}
 };
+
+async function updatePuzzle({
+	request,
+	isPublish = false
+}: {
+	request: Request;
+	isPublish: boolean;
+}) {
+	const data = await request.formData();
+	const acrossHints = await data.get('acrossHints');
+	const downHints = await data.get('downHints');
+	const id = data.get('id');
+	if (
+		!id ||
+		typeof id !== 'string' ||
+		!acrossHints ||
+		typeof acrossHints !== 'string' ||
+		!downHints ||
+		typeof downHints !== 'string'
+	) {
+		// log error
+		return;
+	}
+
+	const filter = {
+		_id: new ObjectId(id)
+	};
+
+	const setData = isPublish
+		? {
+				acrossHints: JSON.parse(acrossHints),
+				downHints: JSON.parse(downHints),
+				publishStatus: PUBLISHED
+			}
+		: { acrossHints: JSON.parse(acrossHints), downHints: JSON.parse(downHints) };
+
+	const updateDocument = {
+		$set: setData
+	};
+
+	const location = isPublish ? `/puzzles/${id}/play` : `/puzzles/${id}/editHints`;
+	console.log('location', location);
+	try {
+		await puzzlesCollection.updateOne(filter, updateDocument);
+		return {
+			status: 303, // HTTP status for "See Other"
+			headers: { location }
+		};
+	} catch {
+		return {
+			status: 500
+		};
+	}
+}

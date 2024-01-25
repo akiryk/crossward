@@ -1,4 +1,4 @@
-import { MINI, DAILY, SUNDAY, EDIT_PUZZLE, EDIT_HINTS, PUBLISHED } from '$utils/constants';
+import { MINI, DAILY, SUNDAY, EDIT_PUZZLE, EDITING_HINTS, PUBLISHED } from '$utils/constants';
 
 export enum Direction {
 	GO_DOWN,
@@ -9,18 +9,10 @@ export enum Direction {
 }
 
 export enum GameStatus {
-	EDIT_GRID,
-	EDIT_HINTS,
+	EDITING_CELLS,
+	EDITING_HINTS,
 	PREVIEW,
 	PLAY
-}
-
-export enum CellStatus {
-	DEAD_CELL,
-	EDIT_CELL,
-	PLAY_CELL,
-	PREVIEW_CELL,
-	HIGHLIGHTED_CELL
 }
 
 export type CellsArray = Array<DynamicCell>;
@@ -53,7 +45,7 @@ export type PuzzleSizes = {
 	[SUNDAY]: number;
 };
 export type PuzzleType = typeof MINI | typeof DAILY | typeof SUNDAY;
-export type PublishStatus = typeof EDIT_PUZZLE | typeof EDIT_HINTS | typeof PUBLISHED;
+export type PublishStatus = typeof EDIT_PUZZLE | typeof EDITING_HINTS | typeof PUBLISHED;
 
 export type Hint = {
 	displayNumber: number;
@@ -87,7 +79,6 @@ export interface Puzzle extends PuzzleDocument {
 	_id: string;
 	cellMap: DynamicCellMap;
 	cellRows: Array<CellsArray>;
-	cellsArray: CellsArray;
 	cellWithFocus: DynamicCell | null;
 	gridDirection: Direction;
 	currentRow: number;

@@ -2,8 +2,12 @@
 import mongodb, { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
-import { EDIT_HINTS } from '$utils/constants';
-import { getCleanCellMapForDb, handleSanitizeInput } from '$utils/helpers';
+import { EDITING_HINTS } from '$utils/constants';
+import {
+	transformCellMapForDb,
+	handleSanitizeInput,
+	transformPuzzleDataForCreatingHints
+} from '$utils/serverHelpers';
 import { pageServerLoad } from '../serverHelpers';
 import type { RequestEvent } from './$types';
 import type { CellMap, DynamicCellMap, Hint } from '$utils/types';
@@ -28,14 +32,14 @@ export const actions = {
 		const cellMap = JSON.parse(cellMapString);
 
 		const {
-			cleanedCellMap,
+			cellMapForDb,
 			acrossHints,
 			downHints
 		}: {
-			cleanedCellMap: CellMap;
+			cellMapForDb: CellMap;
 			acrossHints: Array<Hint>;
 			downHints: Array<Hint>;
-		} = getCleanCellMapForDb({
+		} = transformPuzzleDataForCreatingHints({
 			cellMap,
 			clearValues: true
 		});
@@ -43,10 +47,11 @@ export const actions = {
 		const filter = {
 			_id: new ObjectId(id)
 		};
+
 		const updateDocument = {
 			$set: {
-				cellMap: cleanedCellMap,
-				publishStatus: EDIT_HINTS,
+				cellMap: cellMapForDb,
+				publishStatus: EDITING_HINTS,
 				downHints,
 				acrossHints
 			}
@@ -80,7 +85,7 @@ export const actions = {
 		}
 
 		const parsedCellMap: DynamicCellMap = JSON.parse(cellMap);
-		const cleanedCellMap: CellMap = getCleanCellMapForDb({
+		const cellMapForDb: CellMap = transformCellMapForDb({
 			cellMap: parsedCellMap
 		});
 
@@ -89,7 +94,7 @@ export const actions = {
 		};
 		const updateDocument = {
 			$set: {
-				cellMap: cleanedCellMap
+				cellMap: cellMapForDb
 			}
 		};
 

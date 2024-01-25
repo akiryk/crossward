@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
+	import Button from '$components/Button.svelte';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import ErrorMessage from '$lib/crossword/ErrorMessage.svelte';
@@ -39,13 +40,13 @@
 	{#if puzzle}
 		<PuzzleHeading
 			puzzleType={puzzle.puzzleType}
-			gameStatus={GameStatus.EDIT_HINTS}
+			gameStatus={GameStatus.EDITING_HINTS}
 			title={puzzle.title}
 		/>
 
 		{#if dynamicPuzzle || puzzle}
 			<div class="mb-5">
-				<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDIT_HINTS} />
+				<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDITING_HINTS} />
 			</div>
 			<form
 				method="POST"
@@ -69,6 +70,16 @@
 				/>
 				<input type="hidden" name="downHints" value={JSON.stringify(dynamicPuzzle?.downHints)} />
 				<Hints puzzle={dynamicPuzzle || puzzle} />
+				<div class="mb-5 flex">
+					<div class="mr-5">
+						<Button buttonType="submit">Save for later</Button>
+					</div>
+					<button
+						formaction="?/publish"
+						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+						>Publish</button
+					>
+				</div>
 			</form>
 		{/if}
 

@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
-import { transformPuzzleForClient } from '$utils/helpers';
+import { transformPuzzleForClient } from '$utils/serverHelpers';
 import type { PageServerLoad } from './$types';
 import type { PuzzleWithId, Puzzle } from '$utils/types';
 

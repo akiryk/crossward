@@ -3,7 +3,7 @@
 	import Cell from './Cell.svelte';
 	import DeadCell from './DeadCell.svelte';
 	import PreviewCell from './PreviewCell.svelte';
-	import { Direction, GameStatus, CellStatus, type DynamicCell, type Coords } from '$utils/types';
+	import { Direction, GameStatus, type DynamicCell, type Coords } from '$utils/types';
 	import { KeyCodes } from './utils/keyCodes';
 
 	// Props
@@ -16,44 +16,6 @@
 	export let toggleGridDirection: (cell: DynamicCell) => void;
 	export let updateCellWithFocus: (coords: Coords) => void;
 
-	$: cellStatus = getCellStatus(cell, gameStatus);
-
-	function getCellStatus(cell: DynamicCell, gameStatus: GameStatus) {
-		if (!cell) {
-			return CellStatus.DEAD_CELL;
-		}
-		switch (gameStatus) {
-			case GameStatus.EDIT_GRID:
-				return CellStatus.EDIT_CELL;
-			case GameStatus.EDIT_HINTS:
-				return cell.correctValue ? CellStatus.PREVIEW_CELL : CellStatus.DEAD_CELL;
-			case GameStatus.PREVIEW:
-				return CellStatus.PREVIEW_CELL;
-			case GameStatus.PLAY:
-				return CellStatus.PLAY_CELL;
-			default:
-				return CellStatus.PLAY_CELL;
-		}
-	}
-
-	function getCellStyle(cell: DynamicCell, gameStatus: GameStatus) {
-		if (!cell) {
-			return CellStatus.DEAD_CELL;
-		}
-		switch (gameStatus) {
-			case GameStatus.EDIT_GRID:
-				return CellStatus.EDIT_CELL;
-			case GameStatus.EDIT_HINTS:
-				return CellStatus.PREVIEW_CELL;
-			case GameStatus.PREVIEW:
-				return CellStatus.PREVIEW_CELL;
-			case GameStatus.PLAY:
-				return CellStatus.PLAY_CELL;
-			default:
-				return CellStatus.PLAY_CELL;
-		}
-	}
-
 	// Track previous value so that we can be sure to always save only
 	// the most recently entered value. Using event.target.value.slice(-1)
 	// gets the last value, but this isn't always the last value entered
@@ -65,10 +27,10 @@
 		(event.target as HTMLInputElement).value = cleanValue;
 		cell.value = cleanValue;
 		previousValue = cleanValue;
-		if (gameStatus === GameStatus.EDIT_GRID) {
+		if (gameStatus === GameStatus.EDITING_CELLS) {
 			cell.correctValue = cleanValue;
+			updateCellSymmetry(cell);
 		}
-		updateCellSymmetry(cell);
 		goToNextCell(cell, Direction.GO_FORWARD);
 	}
 
@@ -80,11 +42,18 @@
 		cell.hasFocus = false;
 	}
 
+	export function handleClick(event: MouseEvent) {
+		// if (cellIsInteractive) {
+		// If it's a double click, highlight the row or the column
+		if (event.detail === 2) {
+			toggleGridDirection(cell);
+		}
+		// }
+	}
+
 	export function handleKeyDown(event: KeyboardEvent) {
 		const code = event.code.toUpperCase();
 		switch (code) {
-			case KeyCodes.TAB_KEY:
-				cell.value = '';
 			case KeyCodes.SPACEBAR_KEY:
 				// prevent default so spacebar doesn't insert a blank space
 				// and move cursor to next cell
@@ -93,9 +62,9 @@
 				break;
 			case KeyCodes.DELETE_KEY:
 				cell.value = '';
-				updateCellSymmetry(cell);
 				previousValue = '';
-				if (gameStatus === GameStatus.EDIT_GRID) {
+				if (gameStatus === GameStatus.EDITING_CELLS) {
+					updateCellSymmetry(cell);
 					cell.correctValue = '';
 				}
 				setTimeout(() => {
@@ -125,7 +94,20 @@
 	$: cellCorrectValue = cell.correctValue;
 </script>
 
-{#if cellStatus === CellStatus.EDIT_CELL}
+{#if gameStatus === GameStatus.PLAY && cell.correctValue}
+	<Cell
+		displayNumber={cell.displayNumber}
+		value={cellValue}
+		onInput={handleInput}
+		onKeydown={handleKeyDown}
+		onFocus={handleOnFocus}
+		onBlur={handleOnBlur}
+		hasFocus={cell.hasFocus}
+		onClick={handleClick}
+		{isHighlighted}
+		{gameStatus}
+	/>
+{:else if gameStatus === GameStatus.EDITING_CELLS}
 	<Cell
 		displayNumber={cell.displayNumber}
 		value={cellCorrectValue}
@@ -135,11 +117,12 @@
 		onBlur={handleOnBlur}
 		isSymmetrical={cell.isSymmetrical}
 		hasFocus={cell.hasFocus}
+		onClick={handleClick}
 		{isHighlighted}
+		{gameStatus}
 	/>
-{:else if cellStatus === CellStatus.PREVIEW_CELL}
+{:else if gameStatus === GameStatus.EDITING_HINTS && cellCorrectValue}
 	<PreviewCell displayNumber={cell.displayNumber} value={cellCorrectValue} />
 {:else}
-	<!-- DeadCell is a non-interactive black square -->
 	<DeadCell />
 {/if}
