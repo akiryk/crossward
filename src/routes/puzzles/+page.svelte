@@ -62,7 +62,6 @@
 			<ListItem>
 				{#if puzzle.publishStatus === PUBLISHED}
 					<a href="/puzzles/{puzzle._id}/play" class="text-sky-600">{puzzle.title}</a>
-					<span><a href="/puzzles/{puzzle._id}/edit" class="text-gray-400">edit</a></span>
 				{:else}
 					<span
 						><a

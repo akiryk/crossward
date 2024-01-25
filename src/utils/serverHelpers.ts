@@ -1,3 +1,8 @@
+/**
+ * serverHelpers
+ *
+ * Utilities for server actions
+ */
 import type {
 	CellMap,
 	DynamicCellMap,
@@ -11,6 +16,7 @@ import type {
 	SanitizeInputParams
 } from '$utils/types';
 import { Direction } from '$utils/types';
+import { getId } from './helpers';
 import sanitizeHtml from 'sanitize-html';
 
 export const handleSanitizeInput = ({ data, inputName, fallback }: SanitizeInputParams) => {
@@ -57,13 +63,12 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 	const currentColumn = -1;
 	const workingAnswersKey = {};
 	const highlightedCellIds: Array<ID> = [];
-	const { cellRows, cellsArray, dynamicCellMap } = createCellArrays(puzzle);
+	const { cellRows, dynamicCellMap } = createCellArraysForClient(puzzle);
 
 	const dynamicPuzzle = {
 		...puzzle,
 		cellMap: dynamicCellMap,
 		cellRows,
-		cellsArray,
 		cellWithFocus,
 		gridDirection,
 		currentRow,
@@ -75,31 +80,13 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 	return dynamicPuzzle;
 };
 
-function transformCellShapeForDb({
-	cell,
-	clearValues
-}: {
-	cell: DynamicCell;
-	clearValues: boolean;
-}): Cell {
-	const { id, displayNumber, correctValue, value, x, y, index, isSymmetrical } = cell;
-	// reset value to '' because the grid is now fixed; only correctValues or player-entered ones matter
-
-	return {
-		id,
-		displayNumber,
-		correctValue,
-		value: clearValues ? '' : value,
-		x,
-		y,
-		index,
-		isSymmetrical
-	};
-}
-
-function createCellArrays(puzzle: PuzzleWithId) {
+/**
+ * createCellArraysForClient
+ *
+ * Create array cell rows to aid in rendering the puzzle
+ */
+function createCellArraysForClient(puzzle: PuzzleWithId) {
 	const { acrossSpan, downSpan, cellMap } = puzzle;
-	const cellsArray = [];
 	const cellRows = [];
 	const dynamicCellMap: DynamicCellMap = {};
 	for (let y = 0; y < downSpan; y++) {
@@ -113,20 +100,71 @@ function createCellArrays(puzzle: PuzzleWithId) {
 			};
 			dynamicCellMap[id] = dynamicCell;
 			row.push(dynamicCell);
-			cellsArray.push(dynamicCell);
 		}
 		cellRows.push(row);
 	}
-	return { cellRows, cellsArray, dynamicCellMap };
+	return { cellRows, dynamicCellMap };
 }
 
-export function getCleanCellMapForDb({
+/**
+ * transformCellForDb
+ *
+ * Extract just those fields from a cell:DynamicCell that belong in the database
+ * (leave out things like hasFocus is isHightlighted).
+ * If completing the grid construction portion of the process, unset the values.
+ * Values can still be accessed from cell.correctValue, but we want to leave them out
+ * for player mode.
+ */
+function transformCellForDb({
+	cell,
+	clearValues
+}: {
+	cell: DynamicCell;
+	clearValues: boolean;
+}): Cell {
+	const { id, displayNumber, correctValue, value, x, y, index, isSymmetrical } = cell;
+
+	return {
+		id,
+		displayNumber,
+		correctValue,
+		value: clearValues ? '' : value,
+		x,
+		y,
+		index,
+		isSymmetrical
+	};
+}
+
+/**
+ * transformCellMapForDb
+ *
+ * Remove fields from dynamic cellmap that we don't want in the DB
+ */
+export function transformCellMapForDb({ cellMap }: { cellMap: DynamicCellMap }): CellMap {
+	const entries = Object.entries(cellMap); // [[0:0, {}], [1:1, {}], ]
+	const newCellMap = Object.fromEntries(
+		entries.map(([key, cell]) => {
+			const newCell = transformCellForDb({ cell, clearValues: false });
+			return [key, newCell];
+		})
+	);
+	return newCellMap;
+}
+
+/**
+ * transformPuzzleDataForDb
+ *
+ * Using the cellMap from the puzzle store, find all the words
+ * and save them to either the acrossWords or downWords arrays.
+ */
+export function transformPuzzleDataForCreatingHints({
 	cellMap: initialCellMap,
 	clearValues = false
 }: {
 	cellMap: DynamicCellMap;
 	clearValues?: boolean;
-}): { cleanedCellMap: CellMap; acrossHints: Array<Hint>; downHints: Array<Hint> } {
+}): { cellMapForDb: CellMap; acrossHints: Array<Hint>; downHints: Array<Hint> } {
 	let cellDisplayNumber = 1;
 	const cellMap: CellMap = {};
 	const cellsArray: CellsArray = Object.values(initialCellMap);
@@ -140,7 +178,7 @@ export function getCleanCellMapForDb({
 		const initialCell: DynamicCell = cellsArray[i];
 
 		// Get the transformed cell and work with it from here on.
-		const cell: Cell = transformCellShapeForDb({ cell: initialCell, clearValues });
+		const cell: Cell = transformCellForDb({ cell: initialCell, clearValues });
 		const id: ID = getId({ x: cell.x, y: cell.y });
 		// Copy the transformed cell into the new cellmap
 		cellMap[id] = cell;
@@ -224,9 +262,5 @@ export function getCleanCellMapForDb({
 		}
 	}
 
-	return { cleanedCellMap: cellMap, acrossHints, downHints };
-}
-
-export function getId({ x, y }: { x: number; y: number }): ID {
-	return `${x}:${y}`;
+	return { cellMapForDb: cellMap, acrossHints, downHints };
 }

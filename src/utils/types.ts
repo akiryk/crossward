@@ -79,7 +79,6 @@ export interface Puzzle extends PuzzleDocument {
 	_id: string;
 	cellMap: DynamicCellMap;
 	cellRows: Array<CellsArray>;
-	cellsArray: CellsArray;
 	cellWithFocus: DynamicCell | null;
 	gridDirection: Direction;
 	currentRow: number;

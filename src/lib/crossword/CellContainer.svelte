@@ -42,6 +42,15 @@
 		cell.hasFocus = false;
 	}
 
+	export function handleClick(event: MouseEvent) {
+		// if (cellIsInteractive) {
+		// If it's a double click, highlight the row or the column
+		if (event.detail === 2) {
+			toggleGridDirection(cell);
+		}
+		// }
+	}
+
 	export function handleKeyDown(event: KeyboardEvent) {
 		const code = event.code.toUpperCase();
 		switch (code) {
@@ -85,7 +94,7 @@
 	$: cellCorrectValue = cell.correctValue;
 </script>
 
-{#if gameStatus === GameStatus.PLAY}
+{#if gameStatus === GameStatus.PLAY && cell.correctValue}
 	<Cell
 		displayNumber={cell.displayNumber}
 		value={cellValue}
@@ -94,7 +103,9 @@
 		onFocus={handleOnFocus}
 		onBlur={handleOnBlur}
 		hasFocus={cell.hasFocus}
+		onClick={handleClick}
 		{isHighlighted}
+		{gameStatus}
 	/>
 {:else if gameStatus === GameStatus.EDITING_CELLS}
 	<Cell
@@ -106,10 +117,12 @@
 		onBlur={handleOnBlur}
 		isSymmetrical={cell.isSymmetrical}
 		hasFocus={cell.hasFocus}
+		onClick={handleClick}
 		{isHighlighted}
+		{gameStatus}
 	/>
 {:else if gameStatus === GameStatus.EDITING_HINTS && cellCorrectValue}
 	<PreviewCell displayNumber={cell.displayNumber} value={cellCorrectValue} />
-{:else if gameStatus === GameStatus.EDITING_HINTS}
+{:else}
 	<DeadCell />
 {/if}
