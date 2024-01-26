@@ -5,7 +5,6 @@
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import { enhance } from '$app/forms';
 	import Crossword from '$lib/crossword/Crossword.svelte';
-	import ErrorMessage from '$lib/crossword/ErrorMessage.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import { GameStatus, type Puzzle } from '$utils/types';
@@ -85,6 +84,6 @@
 			id={puzzle._id}
 		/>
 	{:else}
-		<ErrorMessage />
+		<p>huh.</p>
 	{/if}
 </div>

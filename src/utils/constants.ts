@@ -16,6 +16,13 @@ export const PUBLISHED = 'published';
 export const EDIT_PUZZLE = 'editPuzzle';
 export const EDITING_HINTS = 'editHints';
 
+export const SERVER_ERROR_TYPES = {
+	PUBLISH_INCOMPLETE_HINTS: 'PUBLISH_INCOMPLETE_HINTS',
+	PUBLISH_MISSING_DATA: 'PUBLISH_MISSING_DATA',
+	SAVE_MISSING_DATA: 'SAVE_MISSING_DATA',
+	SAVE_FAIL_TO_SAVE: 'SAVE_FAIL_TO_SAVE'
+};
+
 // export const GO_DOWN = 'GO_DOWN';
 // export const GO_UP = 'GO_UP';
 // export const GO_RIGHT = 'GO_RIGHT';

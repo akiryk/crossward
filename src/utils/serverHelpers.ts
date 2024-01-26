@@ -93,6 +93,7 @@ export const handleUpdateTitle = async ({ request }: RequestEvent) => {
 			}
 		};
 		await puzzlesCollection.updateOne(filter, updateDocument);
+
 		return {
 			title: newTitle,
 			success: true
@@ -366,3 +367,17 @@ export function transformPuzzleDataForCreatingHints({
 
 	return { cellMapForDb: cellMap, acrossHints, downHints };
 }
+
+export const validateHints = (acrossHints: Array<Hint>, downHints: Array<Hint>): boolean => {
+	let isValid = true;
+	const allHints = [...acrossHints, ...downHints];
+	let i = allHints.length;
+	while (i > 0) {
+		if (!allHints[i - 1].hint) {
+			isValid = false;
+			break;
+		}
+		i--;
+	}
+	return isValid;
+};

@@ -2,7 +2,6 @@
 	import { onDestroy, onMount } from 'svelte';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
-	import ErrorMessage from '$lib/crossword/ErrorMessage.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
 	import type { Puzzle } from '$utils/types';
@@ -46,6 +45,6 @@
 			<Hints puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.PLAY} />
 		{/if}
 	{:else}
-		<ErrorMessage />
+		<p>huh.</p>
 	{/if}
 </div>
