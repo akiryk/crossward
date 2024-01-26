@@ -102,6 +102,11 @@ export interface Puzzle extends PuzzleDocument {
 	gameId?: string;
 }
 
+export interface PlayerPuzzle extends PuzzleDocument {
+	userGameId?: string;
+	_id?: () => string;
+}
+
 export type Puzzles = Array<Puzzle>;
 
 export type SanitizeInputParams = {

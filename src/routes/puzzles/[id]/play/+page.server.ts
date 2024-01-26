@@ -1,5 +1,5 @@
 // PLAY SERVER
-import type { CellMap, DynamicCellMap, Cell, ID, Puzzle, PuzzleWithId } from '$utils/types';
+import type { CellMap, DynamicCellMap, PuzzleWithId } from '$utils/types';
 import { ServerErrorType } from '$utils/types';
 import { ObjectId } from 'mongodb';
 import { fail, redirect, type ActionFailure, type Action } from '@sveltejs/kit';
@@ -8,10 +8,6 @@ import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
 import { transformPuzzleForClient, transformCellMapForDb } from '$utils/serverHelpers';
 import type { RequestEvent } from '../$types';
-
-type Props = {
-	puzzle: Puzzle;
-};
 
 function getUserId(email: string): string {
 	const regex = /@|\./gi; // select all instances of either '@' or '.'
@@ -42,36 +38,37 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 	// User johndoe@example.com playing puzzle ABCD2343 would have userGameId
 	// of johndoe_example_com_ABCD2342
 	const userGameId = createUserGameId({ email, puzzleId });
-
-	let userPuzzle;
+	let playerPuzzle;
 
 	// check if userId exists in the userGames collection
 	try {
-		userPuzzle = await userPuzzlesCollection.findOne({
+		playerPuzzle = await userPuzzlesCollection.findOne({
 			userGameId
 		});
 
-		if (userPuzzle === null) {
+		if (playerPuzzle === null) {
 			// 1. get the source puzzle
-			userPuzzle = await puzzlesCollection.findOne({
+			playerPuzzle = await puzzlesCollection.findOne({
 				_id: new ObjectId(params.id)
 			});
 
-			if (userPuzzle === null) {
+			if (playerPuzzle === null) {
 				// TODO: Redirect to somekind of help page
 				// explaining that this puzzle may not exist anymore
 				throw redirect(300, '/');
 			}
 
-			// 2. create the new userPuzzle based on the source puzzle
-			const newUserPuzzleDocument = { ...userPuzzle, userGameId };
+			// 2. create the new playerPuzzle based on the source puzzle
+			const playerPuzzleDocument = { ...playerPuzzle, userGameId };
+			// @ts-expect-error The returned doc will have an _id if using Mongo
+			delete playerPuzzleDocument._id;
 			try {
-				const result = await userPuzzlesCollection.insertOne(newUserPuzzleDocument);
-
+				const result = await userPuzzlesCollection.insertOne(playerPuzzleDocument);
 				if (!result.insertedId) {
 					throw new Error('oh no! unable to save the new puzzle');
 				}
-			} catch {
+			} catch (error) {
+				console.log(error);
 				return fail(500, {
 					error:
 						"Sorry about that, we had a database problem. You could try again but I can't promise anything"
@@ -85,13 +82,13 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 		});
 	}
 
-	if (!userPuzzle) {
+	if (!playerPuzzle) {
 		throw new Error('no source puzzle from db');
 	}
 
 	const puzzleWithId = {
-		...userPuzzle,
-		_id: userPuzzle._id.toString()
+		...playerPuzzle,
+		_id: playerPuzzle._id.toString()
 	} as unknown as PuzzleWithId;
 	const puzzle = transformPuzzleForClient(puzzleWithId);
 	return {
