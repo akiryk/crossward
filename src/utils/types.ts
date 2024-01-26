@@ -15,6 +15,19 @@ export enum GameStatus {
 	PLAY
 }
 
+export enum BannerType {
+	IS_SUCCESS,
+	IS_ERROR,
+	IS_INFO
+}
+
+export enum ServerErrorType {
+	PUBLISH_INCOMPLETE_HINTS,
+	DB_ERROR,
+	MISSING_FORM_DATA,
+	UPDATE_TITLE_DB_ERROR
+}
+
 export type CellsArray = Array<DynamicCell>;
 export type ID = `${number}:${number}`;
 

@@ -4,14 +4,13 @@
 	import { enhance } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
 	import Button from '$components/Button.svelte';
+	import Banner from '$components/Banner.svelte';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
-	import { GameStatus, type Puzzle } from '$utils/types';
-	import { PUBLISHED, SERVER_ERROR_TYPES } from '$utils/constants';
-	import ErrorMessage from '$components/ErrorMessage.svelte';
+	import { BannerType, GameStatus, ServerErrorType, type Puzzle } from '$utils/types';
 
 	export let dynamicPuzzle: Puzzle | null;
 
@@ -19,8 +18,7 @@
 	export let form;
 	let errorMessage: string = '';
 	let successMessage: string = '';
-	let publishStatus = '';
-	let errorType = '';
+	let errorType: string = '';
 
 	$: ({ puzzle } = data);
 
@@ -48,29 +46,6 @@
 			gameStatus={GameStatus.EDITING_HINTS}
 			title={puzzle.title}
 		/>
-		{#if publishStatus === PUBLISHED && successMessage}
-			<div
-				class="flex items-center p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
-				role="alert"
-			>
-				<svg
-					class="flex-shrink-0 inline w-4 h-4 me-3"
-					aria-hidden="true"
-					xmlns="http://www.w3.org/2000/svg"
-					fill="currentColor"
-					viewBox="0 0 20 20"
-				>
-					<path
-						d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-					/>
-				</svg>
-				<span class="sr-only">Info</span>
-				<div>
-					<span class="font-medium">Success: </span>
-					{successMessage}.
-				</div>
-			</div>
-		{/if}
 		{#if dynamicPuzzle || puzzle}
 			<div class="mb-5">
 				<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDITING_HINTS} />
@@ -86,16 +61,14 @@
 					return async ({ result }) => {
 						if (result?.status === 200) {
 							errorMessage = '';
-							successMessage = 'Yes!!! You have finished making this puzzle';
-							publishStatus = PUBLISHED;
+							successMessage = `The puzzle ${puzzle.title} is saved!`;
 						}
 						if (result?.status && result.status >= 400) {
 							successMessage = '';
 							if ('data' in result && typeof result.data?.message === 'string') {
 								errorMessage = result.data.message;
-
-								if (result.data.errorType && typeof result.data.errorType === 'string') {
-									errorType = result.data.errorType; // types are 'hint'
+								if (result.data.errorType !== ServerErrorType.UPDATE_TITLE_DB_ERROR) {
+									errorType = 'hint';
 								}
 							} else {
 								errorMessage = 'Sorry, that may not have worked. ';
@@ -116,9 +89,17 @@
 				/>
 				<input type="hidden" name="downHints" value={JSON.stringify(dynamicPuzzle?.downHints)} />
 				<Hints puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDITING_HINTS} />
-				{#if errorMessage && (errorType === SERVER_ERROR_TYPES.PUBLISH_INCOMPLETE_HINTS || errorType === SERVER_ERROR_TYPES.PUBLISH_MISSING_DATA || errorType === SERVER_ERROR_TYPES.PUBLISH_MISSING_DATA)}
-					<ErrorMessage {errorMessage} />
+
+				<!-- ERROR MESSAGES -->
+				{#if errorMessage && errorType === 'hint'}
+					<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} />
 				{/if}
+
+				<!-- SUCCESS MESSAGES -->
+				{#if successMessage}
+					<Banner message={successMessage} bannerType={BannerType.IS_SUCCESS} />
+				{/if}
+
 				<div class="mb-5 flex">
 					<div class="mr-5">
 						<Button buttonType="submit">Save for later</Button>

@@ -1,5 +1,6 @@
 // [id]/editPuzzle/page.server.ts
 import { ObjectId } from 'mongodb';
+import { fail } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import {
 	pageServerLoad,
@@ -10,6 +11,7 @@ import {
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { EDITING_HINTS } from '$utils/constants';
+import { ServerErrorType } from '$utils/types';
 import type { CellMap, DynamicCellMap, Hint } from '$utils/types';
 
 export const load = pageServerLoad;
@@ -20,13 +22,11 @@ export const actions = {
 		const cellMapString = data.get('cellMap');
 
 		const id = data.get('id');
-		if (!id || typeof id !== 'string') {
-			// log error
-			return;
-		}
-		if (!cellMapString || typeof cellMapString !== 'string') {
-			// TODO: log error
-			return;
+		if (!id || typeof id !== 'string' || !cellMapString || typeof cellMapString !== 'string') {
+			return fail(422, {
+				errorType: ServerErrorType.MISSING_FORM_DATA,
+				message: 'Sorry but there was a problem.'
+			});
 		}
 
 		const cellMap = JSON.parse(cellMapString);
@@ -67,7 +67,9 @@ export const actions = {
 				}
 			};
 		} catch {
-			//
+			return fail(500, {
+				errorType: ServerErrorType.DB_ERROR
+			});
 		}
 	},
 	updateCellMap: async ({ request }: RequestEvent) => {
@@ -75,13 +77,12 @@ export const actions = {
 		const cellMap = data.get('cellMap');
 
 		const id = data.get('id');
-		if (!id || typeof id !== 'string') {
-			// log error
-			return;
-		}
-		if (!cellMap || typeof cellMap !== 'string') {
-			// TODO: log error
-			return;
+
+		if (!id || typeof id !== 'string' || !cellMap || typeof cellMap !== 'string') {
+			return fail(422, {
+				errorType: ServerErrorType.MISSING_FORM_DATA,
+				message: 'Sorry but there was a problem.'
+			});
 		}
 
 		const parsedCellMap: DynamicCellMap = JSON.parse(cellMap);
@@ -107,7 +108,9 @@ export const actions = {
 				}
 			};
 		} catch {
-			//ol,.
+			return fail(500, {
+				errorType: ServerErrorType.DB_ERROR
+			});
 		}
 	},
 	updateTitle: handleUpdateTitle,

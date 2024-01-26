@@ -7,13 +7,18 @@
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import { GameStatus, type Puzzle } from '$utils/types';
+	import { GameStatus, BannerType, ServerErrorType, type Puzzle } from '$utils/types';
 	import Button from '$components/Button.svelte';
+	import Banner from '$components/Banner.svelte';
 
 	export let dynamicPuzzle: Puzzle | null;
 
 	export let data;
 	export let form;
+
+	let errorMessage: string = '';
+	let successMessage: string = '';
+	let errorType: ServerErrorType;
 
 	$: ({ puzzle, isCreateSuccess } = data);
 
@@ -52,6 +57,20 @@
 					// function to use:enhance, it allows asynchronous operations to complete before
 					// proceeding with subsequent actions
 					return async ({ result }) => {
+						if (result?.status === 200) {
+							errorMessage = '';
+							successMessage = `The puzzle ${puzzle.title} is saved!`;
+						}
+						if (result?.status && result.status >= 400) {
+							successMessage = '';
+							if ('data' in result && typeof result.data?.message === 'string') {
+								errorMessage = result.data.message;
+							} else {
+								errorMessage = 'Sorry, that may not have worked. ';
+							}
+						} else {
+							errorMessage = '';
+						}
 						// @ts-ignore
 						if (result?.data?.headers?.location) goto(result.data.headers.location);
 					};
@@ -62,6 +81,15 @@
 				<div class="mb-5">
 					<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDITING_CELLS} />
 				</div>
+				<!-- ERROR MESSAGES -->
+				{#if errorMessage}
+					<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} />
+				{/if}
+
+				<!-- SUCCESS MESSAGES -->
+				{#if successMessage}
+					<Banner message={successMessage} bannerType={BannerType.IS_SUCCESS} />
+				{/if}
 				<div class="mb-5 flex">
 					<div class="mr-5">
 						<Button buttonType="submit">Save for later</Button>
@@ -77,12 +105,7 @@
 
 		<hr class="my-10" />
 
-		<EditPuzzleTitle
-			error={form?.error}
-			success={form?.success}
-			title={form?.title || puzzle.title}
-			id={puzzle._id}
-		/>
+		<EditPuzzleTitle success={form?.success} title={form?.title || puzzle.title} id={puzzle._id} />
 	{:else}
 		<p>huh.</p>
 	{/if}

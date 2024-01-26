@@ -15,7 +15,7 @@ import type {
 	Hint,
 	SanitizeInputParams
 } from '$utils/types';
-import { Direction } from '$utils/types';
+import { Direction, ServerErrorType } from '$utils/types';
 import { getId } from './helpers';
 import sanitizeHtml from 'sanitize-html';
 import mongodb, { ObjectId } from 'mongodb';
@@ -62,7 +62,6 @@ export const pageServerLoad: PageServerLoad = async ({ params, url, locals }): P
 		} as unknown as PuzzleWithId;
 		const puzzle = transformPuzzleForClient(puzzleWithId);
 		const create = url.searchParams.get('create');
-
 		return {
 			puzzle,
 			isCreateSuccess: create === 'true'
@@ -100,7 +99,8 @@ export const handleUpdateTitle = async ({ request }: RequestEvent) => {
 		};
 	} catch (error) {
 		return fail(422, {
-			error
+			errorType: ServerErrorType.UPDATE_TITLE_DB_ERROR,
+			message: 'Oops, unable to update the title!'
 		});
 	}
 };

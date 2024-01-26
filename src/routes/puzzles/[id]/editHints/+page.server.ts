@@ -8,12 +8,13 @@ import {
 	validateHints
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
-import { PUBLISHED, SERVER_ERROR_TYPES } from '$utils/constants';
+import { PUBLISHED } from '$utils/constants';
+import { ServerErrorType } from '$utils/types';
 
 export const load = pageServerLoad;
 
 export const actions = {
-	saveHints: async ({ request }: RequestEvent) => {
+	updateHints: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const acrossHints = await data.get('acrossHints');
 		const downHints = await data.get('downHints');
@@ -28,7 +29,7 @@ export const actions = {
 		) {
 			return fail(400, {
 				message: 'Something went wrong on our end. Please try again later.',
-				errorType: SERVER_ERROR_TYPES.PUBLISH_MISSING_DATA
+				errorType: ServerErrorType.MISSING_FORM_DATA
 			});
 		}
 
@@ -50,7 +51,7 @@ export const actions = {
 		} catch {
 			return fail(500, {
 				message: 'We seem to be losing our minds. Can you return in a week or so?',
-				errorType: SERVER_ERROR_TYPES.SAVE_FAIL_TO_SAVE
+				errorType: ServerErrorType.DB_ERROR
 			});
 		}
 	},
@@ -69,7 +70,7 @@ export const actions = {
 			typeof downHints !== 'string'
 		) {
 			return fail(422, {
-				errorType: SERVER_ERROR_TYPES.PUBLISH_MISSING_DATA,
+				errorType: ServerErrorType.MISSING_FORM_DATA,
 				message: 'Sorry but there was a problem.'
 			});
 		}
@@ -80,7 +81,7 @@ export const actions = {
 
 		if (!isValid) {
 			return fail(422, {
-				errorType: SERVER_ERROR_TYPES.PUBLISH_INCOMPLETE_HINTS,
+				errorType: ServerErrorType.PUBLISH_INCOMPLETE_HINTS,
 				message: 'Please add hints to all the across and down words.'
 			});
 		}
@@ -103,19 +104,12 @@ export const actions = {
 				status: 200 // HTTP status for "See Other"
 			};
 		} catch {
-			return {
-				status: 500
-			};
+			return fail(500, {
+				errorType: ServerErrorType.DB_ERROR,
+				message: 'Please add hints to all the across and down words.'
+			});
 		}
 	},
 	updateTitle: handleUpdateTitle,
 	delete: handleDelete
 };
-
-async function updatePuzzle({
-	request,
-	isPublish = false
-}: {
-	request: Request;
-	isPublish: boolean;
-}) {}
