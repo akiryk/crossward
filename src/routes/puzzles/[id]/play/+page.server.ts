@@ -1,23 +1,13 @@
-import type {
-	CellMap,
-	DynamicCellMap,
-	Cell,
-	ID,
-	Puzzle,
-	DynamicCell,
-	PuzzleWithId,
-	CellsArray,
-	Hint,
-	PuzzleDocument
-} from '$utils/types';
-import { Direction, ServerErrorType } from '$utils/types';
-import sanitizeHtml from 'sanitize-html';
-import mongodb, { ObjectId } from 'mongodb';
+// PLAY SERVER
+import type { CellMap, DynamicCellMap, Cell, ID, Puzzle, PuzzleWithId } from '$utils/types';
+import { ServerErrorType } from '$utils/types';
+import { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
-import { transformPuzzleForClient } from '$utils/serverHelpers';
+import { transformPuzzleForClient, transformCellMapForDb } from '$utils/serverHelpers';
+import type { RequestEvent } from '../$types';
 
 type Props = {
 	puzzle: Puzzle;
@@ -28,7 +18,7 @@ function getUserId(userEmail: string): string {
 	return userEmail.replace(regex, '_');
 }
 
-export const load: PageServerLoad = async ({ params, url, locals }): Promise<Props> => {
+export const load: PageServerLoad = async ({ params, locals }): Promise<Props> => {
 	let session;
 	/**
 	 * Redirect unauthorized users to login page!
@@ -42,41 +32,40 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 		throw redirect(302, '/login');
 	}
 	const userEmail = session.user.email;
+
 	// get user convert name@dom.com to name_dom_com
 	const userId = getUserId(userEmail);
+
+	let userPuzzle;
+	let sourcePuzzle;
+
 	// check if userId exists in the userGames collection
 	try {
-		const puzzleFromDb = await puzzlesCollection.findOne({
-			_id: new ObjectId(params.id)
-		});
-
-		if (puzzleFromDb === null) {
-			// TODO: Redirect to somekind of help page
-			// explaining that this puzzle may not exist anymore
-			throw redirect(300, '/');
-		}
-
-		const userPuzzleFromDb = await userPuzzlesCollection.findOne({
+		userPuzzle = await userPuzzlesCollection.findOne({
 			userId,
 			gameId: params.id
 		});
 
-		if (userPuzzleFromDb === null) {
-			// create the puzzle
-			const document = { ...puzzleFromDb, userId, gameId: params.id };
+		if (userPuzzle === null) {
+			// 1. get the source puzzle
+			sourcePuzzle = await puzzlesCollection.findOne({
+				_id: new ObjectId(params.id)
+			});
+
+			if (sourcePuzzle === null) {
+				// TODO: Redirect to somekind of help page
+				// explaining that this puzzle may not exist anymore
+				throw redirect(300, '/');
+			}
+
+			// 2. create the new userPuzzle based on the source puzzle
+			const newUserPuzzleDocument = { ...sourcePuzzle, userId, gameId: params.id };
 			try {
-				/**
-				 * result will be an object with two fields:
-				 * acknowledged: true,
-				 * insertedId: new ObjectId('65a5829185a9dd4ebca2d1d9')
-				 */
-				const result = await userPuzzlesCollection.insertOne(document);
+				const result = await userPuzzlesCollection.insertOne(newUserPuzzleDocument);
 
 				if (!result.insertedId) {
 					throw new Error('oh no! unable to save the new puzzle');
 				}
-
-				const insertedId = result.insertedId;
 			} catch {
 				return fail(500, {
 					error:
@@ -84,35 +73,65 @@ export const load: PageServerLoad = async ({ params, url, locals }): Promise<Pro
 				});
 			}
 		}
-		console.log(userPuzzleFromDb?.gameId);
 	} catch {}
 
-	/**
-	 * Load the puzzle data
-	 */
-	try {
-		const puzzleFromDb = await puzzlesCollection.findOne({
-			_id: new ObjectId(params.id)
-		});
+	const puzzleFromDb = userPuzzle || sourcePuzzle;
 
-		if (puzzleFromDb === null) {
-			// TODO: Redirect to somekind of help page
-			// explaining that this puzzle may not exist anymore
-			throw redirect(300, '/');
+	if (!puzzleFromDb) {
+		throw new Error('no source puzzle from db');
+	}
+
+	const puzzleWithId = {
+		...puzzleFromDb,
+		_id: puzzleFromDb._id.toString()
+	} as unknown as PuzzleWithId;
+	const puzzle = transformPuzzleForClient(puzzleWithId);
+	return {
+		puzzle
+	};
+};
+
+export const actions = {
+	saveGame: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+		const id = data.get('id');
+		const gameId = data.get('gameId');
+		const userId = data.get('userId');
+		const cellMap = data.get('cellMap');
+
+		if (!id || !gameId || !userId || !cellMap) {
+			return fail(422, {
+				errorType: ServerErrorType.MISSING_FORM_DATA,
+				message: 'Sorry! Please try again to save.'
+			});
 		}
 
-		const puzzleWithId = {
-			...puzzleFromDb,
-			_id: puzzleFromDb._id.toString()
-		} as unknown as PuzzleWithId;
-		const puzzle = transformPuzzleForClient(puzzleWithId);
-		return {
-			puzzle
-		};
-	} catch (error) {
-		// @ts-expect-error in catch block
-		return fail(422, {
-			error
+		const parsedCellMap: DynamicCellMap = JSON.parse(cellMap.toString());
+		const cellMapForDb: CellMap = transformCellMapForDb({
+			cellMap: parsedCellMap
 		});
+
+		const filter = {
+			_id: new ObjectId(id.toString())
+		};
+		const updateDocument = {
+			$set: {
+				cellMap: cellMapForDb
+			}
+		};
+
+		try {
+			await userPuzzlesCollection.updateOne(filter, updateDocument);
+			return {
+				status: 303, // HTTP status for "See Other"
+				headers: {
+					location: `/puzzles/${id}/play`
+				}
+			};
+		} catch {
+			return fail(500, {
+				errorType: ServerErrorType.DB_ERROR
+			});
+		}
 	}
 };

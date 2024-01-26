@@ -44,6 +44,7 @@
 	<input
 		type="text"
 		class={classes}
+		name="cell"
 		on:input={onInput}
 		on:keydown={onKeydown}
 		bind:this={inputElement}

@@ -98,6 +98,8 @@ export interface Puzzle extends PuzzleDocument {
 	currentColumn: number;
 	workingAnswersKey: Record<string, string>;
 	highlightedCellIds: Array<ID>;
+	userId?: string;
+	gameId?: string;
 }
 
 export type Puzzles = Array<Puzzle>;
