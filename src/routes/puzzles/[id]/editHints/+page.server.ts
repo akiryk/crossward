@@ -41,12 +41,11 @@ export const actions = {
 			$set: { acrossHints: JSON.parse(acrossHints), downHints: JSON.parse(downHints) }
 		};
 
-		const location = `/puzzles/${id}/editHints`;
 		try {
 			await puzzlesCollection.updateOne(filter, updateDocument);
 			return {
-				status: 303, // HTTP status for "See Other"
-				headers: { location }
+				status: 200,
+				successType: 'updated'
 			};
 		} catch {
 			return fail(500, {
@@ -101,7 +100,8 @@ export const actions = {
 		try {
 			await puzzlesCollection.updateOne(filter, updateDocument);
 			return {
-				status: 200 // HTTP status for "See Other"
+				status: 200,
+				successType: 'published'
 			};
 		} catch {
 			return fail(500, {

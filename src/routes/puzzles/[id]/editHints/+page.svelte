@@ -52,7 +52,7 @@
 			</div>
 			<form
 				method="POST"
-				action={'?/saveHints'}
+				action={'?/updateHints'}
 				use:enhance={(a) => {
 					// This async noop is necessary to ensure that the puzzle displays values after
 					// update. I'm not sure why but suspect it may be that when you provide an async
@@ -61,7 +61,17 @@
 					return async ({ result }) => {
 						if (result?.status === 200) {
 							errorMessage = '';
-							successMessage = `The puzzle ${puzzle.title} is saved!`;
+
+							switch (result?.data?.successType) {
+								case 'updated':
+									successMessage = `The puzzle ${puzzle.title} is saved!`;
+									break;
+								case 'published':
+									successMessage = `The puzzle ${puzzle.title} is published!`;
+									break;
+								default:
+									successMessage = `The puzzle ${puzzle.title} is saved!`;
+							}
 						}
 						if (result?.status && result.status >= 400) {
 							successMessage = '';

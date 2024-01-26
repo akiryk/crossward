@@ -2,7 +2,7 @@
 import type { CellMap, DynamicCellMap, Cell, ID, Puzzle, PuzzleWithId } from '$utils/types';
 import { ServerErrorType } from '$utils/types';
 import { ObjectId } from 'mongodb';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail, redirect, type ActionFailure, type Action } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
@@ -13,12 +13,16 @@ type Props = {
 	puzzle: Puzzle;
 };
 
-function getUserId(userEmail: string): string {
+function getUserId(email: string): string {
 	const regex = /@|\./gi; // select all instances of either '@' or '.'
-	return userEmail.replace(regex, '_');
+	return email.replace(regex, '_');
 }
 
-export const load: PageServerLoad = async ({ params, locals }): Promise<Props> => {
+function createUserGameId({ email, puzzleId }: { email: string; puzzleId: string }): string {
+	return `${getUserId(email)}_${puzzleId}`;
+}
+
+export const load: PageServerLoad = async ({ params, locals }): Promise<any> => {
 	let session;
 	/**
 	 * Redirect unauthorized users to login page!
@@ -31,35 +35,36 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<Props> =
 	} catch {
 		throw redirect(302, '/login');
 	}
-	const userEmail = session.user.email;
+	const email = session.user.email;
+	const puzzleId = params.id;
 
-	// get user convert name@dom.com to name_dom_com
-	const userId = getUserId(userEmail);
+	// Get a unique ID for each user's game based on email and puzzle ID.
+	// User johndoe@example.com playing puzzle ABCD2343 would have userGameId
+	// of johndoe_example_com_ABCD2342
+	const userGameId = createUserGameId({ email, puzzleId });
 
 	let userPuzzle;
-	let sourcePuzzle;
 
 	// check if userId exists in the userGames collection
 	try {
 		userPuzzle = await userPuzzlesCollection.findOne({
-			userId,
-			gameId: params.id
+			userGameId
 		});
 
 		if (userPuzzle === null) {
 			// 1. get the source puzzle
-			sourcePuzzle = await puzzlesCollection.findOne({
+			userPuzzle = await puzzlesCollection.findOne({
 				_id: new ObjectId(params.id)
 			});
 
-			if (sourcePuzzle === null) {
+			if (userPuzzle === null) {
 				// TODO: Redirect to somekind of help page
 				// explaining that this puzzle may not exist anymore
 				throw redirect(300, '/');
 			}
 
 			// 2. create the new userPuzzle based on the source puzzle
-			const newUserPuzzleDocument = { ...sourcePuzzle, userId, gameId: params.id };
+			const newUserPuzzleDocument = { ...userPuzzle, userGameId };
 			try {
 				const result = await userPuzzlesCollection.insertOne(newUserPuzzleDocument);
 
@@ -73,17 +78,20 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<Props> =
 				});
 			}
 		}
-	} catch {}
+	} catch {
+		return fail(500, {
+			error:
+				"Sorry about that, we had a database problem. You could try again but I can't promise anything"
+		});
+	}
 
-	const puzzleFromDb = userPuzzle || sourcePuzzle;
-
-	if (!puzzleFromDb) {
+	if (!userPuzzle) {
 		throw new Error('no source puzzle from db');
 	}
 
 	const puzzleWithId = {
-		...puzzleFromDb,
-		_id: puzzleFromDb._id.toString()
+		...userPuzzle,
+		_id: userPuzzle._id.toString()
 	} as unknown as PuzzleWithId;
 	const puzzle = transformPuzzleForClient(puzzleWithId);
 	return {
@@ -95,11 +103,9 @@ export const actions = {
 	saveGame: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const id = data.get('id');
-		const gameId = data.get('gameId');
-		const userId = data.get('userId');
 		const cellMap = data.get('cellMap');
 
-		if (!id || !gameId || !userId || !cellMap) {
+		if (!id || !cellMap) {
 			return fail(422, {
 				errorType: ServerErrorType.MISSING_FORM_DATA,
 				message: 'Sorry! Please try again to save.'
