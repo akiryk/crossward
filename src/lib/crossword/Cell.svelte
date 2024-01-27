@@ -29,7 +29,7 @@
 	}
 
 	function getStyles(value: string, isSymmetrical: boolean, isHighlighted: boolean) {
-		let style = 'bg-gray-100';
+		let style = 'bg-gray-300';
 		if (gameStatus === GameStatus.PLAY || value || isSymmetrical) {
 			style = 'bg-white';
 		}
