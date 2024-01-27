@@ -45,6 +45,11 @@
 				return;
 			}
 			const formData = new FormData(gameForm);
+
+			// Test whether removing cell inputs from network request speeds
+			// up the request enough to succeed.
+			formData.delete('cell');
+
 			await fetch('?/updateCellMap', {
 				method: 'POST',
 				body: formData
