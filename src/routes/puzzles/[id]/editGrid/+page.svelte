@@ -44,6 +44,7 @@
 			if (gameForm === null) {
 				return;
 			}
+			console.log('Save data from client');
 			const formData = new FormData(gameForm);
 			await fetch('?/updateCellMap', {
 				method: 'POST',
