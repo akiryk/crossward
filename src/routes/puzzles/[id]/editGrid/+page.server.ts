@@ -76,7 +76,6 @@ export const actions = {
 		const data = await request.formData();
 		const cellMap = data.get('cellMap');
 		const id = data.get('id');
-		console.log(`save id ${id}`);
 		if (!id || typeof id !== 'string' || !cellMap || typeof cellMap !== 'string') {
 			return fail(422, {
 				errorType: ServerErrorType.MISSING_FORM_DATA,
@@ -85,16 +84,16 @@ export const actions = {
 		}
 
 		const parsedCellMap: DynamicCellMap = JSON.parse(cellMap);
-		const cellMapForDb: CellMap = transformCellMapForDb({
-			cellMap: parsedCellMap
-		});
+		// const cellMapForDb: CellMap = transformCellMapForDb({
+		// 	cellMap: parsedCellMap
+		// });
 
 		const filter = {
 			_id: new ObjectId(id)
 		};
 		const updateDocument = {
 			$set: {
-				cellMap: cellMapForDb
+				cellMap: parsedCellMap
 			}
 		};
 
