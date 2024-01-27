@@ -83,19 +83,19 @@ export const actions = {
 			});
 		}
 
-		const parsedCellMap: DynamicCellMap = JSON.parse(cellMap);
-		const cellMapForDb: CellMap = transformCellMapForDb({
-			cellMap: parsedCellMap
-		});
+		// const parsedCellMap: DynamicCellMap = JSON.parse(cellMap);
+		// const cellMapForDb: CellMap = transformCellMapForDb({
+		// 	cellMap: parsedCellMap
+		// });
 
-		const filter = {
-			_id: new ObjectId(id)
-		};
-		const updateDocument = {
-			$set: {
-				cellMap: cellMapForDb
-			}
-		};
+		// const filter = {
+		// 	_id: new ObjectId(id)
+		// };
+		// const updateDocument = {
+		// 	$set: {
+		// 		cellMap: cellMapForDb
+		// 	}
+		// };
 
 		try {
 			// await puzzlesCollection.updateOne(filter, updateDocument);
