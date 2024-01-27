@@ -22,7 +22,7 @@
 	export let showIsPreview: boolean = false;
 	let currentDirection = Direction.GO_RIGHT;
 
-	function getHighlightedCell(cell: DynamicCell) {
+	function getHighlightedCellIds(cell: DynamicCell): Array<ID> {
 		let highlightedCellIds: Array<ID> = [];
 		const currentCellX = cell.x;
 		const currentCellY = cell.y;
@@ -43,7 +43,7 @@
 		const { x, y } = coords;
 		puzzle.cellMap[id].hasFocus = true;
 		puzzle.cellRows[y][x].hasFocus = true;
-		puzzle.highlightedCellIds = getHighlightedCell(puzzle.cellMap[id]);
+		puzzle.highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[id]);
 		PuzzleStore.set(puzzle);
 	}
 
@@ -102,7 +102,7 @@
 	export function toggleGridDirection(cell: DynamicCell) {
 		currentDirection =
 			currentDirection === Direction.GO_RIGHT ? Direction.GO_DOWN : Direction.GO_RIGHT;
-		puzzle.highlightedCellIds = getHighlightedCell(puzzle.cellMap[cell.id]);
+		puzzle.highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[cell.id]);
 		PuzzleStore.set(puzzle);
 	}
 </script>

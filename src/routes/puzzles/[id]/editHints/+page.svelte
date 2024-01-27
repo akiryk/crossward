@@ -53,6 +53,7 @@
 			<form
 				method="POST"
 				action={'?/updateHints'}
+				autocomplete="off"
 				use:enhance={(a) => {
 					// This async noop is necessary to ensure that the puzzle displays values after
 					// update. I'm not sure why but suspect it may be that when you provide an async

@@ -37,12 +37,17 @@ export type ID = `${number}:${number}`;
 export type Cell = {
 	x: number;
 	y: number;
-	id: ID;
+	id: ID | string;
 	displayNumber: number;
 	correctValue: string;
 	value: string;
 	isSymmetrical: boolean;
 	index: number;
+	// These are conveniences so we can highlight the word's cells and not others
+	acrossWordStartX?: number;
+	acrossWordEndX?: number;
+	downWordStartY?: number;
+	downWordEndY?: number;
 };
 
 export interface DynamicCell extends Cell {

@@ -94,7 +94,7 @@
 					// function to use:enhance, it allows asynchronous operations to complete before
 					// proceeding with subsequent actions
 					return async ({ result }) => {
-						if (result?.status === 200) {
+						if (result?.status === 200 && !result?.data?.headers) {
 							errorMessage = '';
 							successMessage = `The puzzle ${puzzle.title} is saved!`;
 						}

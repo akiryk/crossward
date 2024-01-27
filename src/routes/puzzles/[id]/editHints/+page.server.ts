@@ -5,7 +5,7 @@ import {
 	pageServerLoad,
 	handleUpdateTitle,
 	handleDelete,
-	validateHints
+	validateHintsForPublishingPuzzle
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { PUBLISHED } from '$utils/constants';
@@ -76,7 +76,7 @@ export const actions = {
 
 		const parsedAcrossHints = JSON.parse(acrossHints);
 		const parsedDownHints = JSON.parse(downHints);
-		const isValid = validateHints(parsedAcrossHints, parsedDownHints);
+		const isValid = validateHintsForPublishingPuzzle(parsedAcrossHints, parsedDownHints);
 
 		if (!isValid) {
 			return fail(422, {

@@ -88,7 +88,6 @@ export const actions = {
 			cellMap: parsedCellMap
 		});
 
-		console.log(cellMapForDb['14:14']);
 		const filter = {
 			_id: new ObjectId(id)
 		};
@@ -101,10 +100,7 @@ export const actions = {
 		try {
 			await puzzlesCollection.updateOne(filter, updateDocument);
 			return {
-				status: 303, // HTTP status for "See Other"
-				headers: {
-					location: `/puzzles/${id}/editGrid`
-				}
+				status: 200 // HTTP status for "See Other"
 			};
 		} catch {
 			return fail(500, {
