@@ -16,9 +16,10 @@
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
 
-	export let onInput: () => void;
+	export let onInput: () => void = () => {};
 	export let puzzle: Puzzle;
 	export let gameStatus: GameStatus;
+	export let showIsPreview: boolean = false;
 	let currentDirection = Direction.GO_RIGHT;
 
 	function getHighlightedCell(cell: DynamicCell) {
@@ -127,6 +128,7 @@
 						isHighlighted={puzzle.highlightedCellIds.includes(cell.id)}
 						{currentDirection}
 						{onInput}
+						{showIsPreview}
 					/>
 				{/each}
 			</tr>

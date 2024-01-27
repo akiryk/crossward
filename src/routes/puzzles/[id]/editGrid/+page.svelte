@@ -18,6 +18,7 @@
 
 	let errorMessage: string = '';
 	let successMessage: string = '';
+	let isPreview = false;
 
 	$: ({ puzzle, isCreateSuccess } = data);
 
@@ -61,6 +62,16 @@
 			saveData();
 		}, 100);
 	};
+
+	const handleOnPreview = () => {
+		isPreview = true;
+	};
+
+	const handleOffPreview = () => {
+		isPreview = false;
+	};
+
+	$: showIsPreview = isPreview;
 </script>
 
 <div>
@@ -107,8 +118,9 @@
 				<div class="mb-5">
 					<Crossword
 						puzzle={dynamicPuzzle || puzzle}
-						gameStatus={GameStatus.EDITING_CELLS}
+						gameStatus={isPreview ? GameStatus.PREVIEW : GameStatus.EDITING_CELLS}
 						onInput={handleSaveOnInput}
+						{showIsPreview}
 					/>
 				</div>
 				<!-- ERROR MESSAGES -->
@@ -128,6 +140,15 @@
 						formaction="?/createHints"
 						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
 						>Make Hints</button
+					>
+					<button
+						type="button"
+						on:mousedown={handleOnPreview}
+						on:mouseup={handleOffPreview}
+						on:mouseout={handleOffPreview}
+						on:blur={handleOffPreview}
+						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+						>Preview</button
 					>
 				</div>
 			</form>

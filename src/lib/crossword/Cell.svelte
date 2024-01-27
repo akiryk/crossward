@@ -6,8 +6,9 @@
 	export let displayNumber: number;
 	export let hasFocus: boolean;
 	export let gameStatus: GameStatus;
-	export let isSymmetrical: boolean = false;
 	export let isHighlighted: boolean;
+	export let isSymmetrical: boolean = false;
+	export let showIsPreview: boolean = false;
 	export let onInput: (event: Event) => void;
 	export let onKeydown: (event: KeyboardEvent) => void;
 	export let onFocus: (event: Event) => void;
@@ -22,19 +23,27 @@
 
 	export const CLASSES = `${SHARED_INPUT_STYLES} ${SHARED_CELL_FONT_STYLES} ${SHARED_CELL_STYLES} ${SHARED_PSEUDO_STYLES}`;
 
-	$: classes = getStyles(value, isSymmetrical, isHighlighted);
+	$: classes = getStyles(value, isSymmetrical, isHighlighted, showIsPreview);
 
 	$: if (hasFocus) {
 		inputElement.focus();
 	}
 
-	function getStyles(value: string, isSymmetrical: boolean, isHighlighted: boolean) {
+	function getStyles(
+		value: string,
+		isSymmetrical: boolean,
+		isHighlighted: boolean,
+		showIsPreview: boolean
+	) {
 		let style = 'bg-gray-300';
 		if (gameStatus === GameStatus.PLAY || value || isSymmetrical) {
 			style = 'bg-white';
 		}
 		if (isHighlighted) {
 			style = isSymmetrical ? 'bg-cyan-100' : 'bg-cyan-200';
+		}
+		if (showIsPreview && !value) {
+			// style = 'bg-black';
 		}
 		return `${CLASSES} ${style}`;
 	}
