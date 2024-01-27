@@ -31,6 +31,28 @@
 	onDestroy(() => {
 		unsubscribe();
 	});
+
+	async function saveGame() {
+		try {
+			const gameForm = document.querySelector('form');
+			if (gameForm === null) {
+				return;
+			}
+			const formData = new FormData(gameForm);
+			await fetch('?/saveGame', {
+				method: 'POST',
+				body: formData
+			});
+		} catch {
+			console.error('Error saving data');
+		}
+	}
+
+	const handleSaveOnInput = () => {
+		setTimeout(() => {
+			saveGame();
+		}, 100);
+	};
 </script>
 
 <div>
@@ -59,7 +81,11 @@
 				<input type="hidden" name="cellMap" value={JSON.stringify(dynamicPuzzle?.cellMap)} />
 				<input type="hidden" name="id" value={puzzle._id} />
 				<div class="mb-5">
-					<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.PLAY} />
+					<Crossword
+						puzzle={dynamicPuzzle || puzzle}
+						gameStatus={GameStatus.PLAY}
+						onInput={handleSaveOnInput}
+					/>
 				</div>
 				<Hints puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.PLAY} />
 				<div class="mb-5 flex">

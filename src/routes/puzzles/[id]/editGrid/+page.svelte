@@ -40,20 +40,17 @@
 
 	async function saveData() {
 		try {
-			const formData = new FormData(document.querySelector('form'));
-
+			const gameForm = document.querySelector('form');
+			if (gameForm === null) {
+				return;
+			}
+			const formData = new FormData(gameForm);
 			await fetch('?/updateCellMap', {
 				method: 'POST',
 				body: formData
 			});
-
-			// if (response.ok) {
-			// 	console.log('Data saved successfully!');
-			// } else {
-			// 	throw new Error('Failed to save data.');
-			// }
-		} catch (error) {
-			console.error('Error saving data:', error.message);
+		} catch {
+			console.error('Error saving data');
 		}
 	}
 
