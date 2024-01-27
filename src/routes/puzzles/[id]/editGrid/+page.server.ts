@@ -84,16 +84,16 @@ export const actions = {
 		}
 
 		const parsedCellMap: DynamicCellMap = JSON.parse(cellMap);
-		// const cellMapForDb: CellMap = transformCellMapForDb({
-		// 	cellMap: parsedCellMap
-		// });
+		const cellMapForDb: CellMap = transformCellMapForDb({
+			cellMap: parsedCellMap
+		});
 
 		const filter = {
 			_id: new ObjectId(id)
 		};
 		const updateDocument = {
 			$set: {
-				cellMap: parsedCellMap
+				cellMap: cellMapForDb
 			}
 		};
 
