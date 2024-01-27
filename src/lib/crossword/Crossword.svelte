@@ -26,13 +26,39 @@
 		let highlightedCellIds: Array<ID> = [];
 		const currentCellX = cell.x;
 		const currentCellY = cell.y;
-		if (currentDirection === Direction.GO_RIGHT) {
-			for (let x = 0; x < puzzle.acrossSpan; x++) {
-				highlightedCellIds.push(getId({ x, y: currentCellY }));
+		if (gameStatus === GameStatus.PLAY) {
+			if (currentDirection === Direction.GO_RIGHT) {
+				if (
+					typeof cell.acrossWordStartX === 'number' &&
+					cell.acrossWordEndX &&
+					cell.x >= cell.acrossWordStartX &&
+					cell.x <= cell.acrossWordEndX
+				) {
+					for (let i = cell.acrossWordStartX; i <= cell.acrossWordEndX; i++) {
+						highlightedCellIds.push(getId({ x: i, y: cell.y }));
+					}
+				}
+			} else {
+				if (
+					typeof cell.downWordStartY === 'number' &&
+					cell.downWordEndY &&
+					cell.y >= cell.downWordStartY &&
+					cell.y <= cell.downWordEndY
+				) {
+					for (let i = cell.downWordStartY; i <= cell.downWordEndY; i++) {
+						highlightedCellIds.push(getId({ x: cell.x, y: i }));
+					}
+				}
 			}
 		} else {
-			for (let y = 0; y < puzzle.downSpan; y++) {
-				highlightedCellIds.push(getId({ x: currentCellX, y }));
+			if (currentDirection === Direction.GO_RIGHT) {
+				for (let x = 0; x < puzzle.acrossSpan; x++) {
+					highlightedCellIds.push(getId({ x, y: currentCellY }));
+				}
+			} else {
+				for (let y = 0; y < puzzle.downSpan; y++) {
+					highlightedCellIds.push(getId({ x: currentCellX, y }));
+				}
 			}
 		}
 		return highlightedCellIds;
