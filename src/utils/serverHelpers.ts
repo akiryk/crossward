@@ -225,7 +225,20 @@ function transformCellForDb({
 	cell: DynamicCell;
 	clearValues: boolean;
 }): Cell {
-	const { id, displayNumber, correctValue, value, x, y, index, isSymmetrical } = cell;
+	const {
+		id,
+		displayNumber,
+		correctValue,
+		value,
+		x,
+		y,
+		index,
+		isSymmetrical,
+		acrossWordStartX,
+		acrossWordEndX,
+		downWordStartY,
+		downWordEndY
+	} = cell;
 
 	return {
 		id,
@@ -235,7 +248,11 @@ function transformCellForDb({
 		x,
 		y,
 		index,
-		isSymmetrical
+		isSymmetrical,
+		acrossWordStartX,
+		acrossWordEndX,
+		downWordStartY,
+		downWordEndY
 	};
 }
 
