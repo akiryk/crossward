@@ -16,6 +16,7 @@
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
 
+	export let onInput: () => void;
 	export let puzzle: Puzzle;
 	export let gameStatus: GameStatus;
 	let currentDirection = Direction.GO_RIGHT;
@@ -40,7 +41,6 @@
 		const id = getIdFromCoords(coords);
 		const { x, y } = coords;
 		puzzle.cellMap[id].hasFocus = true;
-		const index = puzzle.cellMap[id].index;
 		puzzle.cellRows[y][x].hasFocus = true;
 		puzzle.highlightedCellIds = getHighlightedCell(puzzle.cellMap[id]);
 		PuzzleStore.set(puzzle);
@@ -78,7 +78,6 @@
 		// remove focus from current cell
 		const id = cell.id;
 		puzzle.cellMap[id].hasFocus = false;
-		const index = puzzle.cellMap[id].index;
 		puzzle.cellRows[cell.y][cell.x].hasFocus = false;
 		const nextCellCoords = nextCellFunction({
 			coords: { x: cell.x, y: cell.y },
@@ -90,7 +89,6 @@
 
 	export function updateCellSymmetry(cell: DynamicCell) {
 		const symmetricalCell = getSymmetricalCell(puzzle, { x: cell.x, y: cell.y });
-		const symmetricalCellIndex = symmetricalCell.index;
 		cell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
 		symmetricalCell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
 		puzzle.cellMap[cell.id] = cell;
@@ -128,6 +126,7 @@
 						{updateCellWithFocus}
 						isHighlighted={puzzle.highlightedCellIds.includes(cell.id)}
 						{currentDirection}
+						{onInput}
 					/>
 				{/each}
 			</tr>

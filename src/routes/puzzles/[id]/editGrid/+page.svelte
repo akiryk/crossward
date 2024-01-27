@@ -18,7 +18,6 @@
 
 	let errorMessage: string = '';
 	let successMessage: string = '';
-	let errorType: ServerErrorType;
 
 	$: ({ puzzle, isCreateSuccess } = data);
 
@@ -37,6 +36,31 @@
 	onDestroy(() => {
 		unsubscribe();
 	});
+
+	async function saveData() {
+		try {
+			const formData = new FormData(document.querySelector('form'));
+
+			await fetch('?/updateCellMap', {
+				method: 'POST',
+				body: formData
+			});
+
+			// if (response.ok) {
+			// 	console.log('Data saved successfully!');
+			// } else {
+			// 	throw new Error('Failed to save data.');
+			// }
+		} catch (error) {
+			console.error('Error saving data:', error.message);
+		}
+	}
+
+	const handleSaveOnInput = () => {
+		setTimeout(() => {
+			saveData();
+		}, 100);
+	};
 </script>
 
 <div>
@@ -49,8 +73,10 @@
 		/>
 		{#if dynamicPuzzle || puzzle}
 			<form
+				id="crosswordPuzzleId"
 				method="POST"
 				action={'?/updateCellMap'}
+				autocomplete="off"
 				use:enhance={() => {
 					// This async noop is necessary to ensure that the puzzle displays values after
 					// update. I'm not sure why but suspect it may be that when you provide an async
@@ -79,7 +105,11 @@
 				<input type="hidden" name="cellMap" value={JSON.stringify(dynamicPuzzle?.cellMap)} />
 				<input type="hidden" name="id" value={puzzle._id} />
 				<div class="mb-5">
-					<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDITING_CELLS} />
+					<Crossword
+						puzzle={dynamicPuzzle || puzzle}
+						gameStatus={GameStatus.EDITING_CELLS}
+						onInput={handleSaveOnInput}
+					/>
 				</div>
 				<!-- ERROR MESSAGES -->
 				{#if errorMessage}

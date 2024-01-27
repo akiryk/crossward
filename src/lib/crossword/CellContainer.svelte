@@ -11,6 +11,7 @@
 	export let gameStatus: GameStatus;
 	export let isHighlighted: boolean;
 	export let currentDirection: Direction;
+	export let onInput: () => void;
 	export let updateCellSymmetry: (cell: DynamicCell) => void;
 	export let goToNextCell: (cell: DynamicCell, direction: Direction) => void;
 	export let toggleGridDirection: (cell: DynamicCell) => void;
@@ -32,6 +33,7 @@
 			updateCellSymmetry(cell);
 		}
 		goToNextCell(cell, Direction.GO_FORWARD);
+		onInput();
 	}
 
 	export function handleOnFocus() {

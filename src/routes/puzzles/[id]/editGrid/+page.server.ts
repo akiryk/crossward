@@ -75,9 +75,7 @@ export const actions = {
 	updateCellMap: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const cellMap = data.get('cellMap');
-
 		const id = data.get('id');
-
 		if (!id || typeof id !== 'string' || !cellMap || typeof cellMap !== 'string') {
 			return fail(422, {
 				errorType: ServerErrorType.MISSING_FORM_DATA,
@@ -90,6 +88,7 @@ export const actions = {
 			cellMap: parsedCellMap
 		});
 
+		console.log(cellMapForDb['14:14']);
 		const filter = {
 			_id: new ObjectId(id)
 		};
