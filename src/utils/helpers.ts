@@ -19,6 +19,26 @@ export const debounce = (callback, wait) => {
 	};
 };
 
+// @ts-ignore
+export const promiseDebounce = (callback, wait) => {
+	let timeoutId: ReturnType<typeof setTimeout>;
+	// @ts-ignore
+	return (...args) => {
+		return new Promise((resolve, reject) => {
+			const later = () => {
+				try {
+					resolve(callback(...args));
+				} catch (error) {
+					reject(error);
+				}
+			};
+
+			clearTimeout(timeoutId);
+			timeoutId = setTimeout(later, wait);
+		});
+	};
+};
+
 export const chunkArray = (arr: Array<any>, chunkSize: number): any[][] => {
 	const chunks = [];
 	for (let i = 0; i < arr.length; i += chunkSize) {

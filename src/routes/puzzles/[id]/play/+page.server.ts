@@ -1,12 +1,19 @@
 // PLAY SERVER
-import type { CellMap, DynamicCellMap, PuzzleWithId } from '$utils/types';
 import { ServerErrorType } from '$utils/types';
 import { ObjectId } from 'mongodb';
-import { fail, redirect, type ActionFailure, type Action } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
-import { transformPuzzleForClient, transformCellMapForDb } from '$utils/serverHelpers';
+import type {
+	CellMap,
+	Hint,
+	CellMapArray,
+	CellMap,
+	DynamicCellMap,
+	PuzzleWithId
+} from '$utils/types';
+import { transformPuzzleForClient, transformCellMapArrayForDb } from '$utils/serverHelpers';
 import type { RequestEvent } from '../$types';
 
 function getUserId(email: string): string {
@@ -97,39 +104,37 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 };
 
 export const actions = {
-	saveGame: async ({ request }: RequestEvent) => {
+	updateCellMap: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
+		const newCellMapChunk = data.get('chunk');
 		const id = data.get('id');
-		const cellMap = data.get('cellMap');
 
-		if (!id || !cellMap) {
+		if (!id || typeof id !== 'string' || !newCellMapChunk || typeof newCellMapChunk !== 'string') {
 			return fail(422, {
 				errorType: ServerErrorType.MISSING_FORM_DATA,
-				message: 'Sorry! Please try again to save.'
+				message: 'Sorry but there was a problem.'
 			});
 		}
 
-		const parsedCellMap: DynamicCellMap = JSON.parse(cellMap.toString());
-		const cellMapForDb: CellMap = transformCellMapForDb({
-			cellMap: parsedCellMap
+		const cellMapArrayForDb: CellMapArray = transformCellMapArrayForDb({
+			cellMapArray: JSON.parse(newCellMapChunk)
 		});
 
 		const filter = {
-			_id: new ObjectId(id.toString())
+			_id: new ObjectId(id)
 		};
-		const updateDocument = {
-			$set: {
-				cellMap: cellMapForDb
-			}
-		};
+		const updateDocument = { $set: {} };
+
+		for (const [key, value] of cellMapArrayForDb) {
+			// @ts-expect-error this looks weird but is MongoDb syntax
+			// In Javascript, you might instead say set.cellMap["0:0"], but that doesn't work in Mongo
+			updateDocument.$set[`cellMap.${key}`] = value;
+		}
 
 		try {
-			await userPuzzlesCollection.updateOne(filter, updateDocument);
+			await puzzlesCollection.updateOne(filter, updateDocument);
 			return {
-				status: 303, // HTTP status for "See Other"
-				headers: {
-					location: `/puzzles/${id}/play`
-				}
+				status: 200 // HTTP status for "See Other"
 			};
 		} catch {
 			return fail(500, {

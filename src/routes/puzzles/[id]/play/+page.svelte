@@ -62,10 +62,10 @@
 		});
 	}
 
-	const debouceSaveUpdatedCellMap = debounce(saveData, 300);
+	const debounceSaveUpdatedCellMap = debounce(saveData, 300);
 
 	const handleSaveOnInput = () => {
-		debouceSaveUpdatedCellMap();
+		debounceSaveUpdatedCellMap();
 	};
 </script>
 
