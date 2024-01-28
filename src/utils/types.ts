@@ -127,3 +127,6 @@ export type GetNextCellProps = {
 	acrossSpan: number;
 	downSpan: number;
 };
+
+export type DynamicCellMapArray = Array<[string, DynamicCell]>;
+export type CellMapArray = Array<[string, Cell]>;

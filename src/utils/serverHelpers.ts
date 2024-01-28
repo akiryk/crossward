@@ -13,7 +13,9 @@ import type {
 	PuzzleWithId,
 	CellsArray,
 	Hint,
-	SanitizeInputParams
+	SanitizeInputParams,
+	DynamicCellMapArray,
+	CellMapArray
 } from '$utils/types';
 import { Direction, ServerErrorType } from '$utils/types';
 import { getId } from './helpers';
@@ -257,19 +259,20 @@ function transformCellForDb({
 }
 
 /**
- * transformCellMapForDb
+ * transformCellMapArrayForDb
  *
- * Remove fields from dynamic cellmap that we don't want in the DB
+ * Remove fields from Object.entries(cellMap) that we don't want in the DB
  */
-export function transformCellMapForDb({ cellMap }: { cellMap: DynamicCellMap }): CellMap {
-	const entries = Object.entries(cellMap); // [[0:0, {}], [1:1, {}], ]
-	const newCellMap = Object.fromEntries(
-		entries.map(([key, cell]) => {
-			const newCell = transformCellForDb({ cell, clearValues: false });
-			return [key, newCell];
-		})
-	);
-	return newCellMap;
+export function transformCellMapArrayForDb({
+	cellMapArray
+}: {
+	cellMapArray: DynamicCellMapArray;
+}): CellMapArray {
+	const newCellMapArray: CellMapArray = cellMapArray.map(([key, cell]) => {
+		const newCell = transformCellForDb({ cell, clearValues: false });
+		return [key, newCell];
+	});
+	return newCellMapArray;
 }
 
 /**

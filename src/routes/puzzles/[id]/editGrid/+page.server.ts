@@ -6,13 +6,13 @@ import {
 	pageServerLoad,
 	handleUpdateTitle,
 	handleDelete,
-	transformCellMapForDb,
-	transformPuzzleDataForCreatingHints
+	transformPuzzleDataForCreatingHints,
+	transformCellMapArrayForDb
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { EDITING_HINTS } from '$utils/constants';
 import { ServerErrorType } from '$utils/types';
-import type { CellMap, DynamicCellMap, Hint } from '$utils/types';
+import type { CellMap, Hint, CellMapArray } from '$utils/types';
 
 export const load = pageServerLoad;
 
@@ -74,31 +74,32 @@ export const actions = {
 	},
 	updateCellMap: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
-		const cellMap = data.get('cellMap');
+		const newCellMapChunk = data.get('chunk');
 		const id = data.get('id');
-		if (!id || typeof id !== 'string' || !cellMap || typeof cellMap !== 'string') {
+		if (!id || typeof id !== 'string' || !newCellMapChunk || typeof newCellMapChunk !== 'string') {
 			return fail(422, {
 				errorType: ServerErrorType.MISSING_FORM_DATA,
 				message: 'Sorry but there was a problem.'
 			});
 		}
 
-		// const parsedCellMap: DynamicCellMap = JSON.parse(cellMap);
-		// const cellMapForDb: CellMap = transformCellMapForDb({
-		// 	cellMap: parsedCellMap
-		// });
+		const cellMapArrayForDb: CellMapArray = transformCellMapArrayForDb({
+			cellMapArray: JSON.parse(newCellMapChunk)
+		});
 
-		// const filter = {
-		// 	_id: new ObjectId(id)
-		// };
-		// const updateDocument = {
-		// 	$set: {
-		// 		cellMap: cellMapForDb
-		// 	}
-		// };
+		const filter = {
+			_id: new ObjectId(id)
+		};
+		const updateDocument = { $set: {} };
+
+		for (const [key, value] of cellMapArrayForDb) {
+			// @ts-expect-error this looks weird but is MongoDb syntax
+			// In Javascript, you might instead say set.cellMap["0:0"], but that doesn't work in Mongo
+			updateDocument.$set[`cellMap.${key}`] = value;
+		}
 
 		try {
-			// await puzzlesCollection.updateOne(filter, updateDocument);
+			await puzzlesCollection.updateOne(filter, updateDocument);
 			return {
 				status: 200 // HTTP status for "See Other"
 			};

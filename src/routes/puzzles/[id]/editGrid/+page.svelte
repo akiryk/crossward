@@ -12,15 +12,12 @@
 	import Banner from '$components/Banner.svelte';
 
 	export let dynamicPuzzle: Puzzle | null;
-
 	export let data;
 	export let form;
 
 	let errorMessage: string = '';
 	let successMessage: string = '';
 	let isPreview = false;
-
-	$: ({ puzzle, isCreateSuccess } = data);
 
 	onMount(() => {
 		if (puzzle) {
@@ -38,33 +35,6 @@
 		unsubscribe();
 	});
 
-	async function saveData() {
-		try {
-			const gameForm = document.querySelector('form');
-			if (gameForm === null) {
-				return;
-			}
-			const formData = new FormData(gameForm);
-
-			// Test whether removing cell inputs from network request speeds
-			// up the request enough to succeed.
-			formData.delete('cell');
-
-			await fetch('?/updateCellMap', {
-				method: 'POST',
-				body: formData
-			});
-		} catch {
-			console.error('Error saving data');
-		}
-	}
-
-	const handleSaveOnInput = () => {
-		setTimeout(() => {
-			saveData();
-		}, 100);
-	};
-
 	const handleOnPreview = () => {
 		isPreview = true;
 	};
@@ -73,6 +43,66 @@
 		isPreview = false;
 	};
 
+	async function saveData() {
+		const puzzleArray = Object.entries(dynamicPuzzle.cellMap);
+		const chunkedData = chunkArray(puzzleArray, 25);
+
+		chunkedData.forEach(async (chunk) => {
+			// chunk = [["0:0", cell1], ["0:1", cell2], etc ... ]
+			const formData = new FormData();
+			formData.append('chunk', JSON.stringify(chunk));
+			formData.append('id', dynamicPuzzle?._id);
+			try {
+				const response = await fetch('?/updateCellMap', {
+					method: 'POST',
+					body: formData
+				});
+
+				if (!response.ok) {
+					throw new Error('Request failed');
+				}
+
+				console.log('Chunk saved successfully');
+			} catch (error) {
+				console.error('Error saving chunk:', error);
+			}
+		});
+
+		// try {
+		// 	const gameForm = document.querySelector('form');
+		// 	if (gameForm === null) {
+		// 		return;
+		// 	}
+		// 	const formData = new FormData(gameForm);
+
+		// 	// Test whether removing cell inputs from network request speeds
+		// 	// up the request enough to succeed.
+		// 	formData.delete('cell');
+
+		// 	await fetch('?/updateCellMap', {
+		// 		method: 'POST',
+		// 		body: formData
+		// 	});
+		// } catch {
+		// 	console.error('Error saving data');
+		// }
+	}
+
+	const handleSaveOnInput = () => {
+		setTimeout(() => {
+			saveData();
+		}, 100);
+	};
+
+	function chunkArray(arr, chunkSize) {
+		const chunks = [];
+		for (let i = 0; i < arr.length; i += chunkSize) {
+			chunks.push(arr.slice(i, i + chunkSize));
+		}
+		return chunks;
+	}
+
+	$: ({ puzzle, isCreateSuccess } = data);
 	$: showIsPreview = isPreview;
 </script>
 
