@@ -11,7 +11,7 @@
 		getCellBelow,
 		getCellToTheLeft,
 		getCellToTheRight
-	} from './utils/crosswordHelpers';
+	} from '../utils/crosswordHelpers';
 
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';

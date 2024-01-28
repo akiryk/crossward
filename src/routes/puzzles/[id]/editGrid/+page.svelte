@@ -42,12 +42,12 @@
 		isPreview = false;
 	};
 
-	async function saveData(endpoint: string) {
+	async function saveData() {
 		if (dynamicPuzzle === null) {
 			return;
 		}
 		const cellsArray: Array<Array<string | DynamicCell>> = Object.entries(dynamicPuzzle.cellMap);
-		const chunkedData = chunkArray(cellsArray, 25);
+		const chunkedData = chunkArray(cellsArray, 5);
 
 		chunkedData.forEach(async (chunk) => {
 			// chunk = [["0:0", cell1], ["0:1", cell2], etc ... ]
@@ -57,7 +57,7 @@
 			// because we return at the top of saveData if it is
 			formData.append('id', dynamicPuzzle._id);
 			try {
-				const response = await fetch(`?/${endpoint}`, {
+				const response = await fetch(`?/updateCellMap`, {
 					method: 'POST',
 					body: formData
 				});
@@ -71,14 +71,35 @@
 		});
 	}
 
-	const debounceSave = debounce(saveData, 500);
+	async function createHints() {
+		if (dynamicPuzzle === null) {
+			return;
+		}
+		const formData = new FormData();
+		formData.append('id', dynamicPuzzle._id);
+		try {
+			const response = await fetch(`?/createHints`, {
+				method: 'POST',
+				body: formData
+			});
 
-	const handleSaveOnInput = () => {
-		debounceSave('updateCellMap');
+			if (!response.ok) {
+				throw new Error('Request failed');
+			}
+		} catch (error) {
+			console.error('Error saving hints:', error);
+		}
+	}
+
+	const promiseDebounceSave = promiseDebounce(saveData, 300);
+
+	const handleSaveOnInput = async () => {
+		promiseDebounceSave();
 	};
 
-	const handleFinishGrid = () => {
-		debounceSave('createHints');
+	const handleFinishGrid = async () => {
+		await handleSaveOnInput();
+		createHints();
 	};
 
 	$: ({ puzzle, isCreateSuccess } = data);

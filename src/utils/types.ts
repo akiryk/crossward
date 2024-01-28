@@ -28,7 +28,8 @@ export enum ServerErrorType {
 	UPDATE_TITLE_DB_ERROR
 }
 
-export type CellsArray = Array<DynamicCell>;
+export type CellsArray = Array<Cell>;
+export type DynamicCellsArray = Array<DynamicCell>;
 export type ID = `${number}:${number}`;
 
 // We have two types of Grid and Cell
@@ -96,7 +97,7 @@ export interface PuzzleWithId extends PuzzleDocument {
 export interface Puzzle extends PuzzleDocument {
 	_id: string;
 	cellMap: DynamicCellMap;
-	cellRows: Array<CellsArray>;
+	cellRows: Array<DynamicCellsArray>;
 	cellWithFocus: DynamicCell | null;
 	gridDirection: Direction;
 	currentRow: number;

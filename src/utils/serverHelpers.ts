@@ -258,9 +258,6 @@ function transformCellForDb({
 	};
 }
 
-export function transformCellMapForDb() {
-	return {};
-}
 /**
  * transformCellMapArrayForDb
  *
@@ -285,31 +282,26 @@ export function transformCellMapArrayForDb({
  * and save them to either the acrossWords or downWords arrays.
  */
 export function transformPuzzleDataForCreatingHints({
-	cellMap: initialCellMap,
-	clearValues = false
+	initialCellMap
 }: {
-	cellMap: DynamicCellMap;
+	initialCellMap: CellMap;
 	clearValues?: boolean;
-}): { cellMapForDb: CellMap; acrossHints: Array<Hint>; downHints: Array<Hint> } {
-	const tempMap = {};
+}): { cellMap: CellMap; acrossHints: Array<Hint>; downHints: Array<Hint> } {
+	const cellMap = structuredClone(initialCellMap);
 	let cellDisplayNumber = 1;
-	const cellMap: CellMap = {};
-	const cellsArray: CellsArray = Object.values(initialCellMap);
+	const cellsArray: CellsArray = Object.values(cellMap);
+
 	const acrossHints = [];
 	const downHints = [];
-	// Nested loop with a time complexity of O(n^2)
-	// I don't think this is a big problem since the loops won't be huge.
-	// TODO: Monitor and possibly refactor to use a singly array rather than nested loops.
+
+	// Loop once through all the cells in order to find:
+	// - which cells contain words so we can make hints for those words
+	// - which ones are at the start of words and get a displayNumber
+	// - which ones are in words and get start and end information about each word
 	for (let i = 0; i < cellsArray.length; i++) {
 		let shouldIncrementCount = false;
-		const initialCell: DynamicCell = cellsArray[i];
 
-		// Get the transformed cell and work with it from here on.
-		const cell: Cell = transformCellForDb({ cell: initialCell, clearValues });
-		const id: ID = getId({ x: cell.x, y: cell.y });
-		// Copy the transformed cell into the new cellmap
-		cellMap[id] = cell;
-
+		const cell: Cell = cellsArray[i];
 		if (!cell.correctValue) {
 			continue;
 		}
@@ -322,7 +314,7 @@ export function transformPuzzleDataForCreatingHints({
 		const rightCellId: ID = getId({ x: x + 1, y });
 
 		// If this is the first cell in an across word
-		if (!initialCellMap[leftCellId]?.correctValue && initialCellMap[rightCellId]?.correctValue) {
+		if (!cellMap[leftCellId]?.correctValue && cellMap[rightCellId]?.correctValue) {
 			let value = cell.correctValue;
 			word = '';
 			let currentX = x;
@@ -334,18 +326,19 @@ export function transformPuzzleDataForCreatingHints({
 				word = `${word}${value}`;
 				currentX++;
 				const id = getId({ x: currentX, y });
-				value = initialCellMap[id]?.value;
+				value = cellMap[id]?.value;
 			}
 			// Get first/last cells in word to help with highlighting
 			const startX = x;
 			const endX = currentX;
-			// now we have to loop through all the cells in the entire word
+
+			// Now loop through all the cells in the finished word
 			// so that each one has a reference to first and last cells
 			const length = startX + (endX - startX);
 			for (let j = startX; j < length; j++) {
-				const tempCell = tempMap[`${j}:${y}`] || {};
-				tempMap[`${j}:${y}`] = {
-					...tempCell,
+				const currentCell = cellMap[`${j}:${y}`];
+				cellMap[`${j}:${y}`] = {
+					...currentCell,
 					acrossWordStartX: startX,
 					acrossWordEndX: endX - 1
 				};
@@ -360,10 +353,10 @@ export function transformPuzzleDataForCreatingHints({
 			shouldIncrementCount = true;
 		}
 
-		// Down Words!
+		// Down Words
 		const aboveCellId: ID = getId({ x, y: y - 1 });
 		const bottomCellId: ID = getId({ x, y: y + 1 });
-		if (!initialCellMap[aboveCellId]?.correctValue && initialCellMap[bottomCellId]?.correctValue) {
+		if (!cellMap[aboveCellId]?.correctValue && cellMap[bottomCellId]?.correctValue) {
 			let value = cell.correctValue;
 			word = '';
 			let currentY = y;
@@ -375,24 +368,22 @@ export function transformPuzzleDataForCreatingHints({
 				word = `${word}${value}`;
 				currentY++;
 				const id = getId({ x, y: currentY });
-				value = initialCellMap[id]?.value;
+				value = cellMap[id]?.value;
 			}
 
 			// Get first/last cells in word to help with highlighting
 			const startY = y;
 			const endY = currentY;
-			// now we have to loop through all the cells in the entire word
+
+			// Loop through all the cells in the finished word
 			// so that each one has a reference to first and last cells
 			const length = startY + (endY - startY);
 			for (let k = startY; k < length; k++) {
-				const tempCell = tempMap[`${x}:${k}`] || {};
-				const newCell2 = {
+				const currentCell = cellMap[`${x}:${k}`];
+				cellMap[`${x}:${k}`] = {
+					...currentCell,
 					downWordStartY: startY,
 					downWordEndY: endY - 1
-				};
-				tempMap[`${x}:${k}`] = {
-					...tempCell,
-					...newCell2
 				};
 			}
 
@@ -401,30 +392,18 @@ export function transformPuzzleDataForCreatingHints({
 				hint: '',
 				answer: word
 			};
+
 			downHints.push(hint);
 			shouldIncrementCount = true;
 		}
+
 		if (shouldIncrementCount) {
 			cell.displayNumber = cellDisplayNumber;
 			cellDisplayNumber++;
 		}
 	}
-	// map tempMap into cellMap
 
-	cellMap['4:2'] = {
-		...cellMap['4:2'],
-		...tempMap['4:2']
-	};
-	Object.entries(tempMap).forEach((cellWithWordData) => {
-		const id = cellWithWordData[0]; // the first element in each entry is the id, e.g. "0:0"
-		const wordData = cellWithWordData[1];
-		const currentCell = cellMap[id];
-		cellMap[id] = {
-			...currentCell,
-			...wordData
-		};
-	});
-	return { cellMapForDb: cellMap, acrossHints, downHints };
+	return { cellMap, acrossHints, downHints };
 }
 
 // Hints are only valid if all have been filled in; otherwise we can't publish the game

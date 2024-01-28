@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { getCleanValueOfInput } from './utils/crosswordHelpers';
+	import { getCleanValueOfInput } from '../utils/crosswordHelpers';
 	import Cell from './Cell.svelte';
 	import DeadCell from './DeadCell.svelte';
 	import PreviewCell from './PreviewCell.svelte';
 	import { Direction, GameStatus, type DynamicCell, type Coords } from '$utils/types';
-	import { KeyCodes } from './utils/keyCodes';
+	import { KeyCodes } from '../utils/keyCodes';
 
 	// Props
 	export let cell: DynamicCell;
