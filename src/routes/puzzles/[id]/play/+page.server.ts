@@ -134,7 +134,7 @@ export const actions = {
 		try {
 			await puzzlesCollection.updateOne(filter, updateDocument);
 			return {
-				status: 200 // HTTP status for "See Other"
+				status: 200
 			};
 		} catch {
 			return fail(500, {
