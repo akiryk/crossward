@@ -75,6 +75,7 @@
 						currentDirection === Direction.GO_RIGHT ? Direction.GO_LEFT : Direction.GO_UP;
 					goToNextCell(cell, direction);
 				}, 0);
+				onInput();
 				break;
 			case KeyCodes.LEFT_ARROW_KEY:
 				goToNextCell(cell, Direction.GO_LEFT);

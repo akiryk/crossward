@@ -10,6 +10,7 @@
 	import { GameStatus, BannerType, ServerErrorType, type Puzzle } from '$utils/types';
 	import Button from '$components/Button.svelte';
 	import Banner from '$components/Banner.svelte';
+	import { debounce } from '$utils/helpers';
 
 	export let dynamicPuzzle: Puzzle | null;
 	export let data;
@@ -44,6 +45,7 @@
 	};
 
 	async function saveData() {
+		console.log('Save!');
 		const puzzleArray = Object.entries(dynamicPuzzle.cellMap);
 		const chunkedData = chunkArray(puzzleArray, 25);
 
@@ -67,31 +69,12 @@
 				console.error('Error saving chunk:', error);
 			}
 		});
-
-		// try {
-		// 	const gameForm = document.querySelector('form');
-		// 	if (gameForm === null) {
-		// 		return;
-		// 	}
-		// 	const formData = new FormData(gameForm);
-
-		// 	// Test whether removing cell inputs from network request speeds
-		// 	// up the request enough to succeed.
-		// 	formData.delete('cell');
-
-		// 	await fetch('?/updateCellMap', {
-		// 		method: 'POST',
-		// 		body: formData
-		// 	});
-		// } catch {
-		// 	console.error('Error saving data');
-		// }
 	}
 
+	const debouncedUpdate = debounce(saveData, 300);
+
 	const handleSaveOnInput = () => {
-		setTimeout(() => {
-			saveData();
-		}, 100);
+		debouncedUpdate();
 	};
 
 	function chunkArray(arr, chunkSize) {
