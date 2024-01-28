@@ -7,10 +7,10 @@
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import { GameStatus, BannerType, ServerErrorType, type Puzzle } from '$utils/types';
+	import { GameStatus, BannerType, type Puzzle, type DynamicCell } from '$utils/types';
 	import Button from '$components/Button.svelte';
 	import Banner from '$components/Banner.svelte';
-	import { debounce } from '$utils/helpers';
+	import { debounce, chunkArray } from '$utils/helpers';
 
 	export let dynamicPuzzle: Puzzle | null;
 	export let data;
@@ -45,15 +45,19 @@
 	};
 
 	async function saveData() {
-		console.log('Save!');
-		const puzzleArray = Object.entries(dynamicPuzzle.cellMap);
-		const chunkedData = chunkArray(puzzleArray, 25);
+		if (dynamicPuzzle === null) {
+			return;
+		}
+		const cellsArray: Array<Array<string | DynamicCell>> = Object.entries(dynamicPuzzle.cellMap);
+		const chunkedData = chunkArray(cellsArray, 25);
 
 		chunkedData.forEach(async (chunk) => {
 			// chunk = [["0:0", cell1], ["0:1", cell2], etc ... ]
 			const formData = new FormData();
 			formData.append('chunk', JSON.stringify(chunk));
-			formData.append('id', dynamicPuzzle?._id);
+			// @ts-expect-error ts complains that dynamicPuzzle may be null but it cannot be null
+			// because we return at the top of saveData if it is
+			formData.append('id', dynamicPuzzle._id);
 			try {
 				const response = await fetch('?/updateCellMap', {
 					method: 'POST',
@@ -63,27 +67,17 @@
 				if (!response.ok) {
 					throw new Error('Request failed');
 				}
-
-				console.log('Chunk saved successfully');
 			} catch (error) {
 				console.error('Error saving chunk:', error);
 			}
 		});
 	}
 
-	const debouncedUpdate = debounce(saveData, 300);
+	const debouceSaveUpdatedCellMap = debounce(saveData, 300);
 
 	const handleSaveOnInput = () => {
-		debouncedUpdate();
+		debouceSaveUpdatedCellMap();
 	};
-
-	function chunkArray(arr, chunkSize) {
-		const chunks = [];
-		for (let i = 0; i < arr.length; i += chunkSize) {
-			chunks.push(arr.slice(i, i + chunkSize));
-		}
-		return chunks;
-	}
 
 	$: ({ puzzle, isCreateSuccess } = data);
 	$: showIsPreview = isPreview;

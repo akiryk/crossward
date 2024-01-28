@@ -18,3 +18,11 @@ export const debounce = (callback, wait) => {
 		}, wait);
 	};
 };
+
+export const chunkArray = (arr: Array<any>, chunkSize: number): any[][] => {
+	const chunks = [];
+	for (let i = 0; i < arr.length; i += chunkSize) {
+		chunks.push(arr.slice(i, i + chunkSize));
+	}
+	return chunks;
+};
