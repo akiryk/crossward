@@ -9,6 +9,7 @@
 	import Button from '$components/Button.svelte';
 	import Banner from '$components/Banner.svelte';
 	import { debounce, promiseDebounce, chunkArray } from '$utils/helpers';
+	import { goto } from '$app/navigation';
 
 	export let dynamicPuzzle: Puzzle | null;
 	export let data;
@@ -76,7 +77,8 @@
 			return;
 		}
 		const formData = new FormData();
-		formData.append('id', dynamicPuzzle._id);
+		const id = dynamicPuzzle._id;
+		formData.append('id', id);
 		try {
 			const response = await fetch(`?/createHints`, {
 				method: 'POST',
@@ -86,6 +88,8 @@
 			if (!response.ok) {
 				throw new Error('Request failed');
 			}
+
+			goto(`/puzzles/${id}/editHints`);
 		} catch (error) {
 			console.error('Error saving hints:', error);
 		}

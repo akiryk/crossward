@@ -58,8 +58,9 @@ export const actions = {
 		const updateDocument = {
 			$set: {
 				cellMap,
-				acrossHints,
-				downHints
+				publishStatus: EDITING_HINTS,
+				downHints,
+				acrossHints
 			}
 		};
 
