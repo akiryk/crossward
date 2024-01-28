@@ -258,7 +258,9 @@ function transformCellForDb({
 	};
 }
 
-export function transformCellMapForDb() => {}
+export function transformCellMapForDb() {
+	return {};
+}
 /**
  * transformCellMapArrayForDb
  *
