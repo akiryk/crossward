@@ -64,7 +64,6 @@ export async function saveHintData(chunkedData: any[], id: string, direction: Hi
 				method: 'POST',
 				body: formData
 			});
-
 			if (!response.ok) {
 				throw new Error('Request failed');
 			}

@@ -110,10 +110,6 @@ export const actions = {
 		}
 	},
 	publish: async ({ request }: RequestEvent) => {
-		return fail(422, {
-			errorType: ServerErrorType.MISSING_FORM_DATA,
-			message: 'Missing puzzle id.'
-		});
 		const data = await request.formData();
 		const id = data.get('id');
 		if (!id || typeof id !== 'string') {
@@ -144,7 +140,9 @@ export const actions = {
 				throw new Error('no puzzle hints have been created');
 			}
 		} catch {
-			return fail(500);
+			return fail(500, {
+				message: 'Server error getting the puzzle'
+			});
 		}
 
 		// 2. Validate that all hints have been filled in
@@ -155,10 +153,13 @@ export const actions = {
 				throw new Error('Please add more hints');
 			}
 		} catch (error) {
-			return fail(422, {
-				errorType: ServerErrorType.PUBLISH_INCOMPLETE_HINTS
+			return fail(400, {
+				errorType: ServerErrorType.PUBLISH_INCOMPLETE_HINTS,
+				message: 'Please add hints to for every word'
 			});
 		}
+
+		console.log('Here we are', puzzleId);
 
 		// 3. save the puzzle as published
 		try {
@@ -172,9 +173,11 @@ export const actions = {
 			};
 			await puzzlesCollection.updateOne(filter, document);
 		} catch {
+			console.log('return fail');
 			return fail(500);
 		}
 
+		console.log('success');
 		return {
 			status: 200,
 			successType: 'published'
