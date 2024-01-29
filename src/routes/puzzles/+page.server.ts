@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ locals }): Promise<Props> => {
 	// I could remove it with a projection, _id: 0, but we need it.
 	try {
 		const puzzlesFromDb = await puzzlesCollection
-			.find({}, { limit: 10, projection: { title: 1, publishStatus: 1 } })
+			.find({}, { limit: 10, projection: { title: 1, authorEmail: 1, publishStatus: 1 } })
 			.toArray();
 
 		// make the _id field serializable

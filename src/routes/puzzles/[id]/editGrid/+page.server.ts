@@ -7,11 +7,12 @@ import {
 	handleUpdateTitle,
 	handleDelete,
 	transformPuzzleDataForCreatingHints,
-	transformCellMapArrayForDb
+	transformCellMapArrayForDb,
+	transformPuzzleForClient
 } from '$utils/serverHelpers';
-import type { RequestEvent } from './$types';
+import type { RequestEvent, PageServerLoad } from './$types';
 import { EDITING_HINTS } from '$utils/constants';
-import type { CellMap, Hint, CellMapArray } from '$utils/types';
+import type { CellMap, PuzzleWithId, CellMapArray } from '$utils/types';
 import { ServerErrorType } from '$utils/types';
 
 export const load = pageServerLoad;

@@ -25,12 +25,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad, RequestEvent } from '../routes/puzzles/[id]/$types';
 
-type Props = {
-	puzzle: Puzzle;
-	isCreateSuccess: boolean;
-};
-
-export const pageServerLoad: PageServerLoad = async ({ params, url, locals }): Promise<Props> => {
+export const pageServerLoad: PageServerLoad = async ({ params, url, locals }): Promise<any> => {
 	let session;
 	/**
 	 * Redirect unauthorized users to login page!
@@ -41,7 +36,7 @@ export const pageServerLoad: PageServerLoad = async ({ params, url, locals }): P
 			throw new Error('not authenticated');
 		}
 	} catch {
-		throw redirect(302, '/login');
+		redirect(302, '/login');
 	}
 
 	/**
@@ -53,26 +48,33 @@ export const pageServerLoad: PageServerLoad = async ({ params, url, locals }): P
 		});
 
 		if (puzzleFromDb === null) {
-			// TODO: Redirect to somekind of help page
-			// explaining that this puzzle may not exist anymore
-			throw redirect(300, '/');
+			throw new Error('No puzzle');
 		}
 
-		const puzzleWithId = {
-			...puzzleFromDb,
-			_id: puzzleFromDb._id.toString()
-		} as unknown as PuzzleWithId;
-		const puzzle = transformPuzzleForClient(puzzleWithId);
-		const create = url.searchParams.get('create');
-		return {
-			puzzle,
-			isCreateSuccess: create === 'true'
-		};
+		if (puzzleFromDb.authorEmail !== session.user?.email) {
+			console.log('redirected!');
+			throw new Error('No access');
+		}
+
+		try {
+			const puzzleWithId = {
+				...puzzleFromDb,
+				_id: puzzleFromDb._id.toString()
+			} as unknown as PuzzleWithId;
+			const puzzle = transformPuzzleForClient(puzzleWithId);
+			const create = url.searchParams.get('create');
+
+			return {
+				puzzle,
+				isCreateSuccess: create === 'true'
+			};
+		} catch (error) {
+			return fail(422, {
+				error
+			});
+		}
 	} catch (error) {
-		// @ts-expect-error in catch block
-		return fail(422, {
-			error
-		});
+		redirect(302, '/');
 	}
 };
 

@@ -59,10 +59,12 @@
 	</div>
 	<List type="ul">
 		{#each puzzles as puzzle}
-			<ListItem>
-				{#if puzzle.publishStatus === PUBLISHED}
+			{#if puzzle.publishStatus === PUBLISHED}
+				<ListItem>
 					<a href="/puzzles/{puzzle._id}/play" class="text-sky-600">{puzzle.title}</a>
-				{:else}
+				</ListItem>
+			{:else if puzzle.authorEmail === data.session?.user?.email}
+				<ListItem>
 					<span
 						><a
 							href="/puzzles/{puzzle._id}/{puzzle.publishStatus === EDIT_PUZZLE
@@ -71,8 +73,8 @@
 							class="text-sky-400">Edit {puzzle.title}</a
 						></span
 					>
-				{/if}
-			</ListItem>
+				</ListItem>
+			{/if}
 		{/each}
 	</List>
 </section>
