@@ -3,7 +3,6 @@
 	import { goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
-	import Button from '$components/Button.svelte';
 	import Banner from '$components/Banner.svelte';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
@@ -56,6 +55,33 @@
 		const chunkedData = chunkArray(dynamicPuzzle.downHints, 5);
 		debounceSave(chunkedData, dynamicPuzzle._id, 'down');
 	};
+
+	const handleSave = () => {
+		handleAcrossHintInput();
+		handleDownHintInput();
+	};
+
+	const handlePublish = async () => {
+		// handleSave();
+		const formData = new FormData();
+		formData.append('id', puzzle._id);
+		try {
+			const response = await fetch(`?/publish`, {
+				method: 'POST',
+				body: puzzle._id,
+				headers: {
+					Accept: 'application/json'
+				}
+			});
+
+			console.log(response);
+			if (!response.ok) {
+				throw new Error('Request failed');
+			}
+		} catch (error) {
+			console.error('Error saving chunk:', error);
+		}
+	};
 </script>
 
 <div>
@@ -69,45 +95,7 @@
 			<div class="mb-5">
 				<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDITING_HINTS} />
 			</div>
-			<form
-				method="POST"
-				action={'?/updateHints'}
-				autocomplete="off"
-				use:enhance={(a) => {
-					// This async noop is necessary to ensure that the puzzle displays values after
-					// update. I'm not sure why but suspect it may be that when you provide an async
-					// function to use:enhance, it allows asynchronous operations to complete before
-					// proceeding with subsequent actions
-					return async ({ result }) => {
-						if (result?.status === 200 && result) {
-							errorMessage = '';
-
-							switch (result?.data?.successType) {
-								case 'published':
-									successMessage = `The puzzle ${puzzle.title} is published!`;
-									break;
-								default:
-									successMessage = `The puzzle ${puzzle.title} is saved!`;
-							}
-						}
-						if (result?.status && result.status >= 400) {
-							successMessage = '';
-							if ('data' in result && typeof result.data?.message === 'string') {
-								errorMessage = result.data.message;
-								if (result.data.errorType !== ServerErrorType.UPDATE_TITLE_DB_ERROR) {
-									errorType = 'hint';
-								}
-							} else {
-								errorMessage = 'Sorry, that may not have worked. ';
-							}
-						} else {
-							errorMessage = '';
-						}
-						// @ts-ignore
-						if (result?.data?.headers?.location) goto(result.data.headers.location);
-					};
-				}}
-			>
+			<form autocomplete="off" on:submit={(event) => event.preventDefault()}>
 				<input type="hidden" name="id" value={dynamicPuzzle?._id} />
 				<input
 					type="hidden"
@@ -134,10 +122,16 @@
 
 				<div class="mb-5 flex">
 					<div class="mr-5">
-						<Button buttonType="submit">Save for later</Button>
+						<button
+							type="button"
+							on:click={handleSave}
+							class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+							>Save for later</button
+						>
 					</div>
 					<button
-						formaction="?/publish"
+						type="button"
+						on:click={handlePublish}
 						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
 						>Publish</button
 					>

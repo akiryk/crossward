@@ -9,7 +9,7 @@ import {
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { PUBLISHED } from '$utils/constants';
-import { ServerErrorType, type Hint, type HintDirection } from '$utils/types';
+import { ServerErrorType, type Hint, type HintDirection, type PuzzleFromDb } from '$utils/types';
 
 export const load = pageServerLoad;
 
@@ -110,10 +110,81 @@ export const actions = {
 		}
 	},
 	publish: async ({ request }: RequestEvent) => {
+		return fail(422, {
+			errorType: ServerErrorType.MISSING_FORM_DATA,
+			message: 'Missing puzzle id.'
+		});
+		const data = await request.formData();
+		const id = data.get('id');
+		if (!id || typeof id !== 'string') {
+			return fail(422, {
+				errorType: ServerErrorType.MISSING_FORM_DATA,
+				message: 'Missing puzzle id.'
+			});
+		}
+
+		const puzzleId = new Object(id);
+
+		// 1. get hints for this puzzle from the DB
+		let hintsResult;
+		try {
+			hintsResult = await puzzlesCollection.findOne(
+				{
+					_id: new ObjectId(id)
+				},
+				{
+					projection: {
+						acrossHints: 1,
+						downHints: 1
+					}
+				}
+			);
+
+			if (hintsResult === null) {
+				throw new Error('no puzzle hints have been created');
+			}
+		} catch {
+			return fail(500);
+		}
+
+		// 2. Validate that all hints have been filled in
+		try {
+			const { acrossHints, downHints } = hintsResult;
+			const isValid = validateHintsForPublishingPuzzle(acrossHints, downHints);
+			if (!isValid) {
+				throw new Error('Please add more hints');
+			}
+		} catch (error) {
+			return fail(422, {
+				errorType: ServerErrorType.PUBLISH_INCOMPLETE_HINTS
+			});
+		}
+
+		// 3. save the puzzle as published
+		try {
+			const filter = {
+				_id: puzzleId
+			};
+			const document = {
+				$set: {
+					publishStatus: PUBLISHED
+				}
+			};
+			await puzzlesCollection.updateOne(filter, document);
+		} catch {
+			return fail(500);
+		}
+
+		return {
+			status: 200,
+			successType: 'published'
+		};
+	},
+	// TODO: Delete saveHintsAndPublish it isn't being used
+	saveHintsAndPublish: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const acrossHints = await data.get('acrossHints');
 		const downHints = await data.get('downHints');
-
 		const id = data.get('id');
 		if (
 			!id ||
