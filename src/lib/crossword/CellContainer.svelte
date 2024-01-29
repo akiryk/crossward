@@ -130,6 +130,8 @@
 		value={cellCorrectValue}
 		missingValueForSymmetricalCell={cell.isSymmetrical && !cell.correctValue}
 	/>
+{:else if gameStatus === GameStatus.EDITING_HINTS}
+	<PreviewCell displayNumber={cell.displayNumber} value={cellCorrectValue} />
 {:else}
 	<DeadCell />
 {/if}

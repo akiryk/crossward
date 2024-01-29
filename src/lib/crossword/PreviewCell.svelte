@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let value: string;
 	export let displayNumber: number | string = '';
-	export let missingValueForSymmetricalCell: boolean;
+	export let missingValueForSymmetricalCell: boolean = false;
 
 	const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
 	const SHARED_CELL_STYLES =
