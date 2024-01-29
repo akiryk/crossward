@@ -42,8 +42,9 @@
 		if (isHighlighted) {
 			style = isSymmetrical ? 'bg-cyan-100' : 'bg-cyan-200';
 		}
-		if (showIsPreview && !value) {
-			// style = 'bg-black';
+		if (showIsPreview && isSymmetrical && !value) {
+			console.log('Hello');
+			style = 'bg-red-500';
 		}
 		return `${CLASSES} ${style}`;
 	}

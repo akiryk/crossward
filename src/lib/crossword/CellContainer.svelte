@@ -126,10 +126,12 @@
 		{gameStatus}
 		{showIsPreview}
 	/>
-{:else if gameStatus === GameStatus.EDITING_HINTS && cellCorrectValue}
-	<PreviewCell displayNumber={cell.displayNumber} value={cellCorrectValue} />
-{:else if gameStatus === GameStatus.PREVIEW && cellCorrectValue}
-	<PreviewCell displayNumber={cell.displayNumber} value="" />
+{:else if gameStatus === GameStatus.PREVIEW}
+	<PreviewCell
+		displayNumber={cell.displayNumber}
+		value={cellCorrectValue}
+		missingValueForSymmetricalCell={cell.isSymmetrical && !cell.correctValue}
+	/>
 {:else}
 	<DeadCell />
 {/if}
