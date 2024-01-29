@@ -27,3 +27,5 @@ export const EDIT_MODE = 'EDIT_MODE';
 export const PLAY_MODE = 'PLAY_MODE';
 export const VIEW_ONLY_MODE = 'VIEW_ONLY_MODE';
 export const DEAD_CELL_MODE = 'DEAD_CELL_MODE';
+
+export const DEBOUNCE_DEFAULT_DELAY = 300;

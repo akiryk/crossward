@@ -9,11 +9,66 @@ import {
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { PUBLISHED } from '$utils/constants';
-import { ServerErrorType } from '$utils/types';
+import { ServerErrorType, type Hint, type HintDirection } from '$utils/types';
 
 export const load = pageServerLoad;
 
 export const actions = {
+	updateHintChunks: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+		const chunk = data.get('chunk');
+		const direction = data.get('direction');
+		const id = data.get('id');
+		if (
+			!id ||
+			typeof id !== 'string' ||
+			!chunk ||
+			typeof chunk !== 'string' ||
+			!direction ||
+			typeof direction !== 'string'
+		) {
+			return fail(400, {
+				errorType: ServerErrorType.MISSING_FORM_DATA,
+				message: 'Missing puzzle id or data.'
+			});
+		}
+
+		const parsedChunk: Array<Hint> = JSON.parse(chunk);
+		const typeSafeDirection: HintDirection = direction as HintDirection;
+		// Loop through the hints in the chunked array.
+		// Use the 'acrossHints.$' syntax to replace hints that are already in the array
+		// or add new ones if they don't exist
+		for (const hint of parsedChunk) {
+			const fieldName =
+				typeSafeDirection === 'across' ? 'acrossHints.displayNumber' : 'downHints.displayNumber';
+			const filter = { _id: new ObjectId(id), [fieldName]: hint.displayNumber };
+			let updateDocument;
+			if (typeSafeDirection === 'across') {
+				updateDocument = {
+					$set: {
+						'acrossHints.$': hint
+					}
+				};
+			} else {
+				updateDocument = {
+					$set: {
+						'downHints.$': hint
+					}
+				};
+			}
+			try {
+				await puzzlesCollection.updateOne(filter, updateDocument);
+			} catch {
+				return fail(500, {
+					errorType: ServerErrorType.DB_ERROR
+				});
+			}
+		}
+		// Return *after* the loop completes
+		return {
+			status: 200
+		};
+	},
 	updateHints: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const acrossHints = await data.get('acrossHints');

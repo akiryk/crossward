@@ -4,19 +4,23 @@
 
 	export let puzzle: Puzzle;
 	export let gameStatus: GameStatus;
-
-	function handleDownInput(event: Event, displayNumber: number) {
-		const hintText = (event.target as HTMLInputElement).value;
-		const index = puzzle.downHints.findIndex((hint) => hint?.displayNumber === displayNumber);
-		puzzle.downHints[index].hint = hintText;
-		PuzzleStore.set(puzzle);
-	}
+	export let onAcrossHintInput: () => void;
+	export let onDownHintInput: () => void;
 
 	function handleAcrossInput(event: Event, displayNumber: number) {
 		const hintText = (event.target as HTMLInputElement).value;
 		const index = puzzle.acrossHints.findIndex((hint) => hint?.displayNumber === displayNumber);
 		puzzle.acrossHints[index].hint = hintText;
 		PuzzleStore.set(puzzle);
+		onAcrossHintInput();
+	}
+
+	function handleDownInput(event: Event, displayNumber: number) {
+		const hintText = (event.target as HTMLInputElement).value;
+		const index = puzzle.downHints.findIndex((hint) => hint?.displayNumber === displayNumber);
+		puzzle.downHints[index].hint = hintText;
+		PuzzleStore.set(puzzle);
+		onDownHintInput();
 	}
 </script>
 

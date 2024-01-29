@@ -11,6 +11,7 @@
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
 	import { BannerType, GameStatus, ServerErrorType, type Puzzle } from '$utils/types';
+	import { debounce, saveHintData, chunkArray } from '$utils/helpers';
 
 	export let dynamicPuzzle: Puzzle | null;
 
@@ -37,6 +38,24 @@
 	onDestroy(() => {
 		unsubscribe();
 	});
+
+	const debounceSave = debounce(saveHintData);
+
+	const handleAcrossHintInput = () => {
+		if (dynamicPuzzle === null) {
+			return;
+		}
+		const chunkedData = chunkArray(dynamicPuzzle.acrossHints, 5);
+		debounceSave(chunkedData, dynamicPuzzle._id, 'across');
+	};
+
+	const handleDownHintInput = () => {
+		if (dynamicPuzzle === null) {
+			return;
+		}
+		const chunkedData = chunkArray(dynamicPuzzle.downHints, 5);
+		debounceSave(chunkedData, dynamicPuzzle._id, 'down');
+	};
 </script>
 
 <div>
@@ -60,13 +79,10 @@
 					// function to use:enhance, it allows asynchronous operations to complete before
 					// proceeding with subsequent actions
 					return async ({ result }) => {
-						if (result?.status === 200) {
+						if (result?.status === 200 && result) {
 							errorMessage = '';
 
 							switch (result?.data?.successType) {
-								case 'updated':
-									successMessage = `The puzzle ${puzzle.title} is saved!`;
-									break;
 								case 'published':
 									successMessage = `The puzzle ${puzzle.title} is published!`;
 									break;
@@ -99,7 +115,12 @@
 					value={JSON.stringify(dynamicPuzzle?.acrossHints)}
 				/>
 				<input type="hidden" name="downHints" value={JSON.stringify(dynamicPuzzle?.downHints)} />
-				<Hints puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDITING_HINTS} />
+				<Hints
+					puzzle={dynamicPuzzle || puzzle}
+					onAcrossHintInput={handleAcrossHintInput}
+					onDownHintInput={handleDownHintInput}
+					gameStatus={GameStatus.EDITING_HINTS}
+				/>
 
 				<!-- ERROR MESSAGES -->
 				{#if errorMessage && errorType === 'hint'}

@@ -95,7 +95,7 @@
 		}
 	}
 
-	const promiseDebounceSave = promiseDebounce(saveData, 300);
+	const promiseDebounceSave = promiseDebounce(saveData);
 
 	const handleSaveOnInput = async () => {
 		promiseDebounceSave();
@@ -140,9 +140,6 @@
 					<Banner message={successMessage} bannerType={BannerType.IS_SUCCESS} />
 				{/if}
 				<div class="mb-5 flex">
-					<div class="mr-5">
-						<Button buttonType="submit">Save for later</Button>
-					</div>
 					<button
 						type="button"
 						on:click={handleFinishGrid}
@@ -166,6 +163,6 @@
 
 		<EditPuzzleTitle success={form?.success} title={form?.title || puzzle.title} id={puzzle._id} />
 	{:else}
-		<p>huh.</p>
+		<p>Something went wrong and we can't load the puzzle.</p>
 	{/if}
 </div>

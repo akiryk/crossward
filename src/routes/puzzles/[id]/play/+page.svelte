@@ -15,11 +15,22 @@
 
 	export let data;
 
+	const incompleteCells = [];
+
 	$: ({ puzzle } = data);
 
 	onMount(() => {
 		if (puzzle) {
 			PuzzleStore.set(puzzle);
+
+			Object.values(puzzle.cellMap).forEach((cell) => {
+				if (cell.correctValue && cell.value !== cell.correctValue) {
+					incompleteCells.push(cell.id);
+				}
+			});
+			if (incompleteCells.length === 0) {
+				alert('You Won!');
+			}
 		}
 	});
 

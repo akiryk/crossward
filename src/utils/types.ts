@@ -72,6 +72,8 @@ export type Hint = {
 	answer: string;
 };
 
+export type HintDirection = 'across' | 'down';
+
 // PuzzleDocument is the type for new puzzles before being saved
 export type PuzzleDocument = {
 	title: string;
