@@ -19,7 +19,6 @@
 	export let onInput: () => void = () => {};
 	export let puzzle: Puzzle;
 	export let gameStatus: GameStatus;
-	export let showIsPreview: boolean = false;
 	let currentDirection = Direction.GO_RIGHT;
 
 	function getHighlightedCellIds(cell: DynamicCell): Array<ID> {
@@ -154,7 +153,6 @@
 						isHighlighted={puzzle.highlightedCellIds.includes(cell.id)}
 						{currentDirection}
 						{onInput}
-						{showIsPreview}
 					/>
 				{/each}
 			</tr>

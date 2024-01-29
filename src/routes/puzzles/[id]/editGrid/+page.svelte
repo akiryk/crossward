@@ -107,7 +107,6 @@
 	};
 
 	$: ({ puzzle, isCreateSuccess } = data);
-	$: showIsPreview = isPreview;
 </script>
 
 <div>
@@ -127,7 +126,6 @@
 						puzzle={dynamicPuzzle || puzzle}
 						gameStatus={isPreview ? GameStatus.PREVIEW : GameStatus.EDITING_CELLS}
 						onInput={handleSaveOnInput}
-						{showIsPreview}
 					/>
 				</div>
 				<!-- ERROR MESSAGES -->

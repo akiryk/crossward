@@ -38,7 +38,7 @@ export type ID = `${number}:${number}`;
 export type Cell = {
 	x: number;
 	y: number;
-	id: ID | string;
+	id: ID;
 	displayNumber: number;
 	correctValue: string;
 	value: string;

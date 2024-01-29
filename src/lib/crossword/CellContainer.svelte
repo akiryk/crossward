@@ -11,7 +11,6 @@
 	export let gameStatus: GameStatus;
 	export let isHighlighted: boolean;
 	export let currentDirection: Direction;
-	export let showIsPreview: boolean = false;
 	export let onInput: () => void;
 	export let updateCellSymmetry: (cell: DynamicCell) => void;
 	export let goToNextCell: (cell: DynamicCell, direction: Direction) => void;
@@ -124,7 +123,6 @@
 		onClick={handleClick}
 		{isHighlighted}
 		{gameStatus}
-		{showIsPreview}
 	/>
 {:else if gameStatus === GameStatus.PREVIEW}
 	<PreviewCell
