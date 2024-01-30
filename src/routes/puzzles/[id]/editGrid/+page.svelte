@@ -60,7 +60,6 @@
 			// chunk = [["0:0", cell1], ["0:1", cell2], etc ... ]
 			const formData = new FormData();
 			formData.append('chunk', JSON.stringify(chunk));
-			console.log(JSON.stringify(chunk));
 			formData.append('id', id);
 			try {
 				const response = await fetch(`?/updateCellMap`, {
@@ -108,8 +107,13 @@
 	const promiseDebounceSave = promiseDebounce(saveData);
 
 	const handleSaveOnInput = async () => {
-		const data = new FormData(JSON.stringify(dynamicPuzzle.cellMap));
-		promiseDebounceSave(data);
+		if (!dynamicPuzzle) {
+			return;
+		}
+		const formData = new FormData();
+		formData.append('cellMap', JSON.stringify(dynamicPuzzle.cellMap));
+		formData.append('id', dynamicPuzzle._id);
+		promiseDebounceSave(formData);
 	};
 
 	const handleFinishGrid = async () => {

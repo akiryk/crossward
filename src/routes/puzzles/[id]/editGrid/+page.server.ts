@@ -91,7 +91,6 @@ export const actions = {
 		const cellMapArrayForDb: CellMapArray = transformCellMapArrayForDb({
 			cellMapArray: JSON.parse(newCellMapChunk)
 		});
-
 		const filter = {
 			_id: new ObjectId(id)
 		};

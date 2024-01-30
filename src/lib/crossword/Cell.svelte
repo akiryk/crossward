@@ -51,8 +51,6 @@
 			case isHighlighted:
 				style = isSymmetrical ? 'bg-cyan-100' : 'bg-cyan-200';
 				break;
-			default:
-				style = 'bg-white';
 		}
 
 		return `${CLASSES} ${style}`;
