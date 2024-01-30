@@ -1,9 +1,18 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import { getCleanValueOfInput } from '../utils/crosswordHelpers';
+	import PuzzleStore from '../../stores/PuzzleStore';
 	import Cell from './Cell.svelte';
 	import DeadCell from './DeadCell.svelte';
 	import PreviewCell from './PreviewCell.svelte';
-	import { Direction, GameStatus, type DynamicCell, type Coords } from '$utils/types';
+	import {
+		Direction,
+		GameStatus,
+		type ID,
+		type Puzzle,
+		type DynamicCell,
+		type Coords
+	} from '$utils/types';
 	import { KeyCodes } from '../utils/keyCodes';
 
 	// Props
@@ -16,6 +25,19 @@
 	export let goToNextCell: (cell: DynamicCell, direction: Direction) => void;
 	export let toggleGridDirection: (cell: DynamicCell) => void;
 	export let updateCellWithFocus: (coords: Coords) => void;
+
+	let data: Array<ID>;
+	$: incorrectCells = data;
+
+	const unsubscribe = PuzzleStore.subscribe((value) => {
+		if (value && value.incorrectCells) {
+			data = value.incorrectCells;
+		}
+	});
+
+	onDestroy(() => {
+		unsubscribe();
+	});
 
 	// Track previous value so that we can be sure to always save only
 	// the most recently entered value. Using event.target.value.slice(-1)
@@ -95,6 +117,7 @@
 
 	$: cellValue = cell.value;
 	$: cellCorrectValue = cell.correctValue;
+	$: shouldHighlightFalse = incorrectCells.includes(cell.id);
 </script>
 
 {#if gameStatus === GameStatus.PLAY && cell.correctValue}
@@ -109,6 +132,7 @@
 		onClick={handleClick}
 		{isHighlighted}
 		{gameStatus}
+		isFalseValue={shouldHighlightFalse}
 	/>
 {:else if gameStatus === GameStatus.EDITING_CELLS}
 	<Cell

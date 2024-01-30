@@ -1,4 +1,12 @@
-import { MINI, DAILY, SUNDAY, EDIT_PUZZLE, EDITING_HINTS, PUBLISHED } from '$utils/constants';
+import {
+	MINI,
+	DAILY,
+	SUNDAY,
+	EDIT_PUZZLE,
+	EDITING_HINTS,
+	PUBLISHED,
+	GAME_OVER
+} from '$utils/constants';
 
 export enum Direction {
 	GO_DOWN,
@@ -64,7 +72,11 @@ export type PuzzleSizes = {
 	[SUNDAY]: number;
 };
 export type PuzzleType = typeof MINI | typeof DAILY | typeof SUNDAY;
-export type PublishStatus = typeof EDIT_PUZZLE | typeof EDITING_HINTS | typeof PUBLISHED;
+export type PublishStatus =
+	| typeof EDIT_PUZZLE
+	| typeof EDITING_HINTS
+	| typeof PUBLISHED
+	| typeof GAME_OVER;
 
 export type Hint = {
 	displayNumber: number;
@@ -86,6 +98,7 @@ export type PuzzleDocument = {
 	downSpan: number;
 	acrossHints: Array<Hint>;
 	downHints: Array<Hint>;
+	incorrectCells?: Array<ID>;
 };
 
 export interface PuzzleFromDb extends PuzzleDocument {
@@ -108,6 +121,7 @@ export interface Puzzle extends PuzzleDocument {
 	highlightedCellIds: Array<ID>;
 	userId?: string;
 	gameId?: string;
+	incorrectCells?: Array<ID>;
 }
 
 export interface PlayerPuzzle extends PuzzleDocument {

@@ -158,14 +158,10 @@ export const actions = {
 				message: 'Please add hints to for every word'
 			});
 		}
-		console.log('Before');
-		console.log(cellMap['0:0'].value);
 		// 3. Remove values from the cells, leave only correctValues
 		Object.values(cellMap as CellMap).forEach((cell) => {
 			cell.value = '';
 		});
-		console.log('After');
-		console.log(cellMap['0:0'].value);
 
 		// 4. save the puzzle as published
 		try {

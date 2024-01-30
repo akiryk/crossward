@@ -5,23 +5,27 @@
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
-	import type { Puzzle, PuzzleWithId, Cell, DynamicCell } from '$utils/types';
+	import type { Puzzle, PuzzleWithId, ID, DynamicCell } from '$utils/types';
 	import { GameStatus } from '$utils/types';
 	import Button from '$components/Button.svelte';
 	import { debounce, chunkArray, getId } from '$utils/helpers';
+	import { GAME_OVER } from '$utils/constants';
 
 	export let dynamicPuzzle: Puzzle | null;
 
 	export let data;
 
-	const incompleteCells: Array<DynamicCell> | Array<Cell> = [];
+	let isComplete = false;
+	const incorrectCells: Array<ID> = [];
 
 	$: ({ puzzle } = data);
 
 	onMount(() => {
 		if (puzzle) {
 			PuzzleStore.set(puzzle);
-			checkIfComplete(puzzle);
+			if (dynamicPuzzle) {
+				checkIfComplete(dynamicPuzzle);
+			}
 		}
 	});
 
@@ -35,17 +39,30 @@
 		unsubscribe();
 	});
 
-	function checkIfComplete(puzzle: Puzzle | PuzzleWithId) {
-		Object.values(puzzle.cellMap).forEach((cell) => {
-			if (cell.correctValue && cell.value !== cell.correctValue) {
-				const id: string = cell.id;
-				// @ts-expect-error id is a string
-				if (!incompleteCells.includes(id)) incompleteCells.push(id);
+	function checkIfComplete(puzzle: Puzzle) {
+		isComplete = true;
+		Object.values(puzzle.cellMap).forEach((cell, i) => {
+			const id: ID = `${cell.x}:${cell.y}`;
+			if (!cell.value && cell.correctValue) {
+				isComplete = false;
+			}
+			const isFalseAnswer = cell.correctValue && cell.value !== cell.correctValue;
+			const index = incorrectCells.indexOf(id);
+
+			if (isFalseAnswer && index === -1) {
+				incorrectCells.push(id);
+			} else if (!isFalseAnswer && index >= 0) {
+				// mutate the array so the entire page knows when all cells are complete
+				incorrectCells.splice(index, 1);
 			}
 		});
-		console.log(incompleteCells);
-		if (incompleteCells.length === 0) {
-			console.log('won!');
+		if (isComplete && incorrectCells.length === 0) {
+			alert('Game Over, W I N N E R !');
+			puzzle.publishStatus = GAME_OVER;
+			PuzzleStore.set(puzzle);
+		} else if (isComplete) {
+			puzzle.incorrectCells = incorrectCells;
+			PuzzleStore.set(puzzle);
 		}
 	}
 

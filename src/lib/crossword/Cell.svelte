@@ -13,6 +13,7 @@
 	export let onFocus: (event: Event) => void;
 	export let onBlur: (event: Event) => void;
 	export let onClick: (event: MouseEvent) => void;
+	export let isFalseValue = false;
 
 	let inputElement: HTMLInputElement;
 	const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
@@ -22,19 +23,27 @@
 
 	export const CLASSES = `${SHARED_INPUT_STYLES} ${SHARED_CELL_FONT_STYLES} ${SHARED_CELL_STYLES} ${SHARED_PSEUDO_STYLES}`;
 
-	$: classes = getStyles(value, isSymmetrical, isHighlighted);
+	$: classes = getStyles(value, isSymmetrical, isHighlighted, isFalseValue);
 
 	$: if (hasFocus) {
 		inputElement.focus();
 	}
 
-	function getStyles(value: string, isSymmetrical: boolean, isHighlighted: boolean) {
+	function getStyles(
+		value: string,
+		isSymmetrical: boolean,
+		isHighlighted: boolean,
+		isFalseValue: boolean
+	) {
 		let style = 'bg-gray-300';
 		if (gameStatus === GameStatus.PLAY || value || isSymmetrical) {
 			style = 'bg-white';
 		}
 		if (isHighlighted) {
 			style = isSymmetrical ? 'bg-cyan-100' : 'bg-cyan-200';
+		}
+		if (isFalseValue) {
+			style = 'bg-red-300';
 		}
 
 		return `${CLASSES} ${style}`;

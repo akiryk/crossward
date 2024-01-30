@@ -125,7 +125,7 @@ export const actions = {
 		}
 
 		try {
-			await puzzlesCollection.updateOne(filter, updateDocument);
+			await userPuzzlesCollection.updateOne(filter, updateDocument);
 			return {
 				status: 200
 			};

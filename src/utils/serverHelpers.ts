@@ -52,7 +52,6 @@ export const pageServerLoad: PageServerLoad = async ({ params, url, locals }): P
 		}
 
 		if (puzzleFromDb.authorEmail !== session.user?.email) {
-			console.log('redirected!');
 			throw new Error('No access');
 		}
 
@@ -193,7 +192,6 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
  */
 function createCellArraysForClient(puzzle: PuzzleWithId) {
 	const { acrossSpan, downSpan, cellMap } = puzzle;
-	console.log(Array.isArray(cellMap));
 
 	const cellRows = [];
 	const dynamicCellMap: DynamicCellMap = {};
