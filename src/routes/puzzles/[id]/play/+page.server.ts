@@ -5,14 +5,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
-import type {
-	CellMap,
-	Hint,
-	CellMapArray,
-	CellMap,
-	DynamicCellMap,
-	PuzzleWithId
-} from '$utils/types';
+import type { CellMapArray, PuzzleWithId } from '$utils/types';
 import { transformPuzzleForClient, transformCellMapArrayForDb } from '$utils/serverHelpers';
 import type { RequestEvent } from '../$types';
 

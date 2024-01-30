@@ -171,7 +171,6 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 	const workingAnswersKey = {};
 	const highlightedCellIds: Array<ID> = [];
 	const { cellRows, dynamicCellMap } = createCellArraysForClient(puzzle);
-
 	const dynamicPuzzle = {
 		...puzzle,
 		cellMap: dynamicCellMap,
@@ -194,6 +193,8 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
  */
 function createCellArraysForClient(puzzle: PuzzleWithId) {
 	const { acrossSpan, downSpan, cellMap } = puzzle;
+	console.log(Array.isArray(cellMap));
+
 	const cellRows = [];
 	const dynamicCellMap: DynamicCellMap = {};
 	for (let y = 0; y < downSpan; y++) {

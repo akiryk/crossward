@@ -9,7 +9,7 @@ import {
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { PUBLISHED } from '$utils/constants';
-import { ServerErrorType, type Hint, type HintDirection, type PuzzleFromDb } from '$utils/types';
+import { ServerErrorType, type Hint, type HintDirection, type CellMap } from '$utils/types';
 
 export const load = pageServerLoad;
 
@@ -158,8 +158,16 @@ export const actions = {
 				message: 'Please add hints to for every word'
 			});
 		}
+		console.log('Before');
+		console.log(cellMap['0:0'].value);
+		// 3. Remove values from the cells, leave only correctValues
+		Object.values(cellMap as CellMap).forEach((cell) => {
+			cell.value = '';
+		});
+		console.log('After');
+		console.log(cellMap['0:0'].value);
 
-		// 3. save the puzzle as published
+		// 4. save the puzzle as published
 		try {
 			const filter = {
 				_id: new ObjectId(id)
@@ -167,7 +175,8 @@ export const actions = {
 
 			const document = {
 				$set: {
-					publishStatus: PUBLISHED
+					publishStatus: PUBLISHED,
+					cellMap
 				}
 			};
 

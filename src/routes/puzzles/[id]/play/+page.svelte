@@ -5,31 +5,23 @@
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
-	import type { Puzzle } from '$utils/types';
+	import type { Puzzle, PuzzleWithId, Cell, DynamicCell } from '$utils/types';
+	import { GameStatus } from '$utils/types';
 	import Button from '$components/Button.svelte';
-	import { GameStatus, type DynamicCell } from '$utils/types';
-	import { debounce, chunkArray } from '$utils/helpers';
+	import { debounce, chunkArray, getId } from '$utils/helpers';
 
 	export let dynamicPuzzle: Puzzle | null;
 
 	export let data;
 
-	const incompleteCells = [];
+	const incompleteCells: Array<DynamicCell> | Array<Cell> = [];
 
 	$: ({ puzzle } = data);
 
 	onMount(() => {
 		if (puzzle) {
 			PuzzleStore.set(puzzle);
-
-			Object.values(puzzle.cellMap).forEach((cell) => {
-				if (cell.correctValue && cell.value !== cell.correctValue) {
-					incompleteCells.push(cell.id);
-				}
-			});
-			if (incompleteCells.length === 0) {
-				alert('You Won!');
-			}
+			checkIfComplete(puzzle);
 		}
 	});
 
@@ -42,6 +34,20 @@
 	onDestroy(() => {
 		unsubscribe();
 	});
+
+	function checkIfComplete(puzzle: Puzzle | PuzzleWithId) {
+		Object.values(puzzle.cellMap).forEach((cell) => {
+			if (cell.correctValue && cell.value !== cell.correctValue) {
+				const id: string = cell.id;
+				// @ts-expect-error id is a string
+				if (!incompleteCells.includes(id)) incompleteCells.push(id);
+			}
+		});
+		console.log(incompleteCells);
+		if (incompleteCells.length === 0) {
+			console.log('won!');
+		}
+	}
 
 	async function saveData() {
 		if (dynamicPuzzle === null) {
@@ -76,6 +82,9 @@
 
 	const handleSaveOnInput = () => {
 		debounceSaveUpdatedCellMap();
+		if (dynamicPuzzle) {
+			checkIfComplete(dynamicPuzzle);
+		}
 	};
 </script>
 

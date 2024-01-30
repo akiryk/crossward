@@ -7,8 +7,7 @@ import {
 	handleUpdateTitle,
 	handleDelete,
 	transformPuzzleDataForCreatingHints,
-	transformCellMapArrayForDb,
-	transformPuzzleForClient
+	transformCellMapArrayForDb
 } from '$utils/serverHelpers';
 import type { RequestEvent, PageServerLoad } from './$types';
 import { EDITING_HINTS } from '$utils/constants';
