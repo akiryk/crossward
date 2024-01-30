@@ -85,10 +85,9 @@ export const actions = {
 		if (!id || typeof id !== 'string' || !newCellMapChunk || typeof newCellMapChunk !== 'string') {
 			return fail(422, {
 				errorType: ServerErrorType.MISSING_FORM_DATA,
-				message: 'Sorry but there was a problem.'
+				message: 'Hmmm... something went wrong over the wires. Maybe try again?'
 			});
 		}
-
 		const cellMapArrayForDb: CellMapArray = transformCellMapArrayForDb({
 			cellMapArray: JSON.parse(newCellMapChunk)
 		});
@@ -107,11 +106,13 @@ export const actions = {
 		try {
 			await puzzlesCollection.updateOne(filter, updateDocument);
 			return {
-				status: 200
+				status: 200,
+				message: 'The puzzle grid has been updated'
 			};
 		} catch {
 			return fail(500, {
-				errorType: ServerErrorType.DB_ERROR
+				errorType: ServerErrorType.DB_ERROR,
+				message: 'Ugh, we messed up somewhere back here in the internet. Want to try again?'
 			});
 		}
 	},

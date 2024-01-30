@@ -1,6 +1,9 @@
 <script lang="ts">
 	// [id]/editGrid/page.svelte
+	import { type ActionResult } from '@sveltejs/kit';
 	import { onDestroy, onMount } from 'svelte';
+	import { invalidateAll, goto } from '$app/navigation';
+	import { applyAction, deserialize } from '$app/forms';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
@@ -9,11 +12,11 @@
 	import Button from '$components/Button.svelte';
 	import Banner from '$components/Banner.svelte';
 	import { debounce, promiseDebounce, chunkArray } from '$utils/helpers';
-	import { goto } from '$app/navigation';
 
 	export let dynamicPuzzle: Puzzle | null;
 	export let data;
 	export let form;
+	let formElement: HTMLFormElement;
 
 	let errorMessage: string = '';
 	let successMessage: string = '';
@@ -43,28 +46,34 @@
 		isPreview = false;
 	};
 
-	async function saveData() {
-		if (dynamicPuzzle === null) {
+	async function saveData(data: FormData) {
+		const formCellMap = data?.get('cellMap');
+		const id = data?.get('id');
+		if (typeof formCellMap !== 'string' || typeof id !== 'string') {
 			return;
 		}
-		const cellsArray: Array<Array<string | DynamicCell>> = Object.entries(dynamicPuzzle.cellMap);
+		const cellsArray: Array<Array<string | DynamicCell>> = Object.entries(JSON.parse(formCellMap));
 		const chunkedData = chunkArray(cellsArray, 5);
 
 		chunkedData.forEach(async (chunk) => {
 			// chunk = [["0:0", cell1], ["0:1", cell2], etc ... ]
 			const formData = new FormData();
 			formData.append('chunk', JSON.stringify(chunk));
-			// @ts-expect-error ts complains that dynamicPuzzle may be null but it cannot be null
-			// because we return at the top of saveData if it is
-			formData.append('id', dynamicPuzzle._id);
+			formData.append('id', id);
 			try {
 				const response = await fetch(`?/updateCellMap`, {
 					method: 'POST',
 					body: formData
 				});
-				if (!response.ok) {
-					throw new Error('Request failed');
+				const result: ActionResult = deserialize(await response.text());
+				if (result.type === 'success') {
+					successMessage = result.data?.message;
+					// rerun all `load` functions, following the successful update
+					await invalidateAll();
+				} else if (result.type === 'failure') {
+					errorMessage = result.data?.message;
 				}
+				// applyAction(result);
 			} catch (error) {
 				console.error('Error saving chunk:', error);
 			}
@@ -97,12 +106,33 @@
 	const promiseDebounceSave = promiseDebounce(saveData);
 
 	const handleSaveOnInput = async () => {
-		promiseDebounceSave();
+		const data = new FormData(formElement);
+		promiseDebounceSave(data);
 	};
 
 	const handleFinishGrid = async () => {
 		await handleSaveOnInput();
 		createHints();
+	};
+
+	const handleSubmit = async (event: Event) => {
+		const data = new FormData(event.currentTarget as HTMLFormElement);
+		promiseDebounceSave(data);
+		return;
+		const response = await fetch((event.currentTarget as HTMLFormElement).action, {
+			method: 'POST',
+			body: data
+		});
+
+		/** @type {import('@sveltejs/kit').ActionResult} */
+		const result = deserialize(await response.text());
+
+		if (result.type === 'success') {
+			// rerun all `load` functions, following the successful update
+			await invalidateAll();
+		}
+
+		applyAction(result);
 	};
 
 	$: ({ puzzle, isCreateSuccess } = data);
@@ -117,7 +147,13 @@
 			title={puzzle.title}
 		/>
 		{#if dynamicPuzzle || puzzle}
-			<form autocomplete="off" on:submit={(event) => event.preventDefault()}>
+			<form
+				method="POST"
+				action="?/updateCellMap"
+				autocomplete="off"
+				on:submit|preventDefault={handleSubmit}
+				bind:this={formElement}
+			>
 				<input type="hidden" name="cellMap" value={JSON.stringify(dynamicPuzzle?.cellMap)} />
 				<input type="hidden" name="id" value={puzzle._id} />
 				<div class="mb-5">
@@ -136,7 +172,12 @@
 				{#if successMessage}
 					<Banner message={successMessage} bannerType={BannerType.IS_SUCCESS} />
 				{/if}
+
 				<div class="mb-5 flex">
+					<button
+						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+						>Update save</button
+					>
 					<button
 						type="button"
 						on:click={handleFinishGrid}
