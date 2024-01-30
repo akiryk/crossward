@@ -119,24 +119,23 @@ export const actions = {
 			});
 		}
 
-		const puzzleId = new Object(id);
-
-		// 1. get hints for this puzzle from the DB
-		let hintsResult;
+		// 1. get hints and cellMap puzzle from the DB
+		let result;
 		try {
-			hintsResult = await puzzlesCollection.findOne(
+			result = await puzzlesCollection.findOne(
 				{
 					_id: new ObjectId(id)
 				},
 				{
 					projection: {
 						acrossHints: 1,
-						downHints: 1
+						downHints: 1,
+						cellMap: 1
 					}
 				}
 			);
 
-			if (hintsResult === null) {
+			if (result === null) {
 				throw new Error('no puzzle hints have been created');
 			}
 		} catch {
@@ -145,9 +144,10 @@ export const actions = {
 			});
 		}
 
+		const { acrossHints, downHints, cellMap } = result;
+
 		// 2. Validate that all hints have been filled in
 		try {
-			const { acrossHints, downHints } = hintsResult;
 			const isValid = validateHintsForPublishingPuzzle(acrossHints, downHints);
 			if (!isValid) {
 				throw new Error('Please add more hints');
@@ -159,25 +159,23 @@ export const actions = {
 			});
 		}
 
-		console.log('Here we are', puzzleId);
-
 		// 3. save the puzzle as published
 		try {
 			const filter = {
-				_id: puzzleId
+				_id: new ObjectId(id)
 			};
+
 			const document = {
 				$set: {
 					publishStatus: PUBLISHED
 				}
 			};
+
 			await puzzlesCollection.updateOne(filter, document);
 		} catch {
-			console.log('return fail');
 			return fail(500);
 		}
 
-		console.log('success');
 		return {
 			status: 200,
 			successType: 'published'

@@ -1,7 +1,6 @@
 <!-- PLAY PAGE -->
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { enhance } from '$app/forms';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
@@ -89,20 +88,7 @@
 		/>
 
 		{#if dynamicPuzzle || puzzle}
-			<form
-				method="POST"
-				action={'?/saveGame'}
-				autocomplete="off"
-				use:enhance={() => {
-					// This async noop is necessary to ensure that the puzzle displays values after
-					// update. I'm not sure why but suspect it may be that when you provide an async
-					// function to use:enhance, it allows asynchronous operations to complete before
-					// proceeding with subsequent actions
-					return async ({ result }) => {
-						// @ts-ignore
-					};
-				}}
-			>
+			<form autocomplete="off" on:submit={(event) => event.preventDefault()}>
 				<input type="hidden" name="cellMap" value={JSON.stringify(dynamicPuzzle?.cellMap)} />
 				<input type="hidden" name="id" value={puzzle._id} />
 				<div class="mb-5">

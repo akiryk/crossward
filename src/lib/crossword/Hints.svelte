@@ -4,8 +4,8 @@
 
 	export let puzzle: Puzzle;
 	export let gameStatus: GameStatus;
-	export let onAcrossHintInput: () => void;
-	export let onDownHintInput: () => void;
+	export let onAcrossHintInput: () => void = () => {};
+	export let onDownHintInput: () => void = () => {};
 
 	function handleAcrossInput(event: Event, displayNumber: number) {
 		const hintText = (event.target as HTMLInputElement).value;
