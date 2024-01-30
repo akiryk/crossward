@@ -17,6 +17,7 @@
 	export let data;
 	export let form;
 	let formElement: HTMLFormElement;
+	$: formDataObject = formElement;
 
 	let errorMessage: string = '';
 	let successMessage: string = '';
@@ -59,6 +60,7 @@
 			// chunk = [["0:0", cell1], ["0:1", cell2], etc ... ]
 			const formData = new FormData();
 			formData.append('chunk', JSON.stringify(chunk));
+			console.log(JSON.stringify(chunk));
 			formData.append('id', id);
 			try {
 				const response = await fetch(`?/updateCellMap`, {
@@ -69,7 +71,7 @@
 				if (result.type === 'success') {
 					successMessage = result.data?.message;
 					// rerun all `load` functions, following the successful update
-					await invalidateAll();
+					// await invalidateAll();
 				} else if (result.type === 'failure') {
 					errorMessage = result.data?.message;
 				}
@@ -106,7 +108,7 @@
 	const promiseDebounceSave = promiseDebounce(saveData);
 
 	const handleSaveOnInput = async () => {
-		const data = new FormData(formElement);
+		const data = new FormData(JSON.stringify(dynamicPuzzle.cellMap));
 		promiseDebounceSave(data);
 	};
 
@@ -118,21 +120,6 @@
 	const handleSubmit = async (event: Event) => {
 		const data = new FormData(event.currentTarget as HTMLFormElement);
 		promiseDebounceSave(data);
-		return;
-		const response = await fetch((event.currentTarget as HTMLFormElement).action, {
-			method: 'POST',
-			body: data
-		});
-
-		/** @type {import('@sveltejs/kit').ActionResult} */
-		const result = deserialize(await response.text());
-
-		if (result.type === 'success') {
-			// rerun all `load` functions, following the successful update
-			await invalidateAll();
-		}
-
-		applyAction(result);
 	};
 
 	$: ({ puzzle, isCreateSuccess } = data);
