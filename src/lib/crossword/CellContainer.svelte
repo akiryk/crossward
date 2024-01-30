@@ -14,6 +14,7 @@
 		type Coords
 	} from '$utils/types';
 	import { KeyCodes } from '../utils/keyCodes';
+	import { GAME_OVER } from '$utils/constants';
 
 	// Props
 	export let cell: DynamicCell;
@@ -26,12 +27,12 @@
 	export let toggleGridDirection: (cell: DynamicCell) => void;
 	export let updateCellWithFocus: (coords: Coords) => void;
 
-	let data: Array<ID>;
-	$: incorrectCells = data;
+	let data: Puzzle;
+	$: data = data;
 
 	const unsubscribe = PuzzleStore.subscribe((value) => {
-		if (value && value.incorrectCells) {
-			data = value.incorrectCells;
+		if (value) {
+			data = value;
 		}
 	});
 
@@ -117,7 +118,8 @@
 
 	$: cellValue = cell.value;
 	$: cellCorrectValue = cell.correctValue;
-	$: shouldHighlightFalse = incorrectCells.includes(cell.id);
+	$: shouldHighlightFalse = data?.incorrectCells?.includes(cell.id);
+	$: isGameOver = data?.publishStatus === GAME_OVER;
 </script>
 
 {#if gameStatus === GameStatus.PLAY && cell.correctValue}
@@ -133,6 +135,7 @@
 		{isHighlighted}
 		{gameStatus}
 		isFalseValue={shouldHighlightFalse}
+		{isGameOver}
 	/>
 {:else if gameStatus === GameStatus.EDITING_CELLS}
 	<Cell

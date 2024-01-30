@@ -14,6 +14,7 @@
 	export let onBlur: (event: Event) => void;
 	export let onClick: (event: MouseEvent) => void;
 	export let isFalseValue = false;
+	export let isGameOver = false;
 
 	let inputElement: HTMLInputElement;
 	const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
@@ -23,7 +24,7 @@
 
 	export const CLASSES = `${SHARED_INPUT_STYLES} ${SHARED_CELL_FONT_STYLES} ${SHARED_CELL_STYLES} ${SHARED_PSEUDO_STYLES}`;
 
-	$: classes = getStyles(value, isSymmetrical, isHighlighted, isFalseValue);
+	$: classes = getStyles(value, isSymmetrical, isHighlighted, isFalseValue, isGameOver);
 
 	$: if (hasFocus) {
 		inputElement.focus();
@@ -33,17 +34,25 @@
 		value: string,
 		isSymmetrical: boolean,
 		isHighlighted: boolean,
-		isFalseValue: boolean
+		isFalseValue: boolean,
+		isGameOver: boolean
 	) {
 		let style = 'bg-gray-300';
 		if (gameStatus === GameStatus.PLAY || value || isSymmetrical) {
 			style = 'bg-white';
 		}
-		if (isHighlighted) {
-			style = isSymmetrical ? 'bg-cyan-100' : 'bg-cyan-200';
-		}
-		if (isFalseValue) {
-			style = 'bg-red-300';
+		switch (true) {
+			case isFalseValue:
+				style = 'bg-red-300';
+				break;
+			case isGameOver:
+				style = 'bg-blue-100 outline-blue-400';
+				break;
+			case isHighlighted:
+				style = isSymmetrical ? 'bg-cyan-100' : 'bg-cyan-200';
+				break;
+			default:
+				style = 'bg-white';
 		}
 
 		return `${CLASSES} ${style}`;

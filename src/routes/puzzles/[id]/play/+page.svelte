@@ -57,7 +57,6 @@
 			}
 		});
 		if (isComplete && incorrectCells.length === 0) {
-			alert('Game Over, W I N N E R !');
 			puzzle.publishStatus = GAME_OVER;
 			PuzzleStore.set(puzzle);
 		} else if (isComplete) {
