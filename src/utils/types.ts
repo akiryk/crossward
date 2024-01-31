@@ -144,3 +144,5 @@ export type GetNextCellProps = {
 
 export type DynamicCellMapArray = Array<[string, DynamicCell]>;
 export type CellMapArray = Array<[string, Cell]>;
+
+export type IdCellTuple = [id: ID, cell: DynamicCell];

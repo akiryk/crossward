@@ -123,7 +123,6 @@ export const actions = {
 				message: 'Sorry but there was a problem.'
 			});
 		}
-
 		const cellMapArrayForDb: CellMapArray = transformCellMapArrayForDb({
 			cellMapArray: JSON.parse(newCellMapChunk)
 		});

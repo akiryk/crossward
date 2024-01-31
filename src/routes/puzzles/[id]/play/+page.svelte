@@ -1,15 +1,18 @@
 <!-- PLAY PAGE -->
 <script lang="ts">
+	import { type ActionResult } from '@sveltejs/kit';
+	import { deserialize } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
-	import type { Puzzle, PuzzleWithId, ID, DynamicCell } from '$utils/types';
+	import type { Puzzle, PuzzleWithId, ID, IdCellTuple } from '$utils/types';
 	import { GameStatus } from '$utils/types';
 	import Button from '$components/Button.svelte';
 	import { debounce, chunkArray, getId } from '$utils/helpers';
 	import { GAME_OVER } from '$utils/constants';
+	import type { K } from 'vitest/dist/reporters-qc5Smpt5.js';
 
 	export let dynamicPuzzle: Puzzle | null;
 
@@ -17,6 +20,7 @@
 
 	let isComplete = false;
 	const incorrectCells: Array<ID> = [];
+	const cellIdsInSaveQueueSet: Set<ID> = new Set();
 
 	$: ({ puzzle } = data);
 
@@ -69,38 +73,54 @@
 		if (dynamicPuzzle === null) {
 			return;
 		}
-		const cellsArray: Array<Array<string | DynamicCell>> = Object.entries(dynamicPuzzle.cellMap);
-		const chunkedData = chunkArray(cellsArray, 25);
+
+		if (cellIdsInSaveQueueSet.size === 0) {
+			return;
+		}
+
+		// Save endpoint expects data as array of tupples, so make it here.
+		// It should be fast since the array will only have 3 or 4 items max.
+		const cellsToUpdate: Array<IdCellTuple> = [];
+		cellIdsInSaveQueueSet.forEach((id: ID) => {
+			cellsToUpdate.push([id, dynamicPuzzle!.cellMap[id]]);
+		});
+		cellIdsInSaveQueueSet.clear();
+
+		const chunkedData = chunkArray(cellsToUpdate, 5);
 
 		chunkedData.forEach(async (chunk) => {
-			// chunk = [["0:0", cell1], ["0:1", cell2], etc ... ]
 			const formData = new FormData();
 			formData.append('chunk', JSON.stringify(chunk));
-			// @ts-expect-error ts complains that dynamicPuzzle may be null but it cannot be null
-			// because we return at the top of saveData if it is
-			formData.append('id', dynamicPuzzle._id);
+			formData.append('id', dynamicPuzzle!._id);
 			try {
 				const response = await fetch('?/updateCellMap', {
 					method: 'POST',
 					body: formData
 				});
 
-				if (!response.ok) {
+				const result: ActionResult = deserialize(await response.text());
+				if (result.type === 'error') {
 					throw new Error('Request failed');
 				}
 			} catch (error) {
-				console.error('Error saving chunk:', error);
+				console.error('Error saving chunk:');
 			}
 		});
 	}
 
 	const debounceSaveUpdatedCellMap = debounce(saveData, 300);
 
-	const handleSaveOnInput = () => {
+	const handleSaveOnInput = (id: ID) => {
+		cellIdsInSaveQueueSet.add(id);
 		debounceSaveUpdatedCellMap();
+
 		if (dynamicPuzzle) {
 			checkIfComplete(dynamicPuzzle);
 		}
+	};
+
+	const handleSubmit = async (event: Event) => {
+		debounceSaveUpdatedCellMap();
 	};
 </script>
 
@@ -113,7 +133,12 @@
 		/>
 
 		{#if dynamicPuzzle || puzzle}
-			<form autocomplete="off" on:submit={(event) => event.preventDefault()}>
+			<form
+				method="POST"
+				action="?/updateCellMap"
+				autocomplete="off"
+				on:submit|preventDefault={handleSubmit}
+			>
 				<input type="hidden" name="cellMap" value={JSON.stringify(dynamicPuzzle?.cellMap)} />
 				<input type="hidden" name="id" value={puzzle._id} />
 				<div class="mb-5">

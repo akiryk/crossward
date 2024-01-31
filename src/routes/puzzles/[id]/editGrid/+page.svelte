@@ -1,9 +1,9 @@
 <script lang="ts">
 	// [id]/editGrid/page.svelte
 	import { type ActionResult } from '@sveltejs/kit';
+	import { deserialize } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
-	import { invalidateAll, goto } from '$app/navigation';
-	import { applyAction, deserialize } from '$app/forms';
+	import { goto } from '$app/navigation';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';

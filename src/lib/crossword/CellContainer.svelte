@@ -21,7 +21,7 @@
 	export let gameStatus: GameStatus;
 	export let isHighlighted: boolean;
 	export let currentDirection: Direction;
-	export let onInput: () => void;
+	export let onInput: (id: ID) => void;
 	export let updateCellSymmetry: (cell: DynamicCell) => void;
 	export let goToNextCell: (cell: DynamicCell, direction: Direction) => void;
 	export let toggleGridDirection: (cell: DynamicCell) => void;
@@ -56,7 +56,7 @@
 			updateCellSymmetry(cell);
 		}
 		goToNextCell(cell, Direction.GO_FORWARD);
-		onInput();
+		onInput(cell.id);
 	}
 
 	export function handleOnFocus() {
@@ -97,7 +97,7 @@
 						currentDirection === Direction.GO_RIGHT ? Direction.GO_LEFT : Direction.GO_UP;
 					goToNextCell(cell, direction);
 				}, 0);
-				onInput();
+				onInput(cell.id);
 				break;
 			case KeyCodes.LEFT_ARROW_KEY:
 				goToNextCell(cell, Direction.GO_LEFT);
