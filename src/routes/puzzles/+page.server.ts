@@ -2,7 +2,7 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';
-import type { Puzzle, Puzzles, PublishStatus, PuzzleDocument, PuzzleType } from '$utils/types';
+import type { Puzzle, Puzzles, PublishStatus, PuzzleTemplate, PuzzleType } from '$utils/types';
 import { GRID_SIZES, EDIT_PUZZLE } from '$utils/constants';
 import { createInitialCellMap, handleSanitizeInput } from '$utils/serverHelpers';
 import type { RequestEvent } from '../$types';
@@ -81,7 +81,7 @@ export const actions = {
 			}
 
 			// Specify the update to set a value for the plot field
-			const document: PuzzleDocument = {
+			const document: PuzzleTemplate = {
 				title,
 				authorEmail: email,
 				dateCreated,

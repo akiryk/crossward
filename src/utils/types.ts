@@ -1,3 +1,4 @@
+import { type WithId } from 'mongodb';
 import {
 	MINI,
 	DAILY,
@@ -36,36 +37,6 @@ export enum ServerErrorType {
 	UPDATE_TITLE_DB_ERROR
 }
 
-export type CellsArray = Array<Cell>;
-export type DynamicCellsArray = Array<DynamicCell>;
-export type ID = `${number}:${number}`;
-
-// We have two types of Grid and Cell
-// Grid and Cell are the types for data we save to the database
-// DynamicGrid and DynamicCell are types for data we use in JS on the client
-export type Cell = {
-	x: number;
-	y: number;
-	id: ID;
-	displayNumber: number;
-	correctValue: string;
-	value: string;
-	isSymmetrical: boolean;
-	index: number;
-	// These are conveniences so we can highlight the word's cells and not others
-	acrossWordStartX?: number;
-	acrossWordEndX?: number;
-	downWordStartY?: number;
-	downWordEndY?: number;
-};
-
-export interface DynamicCell extends Cell {
-	hasFocus: boolean;
-}
-
-export type CellMap = Record<ID, Cell>;
-export type DynamicCellMap = Record<ID, DynamicCell>;
-
 export type PuzzleSizes = {
 	[MINI]: number;
 	[DAILY]: number;
@@ -78,16 +49,10 @@ export type PublishStatus =
 	| typeof PUBLISHED
 	| typeof GAME_OVER;
 
-export type Hint = {
-	displayNumber: number;
-	hint: string;
-	answer: string;
-};
-
 export type HintDirection = 'across' | 'down';
 
-// PuzzleDocument is the type for new puzzles before being saved
-export type PuzzleDocument = {
+// PuzzleTemplate is the type for new puzzles before being saved
+export type PuzzleTemplate = {
 	title: string;
 	authorEmail: string;
 	dateCreated: string;
@@ -101,30 +66,29 @@ export type PuzzleDocument = {
 	incorrectCells?: Array<ID>;
 };
 
-export interface PuzzleFromDb extends PuzzleDocument {
+export interface PuzzleFromDb extends PuzzleTemplate {
 	_id: () => string;
 }
 
-export interface PuzzleWithId extends PuzzleDocument {
+export interface PuzzleWithId extends PuzzleTemplate {
 	_id: string;
 }
 
-export interface Puzzle extends PuzzleDocument {
+export interface Puzzle extends PuzzleTemplate {
 	_id: string;
-	cellMap: DynamicCellMap;
-	cellRows: Array<DynamicCellsArray>;
-	cellWithFocus: DynamicCell | null;
-	gridDirection: Direction;
-	highlightedCellIds: Array<ID>;
-	userId?: string;
-	gameId?: string;
-	incorrectCells?: Array<ID>;
+	cellMap: CellMap;
+	cellRows: Array<CellsArray>;
 }
 
-export interface PlayerPuzzle extends PuzzleDocument {
+interface PlayerPuzzle extends WithId<Document> {
 	userGameId?: string;
 	_id?: () => string;
 }
+
+// cellWithFocus: Cell | null;
+// 	gridDirection: Direction;
+// 	highlightedCellIds: Array<ID>;
+export interface PlayerPuzzle extends PuzzleTemplate {}
 
 export type Puzzles = Array<Puzzle>;
 
@@ -146,3 +110,9 @@ export type DynamicCellMapArray = Array<[string, DynamicCell]>;
 export type CellMapArray = Array<[string, Cell]>;
 
 export type IdCellTuple = [id: ID, cell: DynamicCell];
+
+export type Hint = {
+	displayNumber: number;
+	hint: string;
+	answer: string;
+};

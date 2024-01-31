@@ -9,9 +9,9 @@ import {
 	transformPuzzleDataForCreatingHints,
 	transformCellMapArrayForDb
 } from '$utils/serverHelpers';
-import type { RequestEvent, PageServerLoad } from './$types';
+import type { RequestEvent } from './$types';
 import { EDITING_HINTS } from '$utils/constants';
-import type { CellMap, PuzzleWithId, CellMapArray } from '$utils/types';
+import type { CellMapArray } from '$utils/types';
 import { ServerErrorType } from '$utils/types';
 
 export const load = pageServerLoad;

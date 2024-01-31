@@ -12,7 +12,6 @@
 	import Banner from '$components/Banner.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
-	export let dynamicPuzzle: Puzzle | null;
 	export let data;
 	export let form;
 
@@ -21,21 +20,7 @@
 	let successMessage: string = '';
 	let isPreview = false;
 
-	onMount(() => {
-		if (puzzle) {
-			PuzzleStore.set(puzzle);
-		}
-	});
-
-	const unsubscribe = PuzzleStore.subscribe((data) => {
-		if (data) {
-			dynamicPuzzle = data;
-		}
-	});
-
-	onDestroy(() => {
-		unsubscribe();
-	});
+	$: ({ puzzle, isCreateSuccess } = data);
 
 	const handleOnPreview = () => {
 		isPreview = true;
@@ -84,11 +69,11 @@
 	}
 
 	async function createHints() {
-		if (dynamicPuzzle === null) {
+		if (puzzle === null) {
 			return;
 		}
 		const formData = new FormData();
-		const id = dynamicPuzzle._id;
+		const id = puzzle._id;
 		formData.append('id', id);
 		try {
 			const response = await fetch(`?/createHints`, {
@@ -112,28 +97,18 @@
 
 	const promiseDebounceSave = promiseDebounce(saveData);
 
-	const handleSaveOnInput = async () => {
-		if (!dynamicPuzzle) {
-			return;
-		}
+	const handleSaveCellMap = async () => {
 		const formData = new FormData();
-		formData.append('cellMap', JSON.stringify(dynamicPuzzle.cellMap));
-		formData.append('id', dynamicPuzzle._id);
+		formData.append('cellMap', JSON.stringify(puzzle.cellMap));
+		formData.append('id', puzzle._id);
 		promiseDebounceSave(formData);
 	};
 
 	const handleFinishGrid = async () => {
-		await handleSaveOnInput();
+		await handleSaveCellMap();
 		isSaveForShowHints = true;
 		createHints();
 	};
-
-	const handleSubmit = async (event: Event) => {
-		const data = new FormData(event.currentTarget as HTMLFormElement);
-		promiseDebounceSave(data);
-	};
-
-	$: ({ puzzle, isCreateSuccess } = data);
 </script>
 
 <div>
@@ -144,20 +119,20 @@
 			gameStatus={GameStatus.EDITING_CELLS}
 			title={puzzle.title}
 		/>
-		{#if dynamicPuzzle || puzzle}
+		{#if puzzle}
 			<form
 				method="POST"
 				action="?/updateCellMap"
 				autocomplete="off"
-				on:submit|preventDefault={handleSubmit}
+				on:submit|preventDefault={handleSaveCellMap}
 			>
-				<input type="hidden" name="cellMap" value={JSON.stringify(dynamicPuzzle?.cellMap)} />
+				<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
 				<input type="hidden" name="id" value={puzzle._id} />
 				<div class="mb-5">
 					<Crossword
-						puzzle={dynamicPuzzle || puzzle}
+						{puzzle}
 						gameStatus={isPreview ? GameStatus.PREVIEW : GameStatus.EDITING_CELLS}
-						onInput={handleSaveOnInput}
+						onInput={handleSaveCellMap}
 					/>
 				</div>
 				<!-- ERROR MESSAGES -->

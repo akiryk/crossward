@@ -1,6 +1,6 @@
 // PLAY SERVER
 import { ServerErrorType } from '$utils/types';
-import { ObjectId } from 'mongodb';
+import { ObjectId,  } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
@@ -38,7 +38,7 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 	// User johndoe@example.com playing puzzle ABCD2343 would have userGameId
 	// of johndoe_example_com_ABCD2342
 	const userGameId = createUserGameId({ email, puzzleId });
-	let playerPuzzle;
+	let playerPuzzle:;
 
 	// check if userId exists in the userGames collection
 	try {
@@ -70,7 +70,7 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 				acrossHints,
 				downHints
 			} = playerPuzzle;
-			const playerPuzzleDocument = {
+			const playerPuzzleTemplate = {
 				title,
 				authorEmail,
 				dateCreated,
@@ -84,7 +84,7 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 				gameStatus: 'PUZZLE_INCOMPLETE'
 			};
 			try {
-				const result = await userPuzzlesCollection.insertOne(playerPuzzleDocument);
+				const result = await userPuzzlesCollection.insertOne(playerPuzzleTemplate);
 				if (!result.insertedId) {
 					throw new Error('oh no! unable to save the new puzzle');
 				}
@@ -101,11 +101,7 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 		});
 	}
 
-	const puzzleWithId = {
-		...playerPuzzle,
-		_id: playerPuzzle._id.toString()
-	} as unknown as PuzzleWithId;
-	const puzzle = transformPuzzleForPlayer(puzzleWithId);
+	const puzzle = transformPuzzleForPlayer(playerPuzzle);
 	return {
 		puzzle
 	};

@@ -5,16 +5,14 @@
  */
 import type {
 	CellMap,
-	DynamicCellMap,
 	Cell,
 	ID,
 	Puzzle,
-	DynamicCell,
+	PlayerPuzzle,
 	PuzzleWithId,
 	CellsArray,
 	Hint,
 	SanitizeInputParams,
-	DynamicCellMapArray,
 	CellMapArray
 } from '$utils/types';
 import { Direction, ServerErrorType } from '$utils/types';
@@ -178,7 +176,7 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 	return dynamicPuzzle;
 };
 
-export const transformPuzzleForPlayer = (puzzle) => {
+export const transformPuzzleForPlayer = (puzzle: PlayerPuzzle) => {
 	const cellWithFocus = null;
 	const gridDirection = Direction.GO_RIGHT;
 	const highlightedCellIds: Array<ID> = [];

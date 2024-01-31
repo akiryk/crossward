@@ -144,6 +144,7 @@
 			<tr class="flex justify-center flex-wrap" role="row">
 				{#each row as cell}
 					<CellContainer
+						{puzzle}
 						{gameStatus}
 						{cell}
 						{updateCellSymmetry}
