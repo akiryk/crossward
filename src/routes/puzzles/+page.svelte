@@ -3,7 +3,7 @@
 
 	import type { PageData } from './$types';
 	import type { Puzzles } from '$utils/types';
-	import { EDIT_PUZZLE, PUBLISHED, MINI, DAILY, SUNDAY } from '$utils/constants';
+	import { EDIT_PUZZLE, PUBLISHED, MINI, DAILY, SUNDAY, EDITING_HINTS } from '$utils/constants';
 
 	import List from '$components/List.svelte';
 	import ListItem from '$components/ListItem.svelte';
@@ -65,13 +65,16 @@
 				</ListItem>
 			{:else if puzzle.authorEmail === data.session?.user?.email}
 				<ListItem>
-					<span
-						><a
-							href="/puzzles/{puzzle._id}/{puzzle.publishStatus === EDIT_PUZZLE
-								? 'editGrid'
-								: 'editHints'}"
-							class="text-sky-400">Edit {puzzle.title}</a
-						></span
+					<span>
+						{#if puzzle.publishStatus === EDIT_PUZZLE}
+							<a href="/puzzles/{puzzle._id}/editGrid" class="text-sky-400"
+								>Edit cells: {puzzle.title}</a
+							>
+						{:else if puzzle.publishStatus === EDITING_HINTS}
+							<a href="/puzzles/{puzzle._id}/editHints" class="text-sky-400"
+								>Edit hints: {puzzle.title}</a
+							>
+						{/if}</span
 					>
 				</ListItem>
 			{/if}
