@@ -86,7 +86,7 @@
 		});
 		cellIdsInSaveQueueSet.clear();
 
-		const chunkedData = chunkArray(cellsToUpdate, 5);
+		const chunkedData = chunkArray(cellsToUpdate, 25);
 
 		chunkedData.forEach(async (chunk) => {
 			const formData = new FormData();

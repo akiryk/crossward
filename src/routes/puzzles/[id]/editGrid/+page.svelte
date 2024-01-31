@@ -57,7 +57,7 @@
 			return;
 		}
 		const cellsArray: Array<Array<string | DynamicCell>> = Object.entries(JSON.parse(formCellMap));
-		const chunkedData = chunkArray(cellsArray, 5);
+		const chunkedData = chunkArray(cellsArray, 25);
 
 		chunkedData.forEach(async (chunk) => {
 			// chunk = [["0:0", cell1], ["0:1", cell2], etc ... ]
