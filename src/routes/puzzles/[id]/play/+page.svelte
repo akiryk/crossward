@@ -8,7 +8,7 @@
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
 	import type { Puzzle, PuzzleWithId, ID, IdCellTuple } from '$utils/types';
-	import { GameStatus } from '$utils/types';
+	import { GameMode } from '$utils/types';
 	import Button from '$components/Button.svelte';
 	import { debounce, chunkArray, getId } from '$utils/helpers';
 	import { GAME_OVER } from '$utils/constants';
@@ -126,11 +126,7 @@
 
 <div>
 	{#if puzzle}
-		<PuzzleHeading
-			puzzleType={puzzle.puzzleType}
-			gameStatus={GameStatus.PLAY}
-			title={puzzle.title}
-		/>
+		<PuzzleHeading puzzleType={puzzle.puzzleType} gameMode={GameMode.PLAY} title={puzzle.title} />
 
 		{#if dynamicPuzzle || puzzle}
 			<form
@@ -144,11 +140,11 @@
 				<div class="mb-5">
 					<Crossword
 						puzzle={dynamicPuzzle || puzzle}
-						gameStatus={GameStatus.PLAY}
+						gameMode={GameMode.PLAY}
 						onInput={handleSaveOnInput}
 					/>
 				</div>
-				<Hints puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.PLAY} />
+				<Hints puzzle={dynamicPuzzle || puzzle} gameMode={GameMode.PLAY} />
 				<div class="mb-5 flex">
 					<div class="mr-5">
 						<Button buttonType="submit">Save for later</Button>

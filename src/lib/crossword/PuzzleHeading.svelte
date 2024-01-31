@@ -1,21 +1,21 @@
 <script lang="ts">
-	import { type PuzzleType, GameStatus } from '$utils/types';
+	import { type PuzzleType, GameMode } from '$utils/types';
 
 	// PROPS
 	export let isCreateSuccess: Boolean = false;
 	export let puzzleType: PuzzleType;
-	export let gameStatus: GameStatus;
+	export let gameMode: GameMode;
 	export let title: string;
 
-	$: headingText = getHeadingText(gameStatus, title);
+	$: headingText = getHeadingText(gameMode, title);
 
-	function getHeadingText(gameStatus: GameStatus, title: string) {
-		switch (gameStatus) {
-			case GameStatus.EDITING_CELLS:
+	function getHeadingText(gameMode: GameMode, title: string) {
+		switch (gameMode) {
+			case GameMode.EDITING_CELLS:
 				return `Create ${title}`;
-			case GameStatus.EDITING_HINTS:
+			case GameMode.EDITING_HINTS:
 				return `Add hints for ${title}`;
-			case GameStatus.PLAY:
+			case GameMode.PLAY:
 				return `Play ${title}`;
 			default:
 				return '';

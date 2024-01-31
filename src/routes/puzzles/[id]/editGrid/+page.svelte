@@ -8,7 +8,7 @@
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import { GameStatus, BannerType, type Puzzle, type DynamicCell } from '$utils/types';
+	import { GameMode, BannerType, type Puzzle, type DynamicCell } from '$utils/types';
 	import Banner from '$components/Banner.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
@@ -116,7 +116,7 @@
 		<PuzzleHeading
 			isCreateSuccess={isCreateSuccess ? true : false}
 			puzzleType={puzzle.puzzleType}
-			gameStatus={GameStatus.EDITING_CELLS}
+			gameMode={GameMode.EDITING_CELLS}
 			title={puzzle.title}
 		/>
 		{#if puzzle}
@@ -131,7 +131,7 @@
 				<div class="mb-5">
 					<Crossword
 						{puzzle}
-						gameStatus={isPreview ? GameStatus.PREVIEW : GameStatus.EDITING_CELLS}
+						gameMode={isPreview ? GameMode.PREVIEW : GameMode.EDITING_CELLS}
 						onInput={handleSaveCellMap}
 					/>
 				</div>

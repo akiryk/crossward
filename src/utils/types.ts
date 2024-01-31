@@ -1,4 +1,3 @@
-import { type WithId } from 'mongodb';
 import {
 	MINI,
 	DAILY,
@@ -6,7 +5,9 @@ import {
 	EDIT_PUZZLE,
 	EDITING_HINTS,
 	PUBLISHED,
-	GAME_OVER
+	INCOMPLETE,
+	COMPLETE_BUT_WITH_ERRORS,
+COMPLETE_AND_NO_ERRORS
 } from '$utils/constants';
 
 export enum Direction {
@@ -17,12 +18,14 @@ export enum Direction {
 	GO_FORWARD
 }
 
-export enum GameStatus {
+export enum GameMode {
 	EDITING_CELLS,
 	EDITING_HINTS,
 	PREVIEW,
 	PLAY
 }
+
+export type PlayMode = typeof INCOMPLETE |typeof COMPLETE_BUT_WITH_ERRORS | typeof COMPLETE_AND_NO_ERRORS
 
 export enum BannerType {
 	IS_SUCCESS,
@@ -47,12 +50,12 @@ export type PublishStatus =
 	| typeof EDIT_PUZZLE
 	| typeof EDITING_HINTS
 	| typeof PUBLISHED
-	| typeof GAME_OVER;
 
 export type HintDirection = 'across' | 'down';
 
 // PuzzleTemplate is the type for new puzzles before being saved
 export type PuzzleTemplate = {
+	_id: any;
 	title: string;
 	authorEmail: string;
 	dateCreated: string;
@@ -80,15 +83,25 @@ export interface Puzzle extends PuzzleTemplate {
 	cellRows: Array<CellsArray>;
 }
 
-interface PlayerPuzzle extends WithId<Document> {
+export type PlayerPuzzle {
+	_id: any;
 	userGameId?: string;
-	_id?: () => string;
+	title: string;
+	authorEmail: string;
+	dateCreated: string;
+	puzzleType: PuzzleType;
+	cellMap: CellMap;
+	acrossSpan: number;
+	downSpan: number;
+	acrossHints: Array<Hint>;
+	downHints: Array<Hint>;
+	incorrectCells?: Array<ID>;
+	gameMode: GameMode;
 }
 
 // cellWithFocus: Cell | null;
 // 	gridDirection: Direction;
 // 	highlightedCellIds: Array<ID>;
-export interface PlayerPuzzle extends PuzzleTemplate {}
 
 export type Puzzles = Array<Puzzle>;
 
@@ -106,10 +119,8 @@ export type GetNextCellProps = {
 	downSpan: number;
 };
 
-export type DynamicCellMapArray = Array<[string, DynamicCell]>;
 export type CellMapArray = Array<[string, Cell]>;
-
-export type IdCellTuple = [id: ID, cell: DynamicCell];
+export type IdCellTuple = [id: ID, cell: Cell];
 
 // We have two types of Grid and Cell
 // Grid and Cell are the types for data we save to the database
@@ -131,6 +142,7 @@ export type Cell = {
 };
 
 export type CellMap = Record<ID, Cell>;
+export type ID = `${number}:${number}`;
 
 export type Hint = {
 	displayNumber: number;

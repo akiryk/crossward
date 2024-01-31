@@ -6,7 +6,7 @@
 	import PreviewCell from './PreviewCell.svelte';
 	import {
 		Direction,
-		GameStatus,
+		GameMode,
 		type ID,
 		type Puzzle,
 		type DynamicCell,
@@ -17,7 +17,7 @@
 	// Props
 	export let puzzle: Puzzle;
 	export let cell: DynamicCell;
-	export let gameStatus: GameStatus;
+	export let gameMode: GameMode;
 	export let isHighlighted: boolean;
 	export let currentDirection: Direction;
 	export let onInput: (id: ID) => void;
@@ -37,7 +37,7 @@
 		(event.target as HTMLInputElement).value = cleanValue;
 		cell.value = cleanValue;
 		previousValue = cleanValue;
-		if (gameStatus === GameStatus.EDITING_CELLS) {
+		if (gameMode === GameMode.EDITING_CELLS) {
 			cell.correctValue = cleanValue;
 			updateCellSymmetry(cell);
 		}
@@ -73,7 +73,7 @@
 			case KeyCodes.DELETE_KEY:
 				cell.value = '';
 				previousValue = '';
-				if (gameStatus === GameStatus.EDITING_CELLS) {
+				if (gameMode === GameMode.EDITING_CELLS) {
 					updateCellSymmetry(cell);
 					cell.correctValue = '';
 				}
@@ -106,7 +106,7 @@
 	// $: shouldHighlightFalse = data?.incorrectCells?.includes(cell.id);
 </script>
 
-{#if gameStatus === GameStatus.PLAY && cell.correctValue}
+{#if gameMode === GameMode.PLAY && cell.correctValue}
 	<Cell
 		displayNumber={cell.displayNumber}
 		value={cellValue}
@@ -117,9 +117,9 @@
 		hasFocus={cell.hasFocus}
 		onClick={handleClick}
 		{isHighlighted}
-		{gameStatus}
+		{gameMode}
 	/>
-{:else if gameStatus === GameStatus.EDITING_CELLS}
+{:else if gameMode === GameMode.EDITING_CELLS}
 	<Cell
 		displayNumber={cell.displayNumber}
 		value={cellCorrectValue}
@@ -131,15 +131,15 @@
 		hasFocus={cell.hasFocus}
 		onClick={handleClick}
 		{isHighlighted}
-		{gameStatus}
+		{gameMode}
 	/>
-{:else if gameStatus === GameStatus.PREVIEW}
+{:else if gameMode === GameMode.PREVIEW}
 	<PreviewCell
 		displayNumber={cell.displayNumber}
 		value={cellCorrectValue}
 		missingValueForSymmetricalCell={cell.isSymmetrical && !cell.correctValue}
 	/>
-{:else if gameStatus === GameStatus.EDITING_HINTS}
+{:else if gameMode === GameMode.EDITING_HINTS}
 	<PreviewCell displayNumber={cell.displayNumber} value={cellCorrectValue} />
 {:else}
 	<DeadCell />

@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { GameStatus } from '$utils/types';
+	import { GameMode } from '$utils/types';
 
 	// Props
 	export let value: string;
 	export let displayNumber: number;
 	export let hasFocus: boolean;
-	export let gameStatus: GameStatus;
+	export let gameMode: GameMode;
 	export let isHighlighted: boolean;
 	export let isSymmetrical: boolean = false;
 	export let onInput: (event: Event) => void;
@@ -38,7 +38,7 @@
 		isGameOver: boolean
 	) {
 		let style = 'bg-gray-300';
-		if (gameStatus === GameStatus.PLAY || value || isSymmetrical) {
+		if (gameMode === GameMode.PLAY || value || isSymmetrical) {
 			style = 'bg-white';
 		}
 		switch (true) {

@@ -1,11 +1,11 @@
 // PLAY SERVER
 import { ServerErrorType } from '$utils/types';
-import { ObjectId,  } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
-import type { CellMapArray, PuzzleWithId } from '$utils/types';
+import { type CellMapArray, type PlayerPuzzle, GameMode, PlayMode } from '$utils/types';
 import { transformPuzzleForPlayer, transformCellMapArrayForDb } from '$utils/serverHelpers';
 import type { RequestEvent } from '../$types';
 
@@ -38,21 +38,21 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 	// User johndoe@example.com playing puzzle ABCD2343 would have userGameId
 	// of johndoe_example_com_ABCD2342
 	const userGameId = createUserGameId({ email, puzzleId });
-	let playerPuzzle:;
+	let puzzle;
 
 	// check if userId exists in the userGames collection
 	try {
-		playerPuzzle = await userPuzzlesCollection.findOne({
+		puzzle = await userPuzzlesCollection.findOne({
 			userGameId
 		});
 
-		if (playerPuzzle === null) {
+		if (puzzle === null) {
 			// 1. get the source puzzle
-			playerPuzzle = await puzzlesCollection.findOne({
+			puzzle = await puzzlesCollection.findOne({
 				_id: new ObjectId(params.id)
 			});
 
-			if (playerPuzzle === null) {
+			if (puzzle === null) {
 				// TODO: Redirect to somekind of help page
 				// explaining that this puzzle may not exist anymore
 				throw redirect(300, '/');
@@ -69,7 +69,8 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 				cellMap,
 				acrossHints,
 				downHints
-			} = playerPuzzle;
+			} = puzzle;
+
 			const playerPuzzleTemplate = {
 				title,
 				authorEmail,
@@ -81,7 +82,7 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 				acrossHints,
 				downHints,
 				userGameId,
-				gameStatus: 'PUZZLE_INCOMPLETE'
+				playMode: PlayMode.INCOMPLETE
 			};
 			try {
 				const result = await userPuzzlesCollection.insertOne(playerPuzzleTemplate);
@@ -101,9 +102,9 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 		});
 	}
 
-	const puzzle = transformPuzzleForPlayer(playerPuzzle);
+	const playerPuzzle = transformPuzzleForPlayer(puzzle);
 	return {
-		puzzle
+		playerPuzzle
 	};
 };
 

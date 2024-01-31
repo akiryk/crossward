@@ -11,7 +11,7 @@
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
-	import { BannerType, GameStatus, type HintDirection, type Puzzle } from '$utils/types';
+	import { BannerType, GameMode, type HintDirection, type Puzzle } from '$utils/types';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
 	export let dynamicPuzzle: Puzzle | null;
@@ -111,12 +111,12 @@
 	{#if puzzle}
 		<PuzzleHeading
 			puzzleType={puzzle.puzzleType}
-			gameStatus={GameStatus.EDITING_HINTS}
+			gameMode={GameMode.EDITING_HINTS}
 			title={puzzle.title}
 		/>
 		{#if dynamicPuzzle || puzzle}
 			<div class="mb-5">
-				<Crossword puzzle={dynamicPuzzle || puzzle} gameStatus={GameStatus.EDITING_HINTS} />
+				<Crossword puzzle={dynamicPuzzle || puzzle} gameMode={GameMode.EDITING_HINTS} />
 			</div>
 			<form
 				method="POST"
@@ -135,7 +135,7 @@
 					puzzle={dynamicPuzzle || puzzle}
 					onAcrossHintInput={handleAcrossHintInput}
 					onDownHintInput={handleDownHintInput}
-					gameStatus={GameStatus.EDITING_HINTS}
+					gameMode={GameMode.EDITING_HINTS}
 				/>
 
 				<!-- ERROR MESSAGES -->

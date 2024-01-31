@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { GameStatus, type Puzzle } from '$utils/types';
+	import { GameMode, type Puzzle } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
 
 	export let puzzle: Puzzle;
-	export let gameStatus: GameStatus;
+	export let gameMode: GameMode;
 	export let onAcrossHintInput: () => void = () => {};
 	export let onDownHintInput: () => void = () => {};
 
@@ -36,7 +36,7 @@
 					>
 						{hint?.displayNumber}
 					</label>
-					{#if gameStatus === GameStatus.EDITING_HINTS}
+					{#if gameMode === GameMode.EDITING_HINTS}
 						<input
 							type="text"
 							placeholder={hint?.answer}
@@ -68,7 +68,7 @@
 					>
 						{hint?.displayNumber}
 					</label>
-					{#if gameStatus === GameStatus.EDITING_HINTS}
+					{#if gameMode === GameMode.EDITING_HINTS}
 						<input
 							type="text"
 							placeholder={`${hint?.answer}`}

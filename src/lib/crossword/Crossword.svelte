@@ -1,7 +1,7 @@
 <script lang="ts">
 	import CellContainer from './CellContainer.svelte';
 	import type { DynamicCell, Puzzle, Coords, GetNextCellProps, ID } from '$utils/types';
-	import { Direction, GameStatus } from '$utils/types';
+	import { Direction, GameMode } from '$utils/types';
 	import { getId } from '$utils/helpers';
 	import PuzzleStore from '../../stores/PuzzleStore';
 	import {
@@ -18,14 +18,14 @@
 
 	export let onInput: (id: ID) => void = (id: ID) => {};
 	export let puzzle: Puzzle;
-	export let gameStatus: GameStatus;
+	export let gameMode: GameMode;
 	let currentDirection = Direction.GO_RIGHT;
 
 	function getHighlightedCellIds(cell: DynamicCell): Array<ID> {
 		let highlightedCellIds: Array<ID> = [];
 		const currentCellX = cell.x;
 		const currentCellY = cell.y;
-		if (gameStatus === GameStatus.PLAY) {
+		if (gameMode === GameMode.PLAY) {
 			if (currentDirection === Direction.GO_RIGHT) {
 				if (
 					typeof cell.acrossWordStartX === 'number' &&
@@ -145,7 +145,7 @@
 				{#each row as cell}
 					<CellContainer
 						{puzzle}
-						{gameStatus}
+						{gameMode}
 						{cell}
 						{updateCellSymmetry}
 						{toggleGridDirection}
