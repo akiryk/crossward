@@ -46,7 +46,8 @@
 	};
 
 	async function saveData(data: FormData) {
-		// don't try to save if we redirect to hints page
+		// don't try to save if we redirect to hints page because data is already saved
+		// and the context will switch and we'll get errors when trying to hit nonexistent endpoint
 		if (isSaveForShowHints) {
 			return;
 		}
