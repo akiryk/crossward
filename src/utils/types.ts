@@ -111,6 +111,27 @@ export type CellMapArray = Array<[string, Cell]>;
 
 export type IdCellTuple = [id: ID, cell: DynamicCell];
 
+// We have two types of Grid and Cell
+// Grid and Cell are the types for data we save to the database
+// DynamicGrid and DynamicCell are types for data we use in JS on the client
+export type Cell = {
+	x: number;
+	y: number;
+	id: ID;
+	displayNumber: number;
+	correctValue: string;
+	value: string;
+	isSymmetrical: boolean;
+	index: number;
+	// These are conveniences so we can highlight the word's cells and not others
+	acrossWordStartX?: number;
+	acrossWordEndX?: number;
+	downWordStartY?: number;
+	downWordEndY?: number;
+};
+
+export type CellMap = Record<ID, Cell>;
+
 export type Hint = {
 	displayNumber: number;
 	hint: string;
