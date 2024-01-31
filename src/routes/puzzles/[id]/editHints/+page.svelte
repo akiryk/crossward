@@ -20,7 +20,6 @@
 	export let form;
 	let errorMessage: string = '';
 	let successMessage: string = '';
-	let errorType: string = '';
 
 	$: ({ puzzle } = data);
 
@@ -52,11 +51,7 @@
 					body: formData
 				});
 				const result: ActionResult = deserialize(await response.text());
-				if (result.type === 'success') {
-					successMessage = result.data?.message;
-					// rerun all `load` functions, following the successful update
-					await invalidateAll();
-				} else if (result.type === 'failure') {
+				if (result.type === 'failure') {
 					errorMessage = result.data?.message;
 				}
 			} catch (error) {
@@ -99,7 +94,6 @@
 				body: formData
 			});
 			const result: ActionResult = deserialize(await response.text());
-
 			if (result.type === 'success') {
 				successMessage = result.data?.message;
 				// rerun all `load` functions, following the successful update

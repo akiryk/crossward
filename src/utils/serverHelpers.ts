@@ -165,7 +165,6 @@ export const createInitialCellMap = (acrossSpan: number, downSpan: number): Cell
 export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 	const cellWithFocus = null;
 	const gridDirection = Direction.GO_RIGHT;
-	const currentRow = -1;
 	const highlightedCellIds: Array<ID> = [];
 	const { cellRows, dynamicCellMap } = createCellArraysForClient(puzzle);
 	const dynamicPuzzle = {
@@ -176,7 +175,6 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 		gridDirection,
 		highlightedCellIds
 	};
-
 	return dynamicPuzzle;
 };
 
@@ -321,8 +319,8 @@ export function transformPuzzleDataForCreatingHints({
 	// - which ones are in words and get start and end information about each word
 	for (let i = 0; i < cellsArray.length; i++) {
 		let shouldIncrementCount = false;
-
 		const cell: Cell = cellsArray[i];
+
 		if (!cell.correctValue) {
 			continue;
 		}
@@ -419,7 +417,7 @@ export function transformPuzzleDataForCreatingHints({
 		}
 
 		if (shouldIncrementCount) {
-			cell.displayNumber = cellDisplayNumber;
+			cellMap[cell.id].displayNumber = cellDisplayNumber;
 			cellDisplayNumber++;
 		}
 	}

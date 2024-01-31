@@ -9,7 +9,7 @@ import {
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { PUBLISHED } from '$utils/constants';
-import { ServerErrorType, type Hint, type HintDirection, type CellMap } from '$utils/types';
+import { type Hint, type HintDirection, type CellMap } from '$utils/types';
 
 export const load = pageServerLoad;
 

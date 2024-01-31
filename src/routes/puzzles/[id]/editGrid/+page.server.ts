@@ -17,6 +17,43 @@ import { ServerErrorType } from '$utils/types';
 export const load = pageServerLoad;
 
 export const actions = {
+	updateCellMap: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+		const newCellMapChunk = data.get('chunk');
+		const id = data.get('id');
+		if (!id || typeof id !== 'string' || !newCellMapChunk || typeof newCellMapChunk !== 'string') {
+			return fail(422, {
+				errorType: ServerErrorType.MISSING_FORM_DATA,
+				message: 'Hmmm... something went wrong over the wires. Maybe try again?'
+			});
+		}
+		const cellMapArrayForDb: CellMapArray = transformCellMapArrayForDb({
+			cellMapArray: JSON.parse(newCellMapChunk)
+		});
+		const filter = {
+			_id: new ObjectId(id)
+		};
+		const updateDocument = { $set: {} };
+
+		for (const [key, value] of cellMapArrayForDb) {
+			// @ts-expect-error this looks weird but is MongoDb syntax
+			// In Javascript, you might instead say set.cellMap["0:0"], but that doesn't work in Mongo
+			updateDocument.$set[`cellMap.${key}`] = value;
+		}
+
+		try {
+			await puzzlesCollection.updateOne(filter, updateDocument);
+			return {
+				status: 200,
+				message: 'Your puzzle data is saved!'
+			};
+		} catch {
+			return fail(500, {
+				errorType: ServerErrorType.DB_ERROR,
+				message: 'Ugh, we messed up somewhere back here in the internet. Want to try again?'
+			});
+		}
+	},
 	createHints: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const id = data.get('id');
@@ -77,43 +114,6 @@ export const actions = {
 			return fail(500, {
 				errorType: ServerErrorType.DB_ERROR,
 				message: 'Again, the DB failed again!'
-			});
-		}
-	},
-	updateCellMap: async ({ request }: RequestEvent) => {
-		const data = await request.formData();
-		const newCellMapChunk = data.get('chunk');
-		const id = data.get('id');
-		if (!id || typeof id !== 'string' || !newCellMapChunk || typeof newCellMapChunk !== 'string') {
-			return fail(422, {
-				errorType: ServerErrorType.MISSING_FORM_DATA,
-				message: 'Hmmm... something went wrong over the wires. Maybe try again?'
-			});
-		}
-		const cellMapArrayForDb: CellMapArray = transformCellMapArrayForDb({
-			cellMapArray: JSON.parse(newCellMapChunk)
-		});
-		const filter = {
-			_id: new ObjectId(id)
-		};
-		const updateDocument = { $set: {} };
-
-		for (const [key, value] of cellMapArrayForDb) {
-			// @ts-expect-error this looks weird but is MongoDb syntax
-			// In Javascript, you might instead say set.cellMap["0:0"], but that doesn't work in Mongo
-			updateDocument.$set[`cellMap.${key}`] = value;
-		}
-
-		try {
-			await puzzlesCollection.updateOne(filter, updateDocument);
-			return {
-				status: 200,
-				message: 'Your puzzle data is saved!'
-			};
-		} catch {
-			return fail(500, {
-				errorType: ServerErrorType.DB_ERROR,
-				message: 'Ugh, we messed up somewhere back here in the internet. Want to try again?'
 			});
 		}
 	},

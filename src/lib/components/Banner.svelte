@@ -4,7 +4,7 @@
 	export let message: string;
 	export let bannerType: BannerType;
 
-	let styles = getStyles(bannerType);
+	let styles = getStyles();
 
 	function getStyles() {
 		switch (bannerType) {

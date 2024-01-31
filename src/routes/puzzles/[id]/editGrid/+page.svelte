@@ -9,9 +9,8 @@
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import { GameStatus, BannerType, type Puzzle, type DynamicCell } from '$utils/types';
-	import Button from '$components/Button.svelte';
 	import Banner from '$components/Banner.svelte';
-	import { debounce, promiseDebounce, chunkArray } from '$utils/helpers';
+	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
 	export let dynamicPuzzle: Puzzle | null;
 	export let data;
@@ -47,6 +46,10 @@
 	};
 
 	async function saveData(data: FormData) {
+		// don't try to save if we redirect to hints page
+		if (isSaveForShowHints) {
+			return;
+		}
 		const formCellMap = data?.get('cellMap');
 		const id = data?.get('id');
 		if (typeof formCellMap !== 'string' || typeof id !== 'string') {
@@ -119,8 +122,8 @@
 	};
 
 	const handleFinishGrid = async () => {
-		isSaveForShowHints = true;
 		await handleSaveOnInput();
+		isSaveForShowHints = true;
 		createHints();
 	};
 
