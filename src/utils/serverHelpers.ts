@@ -166,8 +166,6 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 	const cellWithFocus = null;
 	const gridDirection = Direction.GO_RIGHT;
 	const currentRow = -1;
-	const currentColumn = -1;
-	const workingAnswersKey = {};
 	const highlightedCellIds: Array<ID> = [];
 	const { cellRows, dynamicCellMap } = createCellArraysForClient(puzzle);
 	const dynamicPuzzle = {
@@ -176,14 +174,36 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 		cellRows,
 		cellWithFocus,
 		gridDirection,
-		currentRow,
-		currentColumn,
-		workingAnswersKey,
 		highlightedCellIds
 	};
 
 	return dynamicPuzzle;
 };
+
+export const transformPuzzleForPlayer = (puzzle) => {
+	const cellWithFocus = null;
+	const gridDirection = Direction.GO_RIGHT;
+	const highlightedCellIds: Array<ID> = [];
+	const { cellRows, dynamicCellMap } = createCellArraysForClient(puzzle);
+	const dynamicPuzzle = {
+		...puzzle,
+		downHints: removeAnswers(puzzle.downHints),
+		acrossHints: removeAnswers(puzzle.acrossHints),
+		cellMap: dynamicCellMap,
+		cellRows,
+		cellWithFocus,
+		gridDirection,
+		highlightedCellIds
+	};
+	return dynamicPuzzle;
+};
+
+const removeAnswers = (hints: Array<Hint>) =>
+	hints.map((sourceHint) => ({
+		hint: sourceHint.hint,
+		answer: '',
+		displayNumber: sourceHint.displayNumber
+	}));
 
 /**
  * createCellArraysForClient

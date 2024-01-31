@@ -1,7 +1,8 @@
 <script lang="ts">
 	// [id]/editHints/page.svelte
-	import { goto } from '$app/navigation';
-	import { enhance } from '$app/forms';
+	import { goto, invalidateAll } from '$app/navigation';
+	import { deserialize } from '$app/forms';
+	import { type ActionResult } from '@sveltejs/kit';
 	import { onDestroy, onMount } from 'svelte';
 	import Banner from '$components/Banner.svelte';
 	import Button from '$components/Button.svelte';
@@ -10,8 +11,8 @@
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
-	import { BannerType, GameStatus, ServerErrorType, type Puzzle } from '$utils/types';
-	import { debounce, saveHintData, chunkArray } from '$utils/helpers';
+	import { BannerType, GameStatus, type HintDirection, type Puzzle } from '$utils/types';
+	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
 	export let dynamicPuzzle: Puzzle | null;
 
@@ -39,7 +40,32 @@
 		unsubscribe();
 	});
 
-	const debounceSave = debounce(saveHintData);
+	const saveHintData = async (chunkedData: any[], id: string, direction: HintDirection) => {
+		chunkedData.forEach(async (chunk) => {
+			const formData = new FormData();
+			formData.append('chunk', JSON.stringify(chunk));
+			formData.append('direction', direction);
+			formData.append('id', id);
+			try {
+				const response = await fetch(`?/updateHints`, {
+					method: 'POST',
+					body: formData
+				});
+				const result: ActionResult = deserialize(await response.text());
+				if (result.type === 'success') {
+					successMessage = result.data?.message;
+					// rerun all `load` functions, following the successful update
+					await invalidateAll();
+				} else if (result.type === 'failure') {
+					errorMessage = result.data?.message;
+				}
+			} catch (error) {
+				console.error('Error saving chunk:', error);
+			}
+		});
+	};
+
+	const debounceSave = promiseDebounce(saveHintData);
 
 	const handleAcrossHintInput = () => {
 		if (dynamicPuzzle === null) {
@@ -57,9 +83,33 @@
 		debounceSave(chunkedData, dynamicPuzzle._id, 'down');
 	};
 
-	const handleSave = () => {
+	const handleSaveHints = () => {
 		handleAcrossHintInput();
 		handleDownHintInput();
+	};
+
+	const handlePublish = async () => {
+		await handleSaveHints();
+		const id = puzzle._id;
+		const formData = new FormData();
+		formData.append('id', id);
+		try {
+			const response = await fetch('?/publish', {
+				method: 'POST',
+				body: formData
+			});
+			const result: ActionResult = deserialize(await response.text());
+
+			if (result.type === 'success') {
+				successMessage = result.data?.message;
+				// rerun all `load` functions, following the successful update
+				await invalidateAll();
+			} else if (result.type === 'failure') {
+				errorMessage = result.data?.message;
+			}
+		} catch (error) {
+			errorMessage = 'Please try again soon.';
+		}
 	};
 </script>
 
@@ -78,41 +128,7 @@
 				method="POST"
 				action={'?/publish'}
 				autocomplete="off"
-				use:enhance={(a) => {
-					// This async noop is necessary to ensure that the puzzle displays values after
-					// update. I'm not sure why but suspect it may be that when you provide an async
-					// function to use:enhance, it allows asynchronous operations to complete before
-					// proceeding with subsequent actions
-					return async ({ result }) => {
-						if (result?.status === 200 && result) {
-							errorMessage = '';
-
-							switch (result?.data?.successType) {
-								case 'published':
-									successMessage = `The puzzle ${puzzle.title} is published!`;
-									break;
-								default:
-									successMessage = `The puzzle ${puzzle.title} is saved!`;
-							}
-						}
-						if (result?.status && result.status >= 400) {
-							console.log(result);
-							successMessage = '';
-							if ('data' in result && typeof result.data?.message === 'string') {
-								errorMessage = result.data.message;
-								if (result.data.errorType !== ServerErrorType.UPDATE_TITLE_DB_ERROR) {
-									errorType = 'hint';
-								}
-							} else {
-								errorMessage = 'Sorry, that may not have worked. ';
-							}
-						} else {
-							errorMessage = '';
-						}
-						// @ts-ignore
-						if (result?.data?.headers?.location) goto(result.data.headers.location);
-					};
-				}}
+				on:submit|preventDefault={handleSaveHints}
 			>
 				<input type="hidden" name="id" value={dynamicPuzzle?._id} />
 				<input
@@ -129,7 +145,7 @@
 				/>
 
 				<!-- ERROR MESSAGES -->
-				{#if errorMessage && errorType === 'hint'}
+				{#if errorMessage}
 					<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} />
 				{/if}
 
@@ -139,19 +155,20 @@
 				{/if}
 
 				<div class="mb-5 flex">
-					<div class="mr-5">
-						<button
-							type="button"
-							on:click={handleSave}
-							class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
-							>Save for later</button
-						>
-					</div>
-					<Button buttonType="submit">Publish</Button>
+					<button
+						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+						>Update save</button
+					>
+					<button
+						type="button"
+						on:click={handlePublish}
+						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+						>Publish The Puzzle!</button
+					>
+					{#if form?.error}
+						<p>Error</p>
+					{/if}
 				</div>
-				{#if form?.error}
-					<p>Error</p>
-				{/if}
 			</form>
 		{/if}
 

@@ -23,7 +23,7 @@ export const actions = {
 		if (!id || typeof id !== 'string') {
 			return fail(422, {
 				errorType: ServerErrorType.MISSING_FORM_DATA,
-				message: 'Sorry but there was a problem.'
+				message: 'Unable to create hints. Please try again.'
 			});
 		}
 		// 1. Retrieve the completed cellMap
@@ -35,14 +35,14 @@ export const actions = {
 				},
 				{ projection: { cellMap: 1 } }
 			);
-
 			if (puzzleCellMapData === null || puzzleCellMapData.cellMap === null) {
 				// TODO: Redirect to some kind of help page
 				throw redirect(300, '/');
 			}
 		} catch (error) {
-			return fail(422, {
-				error
+			return fail(500, {
+				errorType: ServerErrorType.DB_ERROR,
+				message: 'Having trouble with the databases'
 			});
 		}
 
@@ -55,6 +55,7 @@ export const actions = {
 		const filter = {
 			_id: new ObjectId(id)
 		};
+
 		const updateDocument = {
 			$set: {
 				cellMap,
@@ -74,7 +75,8 @@ export const actions = {
 			};
 		} catch {
 			return fail(500, {
-				errorType: ServerErrorType.DB_ERROR
+				errorType: ServerErrorType.DB_ERROR,
+				message: 'Again, the DB failed again!'
 			});
 		}
 	},
@@ -106,7 +108,7 @@ export const actions = {
 			await puzzlesCollection.updateOne(filter, updateDocument);
 			return {
 				status: 200,
-				message: 'The puzzle grid has been updated'
+				message: 'Your puzzle data is saved!'
 			};
 		} catch {
 			return fail(500, {

@@ -22,6 +22,7 @@
 
 	onMount(() => {
 		if (puzzle) {
+			console.log(puzzle.acrossHints);
 			PuzzleStore.set(puzzle);
 			if (dynamicPuzzle) {
 				checkIfComplete(dynamicPuzzle);

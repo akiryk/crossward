@@ -75,12 +75,6 @@ export function getCellToTheRight({ coords, acrossSpan, downSpan }: GetNextCellP
 		newX = 0;
 		newY = y + 1 === downSpan ? 0 : y + 1;
 	}
-	// const nextCell = grid.cellMap[`${newX}:${newY}`];
-	// while (shouldSkipNextCell(possibleNextCell, overrideDirectionMode)) {
-	// 	return getCellToTheRight({
-	// 		currentRow: newY,
-	// 		currentColumn: newX
-	// 	});
-	// }
+
 	return { x: newX, y: newY };
 }

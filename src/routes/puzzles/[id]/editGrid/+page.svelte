@@ -16,9 +16,8 @@
 	export let dynamicPuzzle: Puzzle | null;
 	export let data;
 	export let form;
-	let formElement: HTMLFormElement;
-	$: formDataObject = formElement;
 
+	let isSaveForShowHints = false;
 	let errorMessage: string = '';
 	let successMessage: string = '';
 	let isPreview = false;
@@ -67,14 +66,13 @@
 					body: formData
 				});
 				const result: ActionResult = deserialize(await response.text());
-				if (result.type === 'success') {
+				if (result.type === 'success' && !isSaveForShowHints) {
 					successMessage = result.data?.message;
 					// rerun all `load` functions, following the successful update
 					// await invalidateAll();
 				} else if (result.type === 'failure') {
 					errorMessage = result.data?.message;
 				}
-				// applyAction(result);
 			} catch (error) {
 				console.error('Error saving chunk:', error);
 			}
@@ -94,11 +92,15 @@
 				body: formData
 			});
 
-			if (!response.ok) {
-				throw new Error('Request failed');
-			}
+			const result: ActionResult = deserialize(await response.text());
 
-			goto(`/puzzles/${id}/editHints`);
+			if (result.type === 'success') {
+				goto(`/puzzles/${id}/editHints`);
+				// rerun all `load` functions, following the successful update
+				// await invalidateAll();
+			} else if (result.type === 'failure') {
+				errorMessage = result.data?.message;
+			}
 		} catch (error) {
 			console.error('Error saving hints:', error);
 		}
@@ -117,6 +119,7 @@
 	};
 
 	const handleFinishGrid = async () => {
+		isSaveForShowHints = true;
 		await handleSaveOnInput();
 		createHints();
 	};
@@ -143,7 +146,6 @@
 				action="?/updateCellMap"
 				autocomplete="off"
 				on:submit|preventDefault={handleSubmit}
-				bind:this={formElement}
 			>
 				<input type="hidden" name="cellMap" value={JSON.stringify(dynamicPuzzle?.cellMap)} />
 				<input type="hidden" name="id" value={puzzle._id} />

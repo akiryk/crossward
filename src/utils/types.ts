@@ -115,9 +115,6 @@ export interface Puzzle extends PuzzleDocument {
 	cellRows: Array<DynamicCellsArray>;
 	cellWithFocus: DynamicCell | null;
 	gridDirection: Direction;
-	currentRow: number;
-	currentColumn: number;
-	workingAnswersKey: Record<string, string>;
 	highlightedCellIds: Array<ID>;
 	userId?: string;
 	gameId?: string;

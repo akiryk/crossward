@@ -6,7 +6,7 @@ import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
 import type { CellMapArray, PuzzleWithId } from '$utils/types';
-import { transformPuzzleForClient, transformCellMapArrayForDb } from '$utils/serverHelpers';
+import { transformPuzzleForPlayer, transformCellMapArrayForDb } from '$utils/serverHelpers';
 import type { RequestEvent } from '../$types';
 
 function getUserId(email: string): string {
@@ -59,38 +59,53 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 			}
 
 			// 2. create the new playerPuzzle based on the source puzzle
-			const playerPuzzleDocument = { ...playerPuzzle, userGameId };
-			// @ts-expect-error The returned doc will have an _id if using Mongo
-			delete playerPuzzleDocument._id;
+			const {
+				title,
+				authorEmail,
+				dateCreated,
+				puzzleType,
+				acrossSpan,
+				downSpan,
+				cellMap,
+				acrossHints,
+				downHints
+			} = playerPuzzle;
+			const playerPuzzleDocument = {
+				title,
+				authorEmail,
+				dateCreated,
+				puzzleType,
+				acrossSpan,
+				downSpan,
+				cellMap,
+				acrossHints,
+				downHints,
+				userGameId,
+				gameStatus: 'PUZZLE_INCOMPLETE'
+			};
 			try {
 				const result = await userPuzzlesCollection.insertOne(playerPuzzleDocument);
 				if (!result.insertedId) {
 					throw new Error('oh no! unable to save the new puzzle');
 				}
 			} catch (error) {
-				console.log(error);
 				return fail(500, {
-					error:
-						"Sorry about that, we had a database problem. You could try again but I can't promise anything"
+					message: 'Unable to create a new game puzzle.'
 				});
 			}
 		}
 	} catch {
 		return fail(500, {
-			error:
+			message:
 				"Sorry about that, we had a database problem. You could try again but I can't promise anything"
 		});
-	}
-
-	if (!playerPuzzle) {
-		throw new Error('no source puzzle from db');
 	}
 
 	const puzzleWithId = {
 		...playerPuzzle,
 		_id: playerPuzzle._id.toString()
 	} as unknown as PuzzleWithId;
-	const puzzle = transformPuzzleForClient(puzzleWithId);
+	const puzzle = transformPuzzleForPlayer(puzzleWithId);
 	return {
 		puzzle
 	};
