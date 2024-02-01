@@ -25,17 +25,16 @@
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
 
-	export let gameStore: GameShape;
 	export let onInput: (id: ID) => void = (id: ID) => {};
 	export let puzzle: PlayerPuzzle | EditorPuzzle;
 	export let gameMode: GameMode;
-	let currentDirection = Direction.GO_RIGHT;
+	let gridDirection = Direction.GO_RIGHT;
+	let highlightedCellIds: Array<ID> = [];
 
 	// Game Store
 	const unsubscribeGameStore = GameStore.subscribe((data) => {
-		if (data) {
-			gameStore = data;
-		}
+		gridDirection = data.gridDirection;
+		highlightedCellIds = data.highlightedCellIds;
 	});
 
 	onDestroy(() => {
@@ -47,7 +46,7 @@
 		const currentCellX = cell.x;
 		const currentCellY = cell.y;
 		if (gameMode === GameMode.PLAY) {
-			if (currentDirection === Direction.GO_RIGHT) {
+			if (gridDirection === Direction.GO_RIGHT) {
 				if (
 					typeof cell.acrossWordStartX === 'number' &&
 					cell.acrossWordEndX &&
@@ -71,7 +70,7 @@
 				}
 			}
 		} else {
-			if (gameStore.gridDirection === Direction.GO_RIGHT) {
+			if (gridDirection === Direction.GO_RIGHT) {
 				for (let x = 0; x < puzzle.acrossSpan; x++) {
 					highlightedCellIds.push(getId({ x, y: currentCellY }));
 				}
@@ -110,8 +109,7 @@
 		let nextCellFunction: (props: GetNextCellProps) => Coords;
 		switch (direction) {
 			case Direction.GO_FORWARD:
-				nextCellFunction =
-					currentDirection === Direction.GO_RIGHT ? getCellToTheRight : getCellBelow;
+				nextCellFunction = gridDirection === Direction.GO_RIGHT ? getCellToTheRight : getCellBelow;
 				break;
 			case Direction.GO_RIGHT:
 				nextCellFunction = getCellToTheRight;
@@ -152,10 +150,13 @@
 	}
 
 	export function toggleGridDirection(cell: Cell) {
-		currentDirection =
-			currentDirection === Direction.GO_RIGHT ? Direction.GO_DOWN : Direction.GO_RIGHT;
-		// puzzle.highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[cell.id]);
-		PuzzleStore.set(puzzle);
+		gridDirection = gridDirection === Direction.GO_RIGHT ? Direction.GO_DOWN : Direction.GO_RIGHT;
+		const highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[cell.id]);
+		GameStore.update((current) => ({
+			...current,
+			gridDirection,
+			highlightedCellIds
+		}));
 	}
 </script>
 
@@ -178,8 +179,8 @@
 						{toggleGridDirection}
 						{goToNextCell}
 						{updateCellWithFocus}
-						isHighlighted={false}
-						{currentDirection}
+						isHighlighted={highlightedCellIds.includes(cell.id)}
+						{gridDirection}
 						{onInput}
 					/>
 				{/each}

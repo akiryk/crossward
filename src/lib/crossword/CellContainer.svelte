@@ -22,7 +22,7 @@
 	export let cell: CellType;
 	export let gameMode: GameMode;
 	export let isHighlighted: boolean;
-	export let currentDirection: Direction;
+	export let gridDirection: Direction;
 	export let onInput: (id: ID) => void;
 	export let updateCellSymmetry: (cell: CellType) => void;
 	export let goToNextCell: (cell: CellType, direction: Direction) => void;
@@ -91,7 +91,7 @@
 				}
 				setTimeout(() => {
 					const direction =
-						currentDirection === Direction.GO_RIGHT ? Direction.GO_LEFT : Direction.GO_UP;
+						gridDirection === Direction.GO_RIGHT ? Direction.GO_LEFT : Direction.GO_UP;
 					goToNextCell(cell, direction);
 				}, 0);
 				onInput(cell.id);
