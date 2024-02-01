@@ -371,13 +371,11 @@ export async function deleteById(data: FormData) {
 }
 
 export const handleUpdateTitle = async (data: FormData) => {
-	const originalTitle = data.get('originalTitle');
-
-	const newTitle = handleSanitizeInput({
-		data,
-		inputName: 'title'
-	});
-
+	const originalTitle = data.get('title');
+	if (!originalTitle) {
+		return '';
+	}
+	const newTitle = handleSanitizeInput(originalTitle.toString());
 	const filter = { title: originalTitle };
 	// Specify the update to set a value for the plot field
 	const updateDocument = {

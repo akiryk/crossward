@@ -126,13 +126,17 @@ export const actions = {
 		const data = await request.formData();
 		try {
 			const newTitle = await handleUpdateTitle(data);
+			if (!newTitle) {
+				throw new Error();
+			}
+			console.log('newTitle', newTitle);
 			return {
 				title: newTitle,
 				success: true
 			};
 		} catch (error) {
 			return fail(422, {
-				message: 'Oops, unable to update the title!'
+				message: 'You need to add a title!'
 			});
 		}
 	},

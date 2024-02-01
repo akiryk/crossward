@@ -9,7 +9,7 @@
 		ID,
 		Cell
 	} from '$utils/types';
-	import { Direction, GameMode, type GameShape } from '$utils/types';
+	import { Direction, GameMode } from '$utils/types';
 	import { getId } from '$utils/helpers';
 	import PuzzleStore from '../../stores/PuzzleStore';
 	import GameStore from '../../stores/GameStore';
