@@ -12,7 +12,7 @@
 	import Banner from '$components/Banner.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
-	let editorPuzzle: EditorPuzzle | null;
+	export let editorPuzzle: EditorPuzzle | null;
 	export let data;
 	export let form;
 	export let isCreateSuccess: boolean;

@@ -1,10 +1,10 @@
-import type { PageLoad } from './$types';
+// import type { PageLoad } from './$types';
 
-export const load: PageLoad = async (loadResponse) => {
-	if (loadResponse?.data?.puzzle) {
-		return {
-			puzzle: loadResponse.data.puzzle,
-			isCreateSuccess: loadResponse.data.isCreateSuccess
-		};
-	}
-};
+// export const load: PageLoad = async (loadResponse) => {
+// 	if (loadResponse?.data?.puzzle) {
+// 		return {
+// 			puzzle: loadResponse.data.puzzle,
+// 			isCreateSuccess: loadResponse.data.isCreateSuccess
+// 		};
+// 	}
+// };
