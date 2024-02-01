@@ -23,7 +23,16 @@ import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from '../routes/puzzles/[id]/$types';
 
-export const editpageServerLoad: PageServerLoad = async ({ params, url, locals }): Promise<any> => {
+type Props = {
+	puzzle: EditorPuzzle;
+	isCreateSuccess: boolean;
+};
+
+export const editpageServerLoad: PageServerLoad = async ({
+	params,
+	url,
+	locals
+}): Promise<Props> => {
 	let session;
 	/**
 	 * Redirect unauthorized users to login page!

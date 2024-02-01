@@ -8,22 +8,23 @@
 		Direction,
 		GameMode,
 		type ID,
-		type Puzzle,
-		type DynamicCell,
+		type PlayerPuzzle,
+		type EditorPuzzle,
+		type Cell as CellType,
 		type Coords
 	} from '$utils/types';
 	import { KeyCodes } from '../utils/keyCodes';
 
 	// Props
-	export let puzzle: Puzzle;
-	export let cell: DynamicCell;
+	export let puzzle: PlayerPuzzle | EditorPuzzle;
+	export let cell: CellType;
 	export let gameMode: GameMode;
 	export let isHighlighted: boolean;
 	export let currentDirection: Direction;
 	export let onInput: (id: ID) => void;
-	export let updateCellSymmetry: (cell: DynamicCell) => void;
-	export let goToNextCell: (cell: DynamicCell, direction: Direction) => void;
-	export let toggleGridDirection: (cell: DynamicCell) => void;
+	export let updateCellSymmetry: (cell: CellType) => void;
+	export let goToNextCell: (cell: CellType, direction: Direction) => void;
+	export let toggleGridDirection: (cell: CellType) => void;
 	export let updateCellWithFocus: (coords: Coords) => void;
 
 	// Track previous value so that we can be sure to always save only
@@ -50,7 +51,7 @@
 	}
 
 	export function handleOnBlur() {
-		cell.hasFocus = false;
+		// cell.hasFocus = false;
 	}
 
 	export function handleClick(event: MouseEvent) {

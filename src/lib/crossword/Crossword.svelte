@@ -1,6 +1,13 @@
 <script lang="ts">
 	import CellContainer from './CellContainer.svelte';
-	import type { DynamicCell, Puzzle, Coords, GetNextCellProps, ID } from '$utils/types';
+	import type {
+		EditorPuzzle,
+		PlayerPuzzle,
+		Coords,
+		GetNextCellProps,
+		ID,
+		Cell
+	} from '$utils/types';
 	import { Direction, GameMode } from '$utils/types';
 	import { getId } from '$utils/helpers';
 	import PuzzleStore from '../../stores/PuzzleStore';
@@ -17,11 +24,11 @@
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
 
 	export let onInput: (id: ID) => void = (id: ID) => {};
-	export let puzzle: Puzzle;
+	export let puzzle: PlayerPuzzle | EditorPuzzle;
 	export let gameMode: GameMode;
 	let currentDirection = Direction.GO_RIGHT;
 
-	function getHighlightedCellIds(cell: DynamicCell): Array<ID> {
+	function getHighlightedCellIds(cell: Cell): Array<ID> {
 		let highlightedCellIds: Array<ID> = [];
 		const currentCellX = cell.x;
 		const currentCellY = cell.y;
@@ -66,9 +73,9 @@
 	function updateCellWithFocus(coords: Coords) {
 		const id = getIdFromCoords(coords);
 		const { x, y } = coords;
-		puzzle.cellMap[id].hasFocus = true;
-		puzzle.cellRows[y][x].hasFocus = true;
-		puzzle.highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[id]);
+		// puzzle.cellMap[id].hasFocus = true;
+		// puzzle.cellRows[y][x].hasFocus = true;
+		// puzzle.highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[id]);
 		PuzzleStore.set(puzzle);
 	}
 
@@ -79,7 +86,7 @@
 	 * toggleGridDirection
 	 * updateCellSymmetry
 	 */
-	export function goToNextCell(cell: DynamicCell, direction: Direction) {
+	export function goToNextCell(cell: Cell, direction: Direction) {
 		let nextCellFunction: (props: GetNextCellProps) => Coords;
 		switch (direction) {
 			case Direction.GO_FORWARD:
@@ -103,8 +110,8 @@
 		}
 		// remove focus from current cell
 		const id = cell.id;
-		puzzle.cellMap[id].hasFocus = false;
-		puzzle.cellRows[cell.y][cell.x].hasFocus = false;
+		// puzzle.cellMap[id].hasFocus = false;
+		// puzzle.cellRows[cell.y][cell.x].hasFocus = false;
 		const nextCellCoords = nextCellFunction({
 			coords: { x: cell.x, y: cell.y },
 			acrossSpan: puzzle.acrossSpan,
@@ -113,7 +120,7 @@
 		updateCellWithFocus(nextCellCoords);
 	}
 
-	export function updateCellSymmetry(cell: DynamicCell) {
+	export function updateCellSymmetry(cell: Cell) {
 		const symmetricalCell = getSymmetricalCell(puzzle, { x: cell.x, y: cell.y });
 		cell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
 		symmetricalCell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
@@ -124,10 +131,10 @@
 		PuzzleStore.set(puzzle);
 	}
 
-	export function toggleGridDirection(cell: DynamicCell) {
+	export function toggleGridDirection(cell: Cell) {
 		currentDirection =
 			currentDirection === Direction.GO_RIGHT ? Direction.GO_DOWN : Direction.GO_RIGHT;
-		puzzle.highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[cell.id]);
+		// puzzle.highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[cell.id]);
 		PuzzleStore.set(puzzle);
 	}
 </script>

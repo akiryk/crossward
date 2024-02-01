@@ -12,8 +12,13 @@ import {
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { EDITING_HINTS } from '$utils/constants';
-import type { CellMapArray } from '$utils/types';
+import type { CellMapArray, EditorPuzzle } from '$utils/types';
 import { ServerErrorType } from '$utils/types';
+
+export type LoadData = {
+	puzzle: EditorPuzzle; // Assuming EditorPuzzle is defined elsewhere
+	isCreateSuccess: boolean; // Include other properties as needed, marking optional ones appropriately
+};
 
 export const load = editpageServerLoad;
 

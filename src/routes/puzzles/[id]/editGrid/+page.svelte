@@ -4,6 +4,7 @@
 	import { deserialize } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import type { LoadData } from './+page.server.ts';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
@@ -12,8 +13,8 @@
 	import Banner from '$components/Banner.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
-	export let editorPuzzle: EditorPuzzle | null;
-	export let data;
+	export let puzzle: EditorPuzzle;
+	export let data: LoadData;
 	export let form;
 	export let isCreateSuccess: boolean;
 
@@ -32,7 +33,7 @@
 
 	const unsubscribe = PuzzleStore.subscribe((data) => {
 		if (data) {
-			editorPuzzle = data;
+			puzzle = data;
 		}
 	});
 
@@ -87,6 +88,7 @@
 	}
 
 	async function createHints() {
+		// @ts-ignore
 		if (puzzle === null) {
 			return;
 		}
