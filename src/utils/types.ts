@@ -25,6 +25,7 @@ export enum GameMode {
 	PLAY
 }
 
+// Only applies if PublishStatus is PUBLISHED
 export type PlayMode =
 	| typeof INCOMPLETE
 	| typeof COMPLETE_BUT_WITH_ERRORS
@@ -35,6 +36,8 @@ export enum BannerType {
 	IS_ERROR,
 	IS_INFO
 }
+
+export type PublishStatus = typeof EDIT_PUZZLE | typeof EDITING_HINTS | typeof PUBLISHED;
 
 export enum ServerErrorType {
 	PUBLISH_INCOMPLETE_HINTS,
@@ -49,7 +52,6 @@ export type PuzzleSizes = {
 	[SUNDAY]: number;
 };
 export type PuzzleType = typeof MINI | typeof DAILY | typeof SUNDAY;
-export type PublishStatus = typeof EDIT_PUZZLE | typeof EDITING_HINTS | typeof PUBLISHED;
 
 export type HintDirection = 'across' | 'down';
 
@@ -110,6 +112,7 @@ export type Cell = {
 	value: string;
 	isSymmetrical: boolean;
 	index: number;
+	hasFocus?: boolean;
 	// These are conveniences so we can highlight the word's cells and not others
 	acrossWordStartX?: number;
 	acrossWordEndX?: number;
@@ -126,8 +129,7 @@ export type Hint = {
 	answer: string;
 };
 
-export type GameStore = {
-	cellWithFocus: Cell | null;
+export type GameShape = {
 	gridDirection: Direction;
 	highlightedCellIds: Array<ID>;
 };

@@ -31,14 +31,16 @@
 		}
 	});
 
-	const unsubscribe = PuzzleStore.subscribe((data) => {
+	// Store Subscriptions
+
+	const unsubscribePuzzleStore = PuzzleStore.subscribe((data) => {
 		if (data) {
 			puzzle = data;
 		}
 	});
 
 	onDestroy(() => {
-		unsubscribe();
+		unsubscribePuzzleStore();
 	});
 
 	const handleOnPreview = () => {

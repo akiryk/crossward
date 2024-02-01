@@ -4,9 +4,11 @@
 	import Cell from './Cell.svelte';
 	import DeadCell from './DeadCell.svelte';
 	import PreviewCell from './PreviewCell.svelte';
+	import GameStore from '../../stores/GameStore';
 	import {
 		Direction,
 		GameMode,
+		type GameShape,
 		type ID,
 		type PlayerPuzzle,
 		type EditorPuzzle,
@@ -26,6 +28,15 @@
 	export let goToNextCell: (cell: CellType, direction: Direction) => void;
 	export let toggleGridDirection: (cell: CellType) => void;
 	export let updateCellWithFocus: (coords: Coords) => void;
+
+	// Game Store
+	const unsubscribeGameStore = GameStore.subscribe((data) => {
+		//
+	});
+
+	onDestroy(() => {
+		unsubscribeGameStore();
+	});
 
 	// Track previous value so that we can be sure to always save only
 	// the most recently entered value. Using event.target.value.slice(-1)
@@ -51,7 +62,7 @@
 	}
 
 	export function handleOnBlur() {
-		// cell.hasFocus = false;
+		cell.hasFocus = false;
 	}
 
 	export function handleClick(event: MouseEvent) {
@@ -115,7 +126,7 @@
 		onKeydown={handleKeyDown}
 		onFocus={handleOnFocus}
 		onBlur={handleOnBlur}
-		hasFocus={cell.hasFocus}
+		hasFocus={!!cell.hasFocus}
 		onClick={handleClick}
 		{isHighlighted}
 		{gameMode}
@@ -129,7 +140,7 @@
 		onFocus={handleOnFocus}
 		onBlur={handleOnBlur}
 		isSymmetrical={cell.isSymmetrical}
-		hasFocus={cell.hasFocus}
+		hasFocus={!!cell.hasFocus}
 		onClick={handleClick}
 		{isHighlighted}
 		{gameMode}

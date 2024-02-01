@@ -1,6 +1,12 @@
 import { writable } from 'svelte/store';
-import type { GameStore } from '$utils/types';
+import { Direction } from '$utils/types';
+import type { GameShape } from '$utils/types';
 
-const gameStore = writable<GameStore>(null);
+const initialStore: GameShape = {
+	gridDirection: Direction.GO_RIGHT,
+	highlightedCellIds: []
+};
+
+const gameStore = writable<GameShape>(initialStore);
 
 export default gameStore;

@@ -115,28 +115,6 @@ export const createInitialCellMap = (acrossSpan: number, downSpan: number): Cell
 	return map;
 };
 
-// We only save data to the database that we need to have there, but we
-// need a bunch of other data when working in the client.
-// E.g. we need to save the cells' values to the db but we don't want
-// to save the currently selected cell
-// export const transformPuzzleForClient = (puzzle: EditorPuzzle): EditorPuzzle => {
-// 	const { cellRows, dynamicCellMap } = createCellArraysForClient(puzzle);
-// 	const dynamicPuzzle = {
-// 		...puzzle,
-// 		cellMap: dynamicCellMap,
-// 		cellRows
-// 	};
-// 	return dynamicPuzzle;
-// };
-
-// export const removeAnswersForNewPlayerPuzzle = (initialPuzzle: PlayerPuzzle) => {
-// 	return {
-// 		...initialPuzzle,
-// 		downHints: removeAnswers(initialPuzzle.downHints),
-// 		acrossHints: removeAnswers(initialPuzzle.acrossHints)
-// 	};
-// };
-
 export const removeAnswers = (hints: Array<Hint>) =>
 	hints.map((sourceHint) => ({
 		hint: sourceHint.hint,
@@ -181,13 +159,7 @@ export function createCellRows({
  * Values can still be accessed from cell.correctValue, but we want to leave them out
  * for player mode.
  */
-function transformCellForDb({
-	cell,
-	clearValues
-}: {
-	cell: DynamicCell;
-	clearValues: boolean;
-}): Cell {
+function transformCellForDb({ cell, clearValues }: { cell: Cell; clearValues: boolean }): Cell {
 	const {
 		id,
 		displayNumber,
@@ -227,7 +199,7 @@ function transformCellForDb({
 export function transformCellMapArrayForDb({
 	cellMapArray
 }: {
-	cellMapArray: DynamicCellMapArray;
+	cellMapArray: CellMapArray;
 }): CellMapArray {
 	const newCellMapArray: CellMapArray = cellMapArray.map(([key, cell]) => {
 		const newCell = transformCellForDb({ cell, clearValues: false });

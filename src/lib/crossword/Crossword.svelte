@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import CellContainer from './CellContainer.svelte';
 	import type {
 		EditorPuzzle,
@@ -8,9 +9,10 @@
 		ID,
 		Cell
 	} from '$utils/types';
-	import { Direction, GameMode } from '$utils/types';
+	import { Direction, GameMode, type GameShape } from '$utils/types';
 	import { getId } from '$utils/helpers';
 	import PuzzleStore from '../../stores/PuzzleStore';
+	import GameStore from '../../stores/GameStore';
 	import {
 		getSymmetricalCell,
 		getIdFromCoords,
@@ -23,10 +25,22 @@
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
 
+	export let gameStore: GameShape;
 	export let onInput: (id: ID) => void = (id: ID) => {};
 	export let puzzle: PlayerPuzzle | EditorPuzzle;
 	export let gameMode: GameMode;
 	let currentDirection = Direction.GO_RIGHT;
+
+	// Game Store
+	const unsubscribeGameStore = GameStore.subscribe((data) => {
+		if (data) {
+			gameStore = data;
+		}
+	});
+
+	onDestroy(() => {
+		unsubscribeGameStore();
+	});
 
 	function getHighlightedCellIds(cell: Cell): Array<ID> {
 		let highlightedCellIds: Array<ID> = [];
@@ -57,7 +71,7 @@
 				}
 			}
 		} else {
-			if (currentDirection === Direction.GO_RIGHT) {
+			if (gameStore.gridDirection === Direction.GO_RIGHT) {
 				for (let x = 0; x < puzzle.acrossSpan; x++) {
 					highlightedCellIds.push(getId({ x, y: currentCellY }));
 				}
@@ -73,10 +87,16 @@
 	function updateCellWithFocus(coords: Coords) {
 		const id = getIdFromCoords(coords);
 		const { x, y } = coords;
-		// puzzle.cellMap[id].hasFocus = true;
-		// puzzle.cellRows[y][x].hasFocus = true;
-		// puzzle.highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[id]);
-		PuzzleStore.set(puzzle);
+		puzzle.cellMap[id].hasFocus = true;
+		puzzle.cellRows[y][x].hasFocus = true;
+		const highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[id]);
+
+		GameStore.update((current) => {
+			return {
+				...current,
+				highlightedCellIds
+			};
+		});
 	}
 
 	/**
@@ -110,8 +130,8 @@
 		}
 		// remove focus from current cell
 		const id = cell.id;
-		// puzzle.cellMap[id].hasFocus = false;
-		// puzzle.cellRows[cell.y][cell.x].hasFocus = false;
+		puzzle.cellMap[id].hasFocus = false;
+		puzzle.cellRows[cell.y][cell.x].hasFocus = false;
 		const nextCellCoords = nextCellFunction({
 			coords: { x: cell.x, y: cell.y },
 			acrossSpan: puzzle.acrossSpan,

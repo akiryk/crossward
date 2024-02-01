@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { GameMode } from '$utils/types';
+	import { GameMode, type GameShape } from '$utils/types';
 
 	// Props
 	export let value: string;
