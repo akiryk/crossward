@@ -8,12 +8,20 @@
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import { GameMode, BannerType, type Puzzle, type DynamicCell } from '$utils/types';
+	import {
+		GameMode,
+		BannerType,
+		type EditorPuzzle,
+		type CellIdTuple,
+		type CellMapArray
+	} from '$utils/types';
 	import Banner from '$components/Banner.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
+	let puzzle: EditorPuzzle | null;
 	export let data;
 	export let form;
+	export let isCreateSuccess: boolean;
 
 	let isSaveForShowHints = false;
 	let errorMessage: string = '';
@@ -21,6 +29,22 @@
 	let isPreview = false;
 
 	$: ({ puzzle, isCreateSuccess } = data);
+
+	onMount(() => {
+		if (puzzle) {
+			PuzzleStore.set(puzzle);
+		}
+	});
+
+	const unsubscribe = PuzzleStore.subscribe((data) => {
+		if (data) {
+			puzzle = data;
+		}
+	});
+
+	onDestroy(() => {
+		unsubscribe();
+	});
 
 	const handleOnPreview = () => {
 		isPreview = true;
@@ -41,7 +65,7 @@
 		if (typeof formCellMap !== 'string' || typeof id !== 'string') {
 			return;
 		}
-		const cellsArray: Array<Array<string | DynamicCell>> = Object.entries(JSON.parse(formCellMap));
+		const cellsArray: CellMapArray = Object.entries(JSON.parse(formCellMap));
 		const chunkedData = chunkArray(cellsArray, 25);
 
 		chunkedData.forEach(async (chunk) => {
@@ -98,6 +122,9 @@
 	const promiseDebounceSave = promiseDebounce(saveData);
 
 	const handleSaveCellMap = async () => {
+		if (!puzzle) {
+			return;
+		}
 		const formData = new FormData();
 		formData.append('cellMap', JSON.stringify(puzzle.cellMap));
 		formData.append('id', puzzle._id);

@@ -1,20 +1,19 @@
 <script lang="ts">
 	// [id]/editHints/page.svelte
-	import { goto, invalidateAll } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 	import { deserialize } from '$app/forms';
 	import { type ActionResult } from '@sveltejs/kit';
 	import { onDestroy, onMount } from 'svelte';
 	import Banner from '$components/Banner.svelte';
-	import Button from '$components/Button.svelte';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
-	import { BannerType, GameMode, type HintDirection, type Puzzle } from '$utils/types';
+	import { BannerType, GameMode, type HintDirection, type EditorPuzzle } from '$utils/types';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
-	export let dynamicPuzzle: Puzzle | null;
+	export let puzzle: EditorPuzzle | null;
 
 	export let data;
 	export let form;
@@ -31,7 +30,7 @@
 
 	const unsubscribe = PuzzleStore.subscribe((data) => {
 		if (data) {
-			dynamicPuzzle = data;
+			puzzle = data;
 		}
 	});
 
@@ -63,19 +62,19 @@
 	const debounceSave = promiseDebounce(saveHintData);
 
 	const handleAcrossHintInput = () => {
-		if (dynamicPuzzle === null) {
+		if (puzzle === null) {
 			return;
 		}
-		const chunkedData = chunkArray(dynamicPuzzle.acrossHints, 5);
-		debounceSave(chunkedData, dynamicPuzzle._id, 'across');
+		const chunkedData = chunkArray(puzzle.acrossHints, 5);
+		debounceSave(chunkedData, puzzle._id, 'across');
 	};
 
 	const handleDownHintInput = () => {
-		if (dynamicPuzzle === null) {
+		if (puzzle === null) {
 			return;
 		}
-		const chunkedData = chunkArray(dynamicPuzzle.downHints, 5);
-		debounceSave(chunkedData, dynamicPuzzle._id, 'down');
+		const chunkedData = chunkArray(puzzle.downHints, 5);
+		debounceSave(chunkedData, puzzle._id, 'down');
 	};
 
 	const handleSaveHints = () => {
@@ -84,6 +83,9 @@
 	};
 
 	const handlePublish = async () => {
+		if (!puzzle) {
+			return;
+		}
 		await handleSaveHints();
 		const id = puzzle._id;
 		const formData = new FormData();
@@ -114,9 +116,9 @@
 			gameMode={GameMode.EDITING_HINTS}
 			title={puzzle.title}
 		/>
-		{#if dynamicPuzzle || puzzle}
+		{#if puzzle || puzzle}
 			<div class="mb-5">
-				<Crossword puzzle={dynamicPuzzle || puzzle} gameMode={GameMode.EDITING_HINTS} />
+				<Crossword puzzle={puzzle || puzzle} gameMode={GameMode.EDITING_HINTS} />
 			</div>
 			<form
 				method="POST"
@@ -124,15 +126,11 @@
 				autocomplete="off"
 				on:submit|preventDefault={handleSaveHints}
 			>
-				<input type="hidden" name="id" value={dynamicPuzzle?._id} />
-				<input
-					type="hidden"
-					name="acrossHints"
-					value={JSON.stringify(dynamicPuzzle?.acrossHints)}
-				/>
-				<input type="hidden" name="downHints" value={JSON.stringify(dynamicPuzzle?.downHints)} />
+				<input type="hidden" name="id" value={puzzle?._id} />
+				<input type="hidden" name="acrossHints" value={JSON.stringify(puzzle?.acrossHints)} />
+				<input type="hidden" name="downHints" value={JSON.stringify(puzzle?.downHints)} />
 				<Hints
-					puzzle={dynamicPuzzle || puzzle}
+					puzzle={puzzle || puzzle}
 					onAcrossHintInput={handleAcrossHintInput}
 					onDownHintInput={handleDownHintInput}
 					gameMode={GameMode.EDITING_HINTS}
@@ -159,21 +157,13 @@
 						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
 						>Publish The Puzzle!</button
 					>
-					{#if form?.error}
-						<p>Error</p>
-					{/if}
 				</div>
 			</form>
 		{/if}
 
 		<hr class="my-10" />
 
-		<EditPuzzleTitle
-			error={form?.error}
-			success={form?.success}
-			title={puzzle.title}
-			id={puzzle._id}
-		/>
+		<EditPuzzleTitle {form} title={puzzle.title} id={puzzle._id} />
 	{:else}
 		<p>huh.</p>
 	{/if}

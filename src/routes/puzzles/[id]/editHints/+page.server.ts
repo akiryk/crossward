@@ -1,10 +1,11 @@
-import { ObjectId } from 'mongodb';
-import { fail } from '@sveltejs/kit';
+import mongodb, { ObjectId } from 'mongodb';
+import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import {
 	pageServerLoad,
 	handleUpdateTitle,
-	handleDelete,
+	getErrorMessage,
+	deleteById,
 	validateHintsForPublishingPuzzle
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
@@ -144,6 +145,31 @@ export const actions = {
 			message: 'Congratulations, the puzzle is published!'
 		};
 	},
-	updateTitle: handleUpdateTitle,
-	delete: handleDelete
+	updateTitle: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+		try {
+			const newTitle = await handleUpdateTitle(data);
+			return {
+				title: newTitle,
+				success: true,
+				message: 'Success updating title!'
+			};
+		} catch (error) {
+			return fail(422, {
+				message: getErrorMessage(error),
+				success: false
+			});
+		}
+	},
+	delete: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+		try {
+			await deleteById(data);
+		} catch (error) {
+			fail(500, {
+				message: getErrorMessage(error)
+			});
+		}
+		redirect(302, `/puzzles?isDeleteSuccess=true`);
+	}
 };

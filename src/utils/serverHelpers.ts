@@ -7,19 +7,18 @@ import type {
 	CellMap,
 	Cell,
 	ID,
-	Puzzle,
+	EditorPuzzle,
 	PlayerPuzzle,
-	PuzzleWithId,
 	CellsArray,
 	Hint,
 	SanitizeInputParams,
 	CellMapArray
 } from '$utils/types';
-import { Direction, ServerErrorType } from '$utils/types';
+import { Direction } from '$utils/types';
 import { getId } from './helpers';
 import sanitizeHtml from 'sanitize-html';
 import mongodb, { ObjectId } from 'mongodb';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail, redirect, type ActionFailure } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad, RequestEvent } from '../routes/puzzles/[id]/$types';
 
@@ -75,58 +74,10 @@ export const pageServerLoad: PageServerLoad = async ({ params, url, locals }): P
 	}
 };
 
-export const handleUpdateTitle = async ({ request }: RequestEvent) => {
-	const data = await request.formData();
-	const originalTitle = data.get('originalTitle');
-	const newTitle = handleSanitizeInput({
-		data,
-		inputName: 'title',
-		fallback: new Date().toLocaleString()
-	});
-
-	try {
-		const filter = { title: originalTitle };
-		// Specify the update to set a value for the plot field
-		const updateDocument = {
-			$set: {
-				title: newTitle
-			}
-		};
-		await puzzlesCollection.updateOne(filter, updateDocument);
-
-		return {
-			title: newTitle,
-			success: true
-		};
-	} catch (error) {
-		return fail(422, {
-			errorType: ServerErrorType.UPDATE_TITLE_DB_ERROR,
-			message: 'Oops, unable to update the title!'
-		});
-	}
-};
-
-export const handleDelete = async ({ request }: RequestEvent) => {
-	const data = await request.formData();
-	try {
-		const id = data.get('id');
-		if (typeof id === 'string') {
-			const query = { _id: new mongodb.ObjectId(id) };
-			const isDeleted = await puzzlesCollection.deleteOne(query);
-			if (!isDeleted) {
-				throw new Error();
-			}
-		}
-	} catch {
-		throw new Error('Error: Unable to delete this puzzle');
-	}
-	redirect(302, `/puzzles?isDeleteSuccess=true`);
-};
-
-export const handleSanitizeInput = ({ data, inputName, fallback }: SanitizeInputParams) => {
-	const unsanitizedInput = data.get(inputName) || fallback;
-	if (typeof unsanitizedInput !== 'string') {
-		throw new Error('Oops! Title must be some text or left empty');
+export const handleSanitizeInput = ({ data, inputName }: SanitizeInputParams) => {
+	const unsanitizedInput = data.get(inputName);
+	if (!unsanitizedInput || typeof unsanitizedInput !== 'string') {
+		throw new Error('Oops! Please add a title');
 	}
 	return sanitizeHtml(unsanitizedInput);
 };
@@ -177,19 +128,15 @@ export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
 };
 
 export const transformPuzzleForPlayer = (puzzle: PlayerPuzzle) => {
-	const cellWithFocus = null;
-	const gridDirection = Direction.GO_RIGHT;
-	const highlightedCellIds: Array<ID> = [];
+	// const cellWithFocus = null;
+	// const gridDirection = Direction.GO_RIGHT;
+	// const highlightedCellIds: Array<ID> = [];
 	const { cellRows, dynamicCellMap } = createCellArraysForClient(puzzle);
 	const dynamicPuzzle = {
 		...puzzle,
 		downHints: removeAnswers(puzzle.downHints),
 		acrossHints: removeAnswers(puzzle.acrossHints),
-		cellMap: dynamicCellMap,
-		cellRows,
-		cellWithFocus,
-		gridDirection,
-		highlightedCellIds
+		cellRows
 	};
 	return dynamicPuzzle;
 };
@@ -440,3 +387,41 @@ export const validateHintsForPublishingPuzzle = (
 	}
 	return isValid;
 };
+
+export async function deleteById(data: FormData) {
+	const id = data.get('id');
+	if (typeof id === 'string') {
+		const query = { _id: new mongodb.ObjectId(id) };
+		const isDeleted = await puzzlesCollection.deleteOne(query);
+		if (!isDeleted) {
+			throw new Error('Unable to delete that puzzle.');
+		}
+	} else {
+		throw new Error('Missing ID for delete puzzle.');
+	}
+}
+
+export const handleUpdateTitle = async (data: FormData) => {
+	const originalTitle = data.get('originalTitle');
+
+	const newTitle = handleSanitizeInput({
+		data,
+		inputName: 'title'
+	});
+
+	const filter = { title: originalTitle };
+	// Specify the update to set a value for the plot field
+	const updateDocument = {
+		$set: {
+			title: newTitle
+		}
+	};
+	await puzzlesCollection.updateOne(filter, updateDocument);
+
+	return newTitle;
+};
+
+export function getErrorMessage(error: unknown): string {
+	if (error instanceof Error) return error.message;
+	return String(error);
+}

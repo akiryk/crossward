@@ -5,9 +5,10 @@ import { puzzlesCollection } from '$db/puzzles';
 import {
 	pageServerLoad,
 	handleUpdateTitle,
-	handleDelete,
+	deleteById,
 	transformPuzzleDataForCreatingHints,
-	transformCellMapArrayForDb
+	transformCellMapArrayForDb,
+	getErrorMessage
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { EDITING_HINTS } from '$utils/constants';
@@ -117,6 +118,29 @@ export const actions = {
 			});
 		}
 	},
-	updateTitle: handleUpdateTitle,
-	delete: handleDelete
+	updateTitle: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+		try {
+			const newTitle = await handleUpdateTitle(data);
+			return {
+				title: newTitle,
+				success: true
+			};
+		} catch (error) {
+			return fail(422, {
+				message: 'Oops, unable to update the title!'
+			});
+		}
+	},
+	delete: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+		try {
+			await deleteById(data);
+		} catch (error) {
+			fail(500, {
+				message: getErrorMessage(error)
+			});
+		}
+		redirect(302, `/puzzles?isDeleteSuccess=true`);
+	}
 };

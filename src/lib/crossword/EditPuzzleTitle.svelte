@@ -3,12 +3,46 @@
 	import { enhance } from '$app/forms';
 	import Button from '$components/Button.svelte';
 
-	export let error: unknown = '';
+	type Form = {
+		error?: any;
+		success?: boolean;
+		message?: string;
+	};
+
+	type Message = {
+		text?: string;
+		type?: 'error' | 'success';
+	} | null;
+
+	export let form: Form;
 	export let title: string;
 	export let id: string;
-	export let success: unknown;
+
+	$: message = getMessage(form);
+
+	function getMessage(form: Form): Message {
+		if (form) {
+			if (!form?.success) {
+				return {
+					text: form.message,
+					type: 'error'
+				};
+			} else if (form?.success) {
+				return {
+					text: form.message,
+					type: 'success'
+				};
+			}
+		}
+		return null;
+	}
 </script>
 
+{#if message?.type === 'error'}
+	<p class="text-red-500 mb-4">{message?.text}</p>
+{:else if message?.type === 'success'}
+	<p class="text-green-500 mb-4">{message?.text}</p>
+{/if}
 <div class="flex">
 	<div class="mr-auto">
 		<form method="POST" action="?/updateTitle" use:enhance>
@@ -23,14 +57,6 @@
 			>
 			<Button buttonType="submit" style="primary">Update</Button>
 		</form>
-		{#if !!error}
-			<p class="error">{error}</p>
-		{/if}
-
-		{#if !!success}
-			<p>Success!</p>
-			<p>Name is now {title}</p>
-		{/if}
 	</div>
 	<form method="POST" action="?/delete" use:enhance>
 		<input type="hidden" name="id" value={id} />

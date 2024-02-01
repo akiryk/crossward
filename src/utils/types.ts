@@ -7,7 +7,7 @@ import {
 	PUBLISHED,
 	INCOMPLETE,
 	COMPLETE_BUT_WITH_ERRORS,
-COMPLETE_AND_NO_ERRORS
+	COMPLETE_AND_NO_ERRORS
 } from '$utils/constants';
 
 export enum Direction {
@@ -25,7 +25,10 @@ export enum GameMode {
 	PLAY
 }
 
-export type PlayMode = typeof INCOMPLETE |typeof COMPLETE_BUT_WITH_ERRORS | typeof COMPLETE_AND_NO_ERRORS
+export type PlayMode =
+	| typeof INCOMPLETE
+	| typeof COMPLETE_BUT_WITH_ERRORS
+	| typeof COMPLETE_AND_NO_ERRORS;
 
 export enum BannerType {
 	IS_SUCCESS,
@@ -46,64 +49,39 @@ export type PuzzleSizes = {
 	[SUNDAY]: number;
 };
 export type PuzzleType = typeof MINI | typeof DAILY | typeof SUNDAY;
-export type PublishStatus =
-	| typeof EDIT_PUZZLE
-	| typeof EDITING_HINTS
-	| typeof PUBLISHED
+export type PublishStatus = typeof EDIT_PUZZLE | typeof EDITING_HINTS | typeof PUBLISHED;
 
 export type HintDirection = 'across' | 'down';
 
 // PuzzleTemplate is the type for new puzzles before being saved
 export type PuzzleTemplate = {
-	_id: any;
-	title: string;
-	authorEmail: string;
-	dateCreated: string;
-	publishStatus: PublishStatus;
-	puzzleType: PuzzleType;
-	cellMap: CellMap;
-	acrossSpan: number;
-	downSpan: number;
+	_id: string;
 	acrossHints: Array<Hint>;
-	downHints: Array<Hint>;
-	incorrectCells?: Array<ID>;
-};
-
-export interface PuzzleFromDb extends PuzzleTemplate {
-	_id: () => string;
-}
-
-export interface PuzzleWithId extends PuzzleTemplate {
-	_id: string;
-}
-
-export interface Puzzle extends PuzzleTemplate {
-	_id: string;
+	acrossSpan: number;
+	authorEmail: string;
 	cellMap: CellMap;
 	cellRows: Array<CellsArray>;
-}
-
-export type PlayerPuzzle {
-	_id: any;
-	userGameId?: string;
-	title: string;
-	authorEmail: string;
 	dateCreated: string;
-	puzzleType: PuzzleType;
-	cellMap: CellMap;
-	acrossSpan: number;
-	downSpan: number;
-	acrossHints: Array<Hint>;
 	downHints: Array<Hint>;
+	downSpan: number;
+	publishStatus: PublishStatus;
+	puzzleType: PuzzleType;
+	title: string;
+};
+
+export interface EditorPuzzle extends PuzzleTemplate {}
+
+export interface PlayerPuzzle extends PuzzleTemplate {
 	incorrectCells?: Array<ID>;
-	gameMode: GameMode;
+	playMode: PlayMode;
+	userGameId?: string;
 }
 
 // cellWithFocus: Cell | null;
 // 	gridDirection: Direction;
 // 	highlightedCellIds: Array<ID>;
 
-export type Puzzles = Array<Puzzle>;
+export type Puzzles = Array<EditorPuzzle | PlayerPuzzle>;
 
 export type SanitizeInputParams = {
 	data: FormData;
@@ -119,8 +97,9 @@ export type GetNextCellProps = {
 	downSpan: number;
 };
 
-export type CellMapArray = Array<[string, Cell]>;
-export type IdCellTuple = [id: ID, cell: Cell];
+export type CellsArray = Array<Cell>;
+export type CellMapArray = Array<CellIdTuple>;
+export type CellIdTuple = [id: ID | string, cell: Cell];
 
 // We have two types of Grid and Cell
 // Grid and Cell are the types for data we save to the database

@@ -5,7 +5,8 @@ import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
-import { type CellMapArray, type PlayerPuzzle, GameMode, PlayMode } from '$utils/types';
+import { INCOMPLETE } from '$utils/constants';
+import { type CellMapArray, type PlayerPuzzle, GameMode, type PlayMode } from '$utils/types';
 import { transformPuzzleForPlayer, transformCellMapArrayForDb } from '$utils/serverHelpers';
 import type { RequestEvent } from '../$types';
 
@@ -71,7 +72,7 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 				downHints
 			} = puzzle;
 
-			const playerPuzzleTemplate = {
+			const playerPuzzleTemplate: Omit<PlayerPuzzle, '_id'> = {
 				title,
 				authorEmail,
 				dateCreated,
@@ -82,7 +83,8 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 				acrossHints,
 				downHints,
 				userGameId,
-				playMode: PlayMode.INCOMPLETE
+				playMode: INCOMPLETE,
+				incorrectCells: []
 			};
 			try {
 				const result = await userPuzzlesCollection.insertOne(playerPuzzleTemplate);

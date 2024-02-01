@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { GameMode, type Puzzle } from '$utils/types';
+	import { GameMode, type EditorPuzzle, type PlayerPuzzle } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
 
-	export let puzzle: Puzzle;
+	export let puzzle: EditorPuzzle | PlayerPuzzle;
 	export let gameMode: GameMode;
 	export let onAcrossHintInput: () => void = () => {};
 	export let onDownHintInput: () => void = () => {};

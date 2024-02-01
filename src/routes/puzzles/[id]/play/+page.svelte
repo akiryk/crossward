@@ -12,7 +12,6 @@
 	import Button from '$components/Button.svelte';
 	import { debounce, chunkArray, getId } from '$utils/helpers';
 	import { GAME_OVER } from '$utils/constants';
-	import type { K } from 'vitest/dist/reporters-qc5Smpt5.js';
 
 	export let dynamicPuzzle: Puzzle | null;
 
