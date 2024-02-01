@@ -72,14 +72,10 @@ export type PuzzleTemplate = {
 export interface EditorPuzzle extends PuzzleTemplate {}
 
 export interface PlayerPuzzle extends PuzzleTemplate {
-	incorrectCells?: Array<ID>;
+	incorrectCells: Array<ID>;
 	playMode: PlayMode;
-	userGameId?: string;
+	userGameId: string;
 }
-
-// cellWithFocus: Cell | null;
-// 	gridDirection: Direction;
-// 	highlightedCellIds: Array<ID>;
 
 export type Puzzles = Array<EditorPuzzle | PlayerPuzzle>;
 
@@ -98,6 +94,7 @@ export type GetNextCellProps = {
 };
 
 export type CellsArray = Array<Cell>;
+export type CellRows = Array<CellsArray>;
 export type CellMapArray = Array<CellIdTuple>;
 export type CellIdTuple = [id: ID | string, cell: Cell];
 
@@ -127,4 +124,10 @@ export type Hint = {
 	displayNumber: number;
 	hint: string;
 	answer: string;
+};
+
+export type GameStore = {
+	cellWithFocus: Cell | null;
+	gridDirection: Direction;
+	highlightedCellIds: Array<ID>;
 };

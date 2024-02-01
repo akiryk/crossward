@@ -2,7 +2,7 @@ import mongodb, { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import {
-	pageServerLoad,
+	editpageServerLoad,
 	handleUpdateTitle,
 	getErrorMessage,
 	deleteById,
@@ -12,7 +12,7 @@ import type { RequestEvent } from './$types';
 import { PUBLISHED } from '$utils/constants';
 import { type Hint, type HintDirection, type CellMap } from '$utils/types';
 
-export const load = pageServerLoad;
+export const load = editpageServerLoad;
 
 export const actions = {
 	updateHints: async ({ request }: RequestEvent) => {

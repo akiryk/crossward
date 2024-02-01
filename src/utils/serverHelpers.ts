@@ -6,6 +6,7 @@
 import type {
 	CellMap,
 	Cell,
+	CellRows,
 	ID,
 	EditorPuzzle,
 	PlayerPuzzle,
@@ -18,11 +19,11 @@ import { Direction } from '$utils/types';
 import { getId } from './helpers';
 import sanitizeHtml from 'sanitize-html';
 import mongodb, { ObjectId } from 'mongodb';
-import { fail, redirect, type ActionFailure } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
-import type { PageServerLoad, RequestEvent } from '../routes/puzzles/[id]/$types';
+import type { PageServerLoad } from '../routes/puzzles/[id]/$types';
 
-export const pageServerLoad: PageServerLoad = async ({ params, url, locals }): Promise<any> => {
+export const editpageServerLoad: PageServerLoad = async ({ params, url, locals }): Promise<any> => {
 	let session;
 	/**
 	 * Redirect unauthorized users to login page!
@@ -52,33 +53,22 @@ export const pageServerLoad: PageServerLoad = async ({ params, url, locals }): P
 			throw new Error('No access');
 		}
 
-		try {
-			const puzzleWithId = {
-				...puzzleFromDb,
-				_id: puzzleFromDb._id.toString()
-			} as unknown as PuzzleWithId;
-			const puzzle = transformPuzzleForClient(puzzleWithId);
-			const create = url.searchParams.get('create');
+		const puzzle = {
+			...puzzleFromDb,
+			_id: puzzleFromDb._id.toString()
+		} as unknown as EditorPuzzle;
+		const create = url.searchParams.get('create');
 
-			return {
-				puzzle,
-				isCreateSuccess: create === 'true'
-			};
-		} catch (error) {
-			return fail(422, {
-				error
-			});
-		}
+		return {
+			puzzle,
+			isCreateSuccess: create === 'true'
+		};
 	} catch (error) {
 		redirect(302, '/');
 	}
 };
 
-export const handleSanitizeInput = ({ data, inputName }: SanitizeInputParams) => {
-	const unsanitizedInput = data.get(inputName);
-	if (!unsanitizedInput || typeof unsanitizedInput !== 'string') {
-		throw new Error('Oops! Please add a title');
-	}
+export const handleSanitizeInput = (unsanitizedInput: string) => {
 	return sanitizeHtml(unsanitizedInput);
 };
 
@@ -111,37 +101,25 @@ export const createInitialCellMap = (acrossSpan: number, downSpan: number): Cell
 // need a bunch of other data when working in the client.
 // E.g. we need to save the cells' values to the db but we don't want
 // to save the currently selected cell
-export const transformPuzzleForClient = (puzzle: PuzzleWithId): Puzzle => {
-	const cellWithFocus = null;
-	const gridDirection = Direction.GO_RIGHT;
-	const highlightedCellIds: Array<ID> = [];
-	const { cellRows, dynamicCellMap } = createCellArraysForClient(puzzle);
-	const dynamicPuzzle = {
-		...puzzle,
-		cellMap: dynamicCellMap,
-		cellRows,
-		cellWithFocus,
-		gridDirection,
-		highlightedCellIds
-	};
-	return dynamicPuzzle;
-};
+// export const transformPuzzleForClient = (puzzle: EditorPuzzle): EditorPuzzle => {
+// 	const { cellRows, dynamicCellMap } = createCellArraysForClient(puzzle);
+// 	const dynamicPuzzle = {
+// 		...puzzle,
+// 		cellMap: dynamicCellMap,
+// 		cellRows
+// 	};
+// 	return dynamicPuzzle;
+// };
 
-export const transformPuzzleForPlayer = (puzzle: PlayerPuzzle) => {
-	// const cellWithFocus = null;
-	// const gridDirection = Direction.GO_RIGHT;
-	// const highlightedCellIds: Array<ID> = [];
-	const { cellRows, dynamicCellMap } = createCellArraysForClient(puzzle);
-	const dynamicPuzzle = {
-		...puzzle,
-		downHints: removeAnswers(puzzle.downHints),
-		acrossHints: removeAnswers(puzzle.acrossHints),
-		cellRows
-	};
-	return dynamicPuzzle;
-};
+// export const removeAnswersForNewPlayerPuzzle = (initialPuzzle: PlayerPuzzle) => {
+// 	return {
+// 		...initialPuzzle,
+// 		downHints: removeAnswers(initialPuzzle.downHints),
+// 		acrossHints: removeAnswers(initialPuzzle.acrossHints)
+// 	};
+// };
 
-const removeAnswers = (hints: Array<Hint>) =>
+export const removeAnswers = (hints: Array<Hint>) =>
 	hints.map((sourceHint) => ({
 		hint: sourceHint.hint,
 		answer: '',
@@ -149,30 +127,31 @@ const removeAnswers = (hints: Array<Hint>) =>
 	}));
 
 /**
- * createCellArraysForClient
+ * createCellRows
  *
  * Create array cell rows to aid in rendering the puzzle
+ * Do it once when the puzzle is being created
  */
-function createCellArraysForClient(puzzle: PuzzleWithId) {
-	const { acrossSpan, downSpan, cellMap } = puzzle;
-
-	const cellRows = [];
-	const dynamicCellMap: DynamicCellMap = {};
+export function createCellRows({
+	acrossSpan,
+	downSpan,
+	cellMap
+}: {
+	acrossSpan: number;
+	downSpan: number;
+	cellMap: CellMap;
+}): CellRows {
+	const cellRows: CellRows = [];
 	for (let y = 0; y < downSpan; y++) {
 		const row = [];
 		for (let x = 0; x < acrossSpan; x++) {
-			const id: ID = `${x}:${y}`;
+			const id: ID = getId({ x, y });
 			const cell = cellMap[id];
-			const dynamicCell: DynamicCell = {
-				...cell,
-				hasFocus: false
-			};
-			dynamicCellMap[id] = dynamicCell;
-			row.push(dynamicCell);
+			row.push(cell);
 		}
 		cellRows.push(row);
 	}
-	return { cellRows, dynamicCellMap };
+	return cellRows;
 }
 
 /**
@@ -421,7 +400,7 @@ export const handleUpdateTitle = async (data: FormData) => {
 	return newTitle;
 };
 
-export function getErrorMessage(error: unknown): string {
+export function getErrorMessage(error: unknown, fallback?: string): string {
 	if (error instanceof Error) return error.message;
-	return String(error);
+	return fallback ? fallback : String(error);
 }

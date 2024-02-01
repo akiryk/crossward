@@ -2,16 +2,12 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';
-import type { Puzzle, Puzzles, PublishStatus, PuzzleTemplate, PuzzleType } from '$utils/types';
+import type { Puzzles, PublishStatus, EditorPuzzle, PuzzleType } from '$utils/types';
 import { GRID_SIZES, EDIT_PUZZLE } from '$utils/constants';
-import { createInitialCellMap, handleSanitizeInput } from '$utils/serverHelpers';
+import { createInitialCellMap, handleSanitizeInput, createCellRows } from '$utils/serverHelpers';
 import type { RequestEvent } from '../$types';
 
-type Props = {
-	puzzles: Array<Puzzle>;
-};
-
-export const load: PageServerLoad = async ({ locals }): Promise<Props> => {
+export const load: PageServerLoad = async ({ locals }): Promise<any> => {
 	let session;
 
 	/**
@@ -46,8 +42,7 @@ export const load: PageServerLoad = async ({ locals }): Promise<Props> => {
 			puzzles: shapedPuzzles
 		};
 	} catch (error) {
-		console.error('error', error);
-		return { puzzles: [] };
+		return fail(500);
 	}
 };
 
@@ -56,42 +51,43 @@ export const actions = {
 		let insertedId;
 		try {
 			const data = await request.formData();
-			const sizeName = data.get('size');
 
-			const title = handleSanitizeInput({
-				data,
-				inputName: 'title',
-				fallback: new Date().toLocaleString()
-			});
+			const unsafeTitle = data.get('title');
+			if (!unsafeTitle) {
+				return fail(400, { error: true, message: 'Please add a title' });
+			}
+			const title = handleSanitizeInput(unsafeTitle?.toString());
+
+			const sizeName = data.get('size');
+			if (typeof sizeName !== 'string' || !(sizeName in GRID_SIZES)) {
+				return fail(400, { error: true, message: 'It looks like some data is missing.' });
+			}
 
 			const email = data.get('userEmail');
+			if (!email || typeof email !== 'string') {
+				return fail(400, { error: true, message: 'It looks like some data is missing.' });
+			}
+
 			const acrossSpan = GRID_SIZES[sizeName as keyof typeof GRID_SIZES];
 			const downSpan = GRID_SIZES[sizeName as keyof typeof GRID_SIZES];
 			const dateCreated = new Date().toISOString();
-			const publishStatus: PublishStatus = EDIT_PUZZLE;
 
 			const cellMap = createInitialCellMap(acrossSpan, downSpan);
-
-			if (typeof sizeName !== 'string' || !(sizeName in GRID_SIZES)) {
-				throw new Error('Oops! Can you please select a size?');
-			}
-
-			if (!email || typeof email !== 'string') {
-				throw new Error('You need to be logged in as a user with an email');
-			}
+			const cellRows = createCellRows({ cellMap, acrossSpan, downSpan });
 
 			// Specify the update to set a value for the plot field
-			const document: PuzzleTemplate = {
-				title,
-				authorEmail: email,
-				dateCreated,
-				publishStatus,
-				puzzleType: sizeName as PuzzleType,
-				acrossSpan,
-				downSpan,
-				cellMap,
+			const document: Omit<EditorPuzzle, '_id'> = {
 				acrossHints: [],
-				downHints: []
+				acrossSpan,
+				authorEmail: email,
+				cellMap,
+				cellRows,
+				dateCreated,
+				downHints: [],
+				downSpan,
+				publishStatus: EDIT_PUZZLE,
+				puzzleType: sizeName as PuzzleType,
+				title
 			};
 
 			try {
@@ -103,19 +99,21 @@ export const actions = {
 				const result = await puzzlesCollection.insertOne(document);
 
 				if (!result.insertedId) {
-					throw new Error('oh no! unable to save the new puzzle');
+					return fail(500, { error: true, message: 'Unable to save a new puzzle right now' });
 				}
 
 				insertedId = result.insertedId;
 			} catch {
 				return fail(500, {
-					error:
+					error: true,
+					message:
 						"Sorry about that, we had a database problem. You could try again but I can't promise anything"
 				});
 			}
 		} catch (error) {
-			return fail(422, {
-				error
+			return fail(500, {
+				error: true,
+				message: 'Something went wrong!'
 			});
 		}
 		redirect(302, `/puzzles/${insertedId}/editGrid?create=true`);

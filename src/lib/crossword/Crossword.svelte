@@ -151,7 +151,7 @@
 						{toggleGridDirection}
 						{goToNextCell}
 						{updateCellWithFocus}
-						isHighlighted={puzzle.highlightedCellIds.includes(cell.id)}
+						isHighlighted={false}
 						{currentDirection}
 						{onInput}
 					/>

@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import {
-	pageServerLoad,
+	editpageServerLoad,
 	handleUpdateTitle,
 	deleteById,
 	transformPuzzleDataForCreatingHints,
@@ -15,7 +15,7 @@ import { EDITING_HINTS } from '$utils/constants';
 import type { CellMapArray } from '$utils/types';
 import { ServerErrorType } from '$utils/types';
 
-export const load = pageServerLoad;
+export const load = editpageServerLoad;
 
 export const actions = {
 	updateCellMap: async ({ request }: RequestEvent) => {
@@ -35,7 +35,6 @@ export const actions = {
 			_id: new ObjectId(id)
 		};
 		const updateDocument = { $set: {} };
-
 		for (const [key, value] of cellMapArrayForDb) {
 			// @ts-expect-error this looks weird but is MongoDb syntax
 			// In Javascript, you might instead say set.cellMap["0:0"], but that doesn't work in Mongo

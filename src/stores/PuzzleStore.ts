@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
-import type { Puzzle } from '$utils/types';
+import type { EditorPuzzle, PlayerPuzzle } from '$utils/types';
 
-const puzzleStore = writable<Puzzle | null>(null);
+const puzzleStore = writable<EditorPuzzle | PlayerPuzzle | null>(null);
 
 export default puzzleStore;

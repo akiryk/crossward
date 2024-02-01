@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 
-	import type { PageData } from './$types';
+	import type { PageData, ActionData } from './$types';
 	import type { Puzzles } from '$utils/types';
 	import { EDIT_PUZZLE, PUBLISHED, MINI, DAILY, SUNDAY, EDITING_HINTS } from '$utils/constants';
 
@@ -11,7 +11,10 @@
 
 	export let puzzles: Puzzles;
 	export let data: PageData;
-	export let form;
+	export let form: ActionData & {
+		error?: boolean;
+		message?: string;
+	};
 	// destructure puzzles from data
 	$: ({ puzzles, session } = data);
 </script>
@@ -49,12 +52,11 @@
 				</ul>
 			</fieldset>
 
-			{#if form?.error}
-				<p class="error">{form.error}</p>
-			{:else}
-				<p>You did it successfully.</p>
-			{/if}
-			<Button style="primary">Start Building!</Button>
+			<div class="flex items-center">
+				<Button style="primary">Start Building!</Button>{#if form?.error && form?.message}
+					<p class="text-red-500 ml-4">{form.message}</p>
+				{/if}
+			</div>
 		</form>
 	</div>
 	<List type="ul">

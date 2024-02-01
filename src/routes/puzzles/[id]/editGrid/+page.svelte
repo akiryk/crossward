@@ -8,13 +8,7 @@
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import {
-		GameMode,
-		BannerType,
-		type EditorPuzzle,
-		type CellIdTuple,
-		type CellMapArray
-	} from '$utils/types';
+	import { GameMode, BannerType, type EditorPuzzle, type CellMapArray } from '$utils/types';
 	import Banner from '$components/Banner.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
@@ -38,6 +32,7 @@
 
 	const unsubscribe = PuzzleStore.subscribe((data) => {
 		if (data) {
+			console.log(data);
 			puzzle = data;
 		}
 	});
@@ -198,7 +193,7 @@
 
 		<hr class="my-10" />
 
-		<EditPuzzleTitle success={form?.success} title={form?.title || puzzle.title} id={puzzle._id} />
+		<EditPuzzleTitle {form} title={form?.title || puzzle.title} id={puzzle._id} />
 	{:else}
 		<p>Something went wrong and we can't load the puzzle.</p>
 	{/if}

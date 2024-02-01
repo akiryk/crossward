@@ -1,13 +1,13 @@
 // PLAY SERVER
-import { ServerErrorType } from '$utils/types';
+import { ServerErrorType, type EditorPuzzle } from '$utils/types';
 import { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
-import { INCOMPLETE } from '$utils/constants';
-import { type CellMapArray, type PlayerPuzzle, GameMode, type PlayMode } from '$utils/types';
-import { transformPuzzleForPlayer, transformCellMapArrayForDb } from '$utils/serverHelpers';
+import { INCOMPLETE, PUBLISHED } from '$utils/constants';
+import { type CellMapArray, type PlayerPuzzle } from '$utils/types';
+import { removeAnswers, transformCellMapArrayForDb, getErrorMessage } from '$utils/serverHelpers';
 import type { RequestEvent } from '../$types';
 
 function getUserId(email: string): string {
@@ -39,74 +39,99 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 	// User johndoe@example.com playing puzzle ABCD2343 would have userGameId
 	// of johndoe_example_com_ABCD2342
 	const userGameId = createUserGameId({ email, puzzleId });
-	let puzzle;
-
-	// check if userId exists in the userGames collection
+	let playerPuzzle: PlayerPuzzle;
+	// Check if the user already has this puzzle underway, in which case
+	// it will be found in the userPuzzlesCollection by userGameId
 	try {
-		puzzle = await userPuzzlesCollection.findOne({
+		const existingPlayerPuzzle = await userPuzzlesCollection.findOne({
 			userGameId
 		});
 
-		if (puzzle === null) {
-			// 1. get the source puzzle
-			puzzle = await puzzlesCollection.findOne({
+		if (existingPlayerPuzzle === null) {
+			// Make one based on the source puzzle
+			// 1. get the source puzzle by id
+			const sourcePuzzle = await puzzlesCollection.findOne({
 				_id: new ObjectId(params.id)
 			});
 
-			if (puzzle === null) {
-				// TODO: Redirect to somekind of help page
-				// explaining that this puzzle may not exist anymore
-				throw redirect(300, '/');
+			if (sourcePuzzle === null) {
+				throw new Error("Ah man, we couldn't find the original puzzle!");
+			}
+
+			if ((sourcePuzzle as unknown as EditorPuzzle)?.publishStatus !== PUBLISHED) {
+				throw new Error("This puzzle isn't published");
 			}
 
 			// 2. create the new playerPuzzle based on the source puzzle
+			//    and extract the _id
 			const {
-				title,
-				authorEmail,
-				dateCreated,
-				puzzleType,
-				acrossSpan,
-				downSpan,
-				cellMap,
 				acrossHints,
-				downHints
-			} = puzzle;
-
-			const playerPuzzleTemplate: Omit<PlayerPuzzle, '_id'> = {
-				title,
-				authorEmail,
-				dateCreated,
-				puzzleType,
 				acrossSpan,
-				downSpan,
+				authorEmail,
 				cellMap,
-				acrossHints,
+				cellRows,
+				dateCreated,
 				downHints,
-				userGameId,
+				downSpan,
+				publishStatus,
+				puzzleType,
+				title
+			} = sourcePuzzle as unknown as PlayerPuzzle;
+
+			// Use puzzleFromSource until we save it and acquire an id
+			const puzzleFromSource: Omit<PlayerPuzzle, '_id'> = {
+				acrossHints,
+				acrossSpan,
+				authorEmail,
+				cellMap,
+				cellRows,
+				dateCreated,
+				downHints,
+				downSpan,
+				publishStatus,
+				puzzleType,
+				title,
 				playMode: INCOMPLETE,
-				incorrectCells: []
+				incorrectCells: [],
+				userGameId
 			};
+
 			try {
-				const result = await userPuzzlesCollection.insertOne(playerPuzzleTemplate);
+				const result = await userPuzzlesCollection.insertOne(puzzleFromSource);
 				if (!result.insertedId) {
 					throw new Error('oh no! unable to save the new puzzle');
 				}
+				const insertedId = result.insertedId;
+
+				playerPuzzle = {
+					...puzzleFromSource,
+					_id: insertedId.toString()
+				};
 			} catch (error) {
 				return fail(500, {
 					message: 'Unable to create a new game puzzle.'
 				});
 			}
+		} else {
+			playerPuzzle = {
+				...(existingPlayerPuzzle as unknown as PlayerPuzzle),
+				acrossHints: removeAnswers(existingPlayerPuzzle.acrossHints),
+				downHints: removeAnswers(existingPlayerPuzzle.downHints),
+				_id: existingPlayerPuzzle._id.toString()
+			};
 		}
-	} catch {
+	} catch (error) {
+		const message = getErrorMessage(
+			error,
+			"Sorry about that, we had a database problem. You could try again but I can't promise anything"
+		);
 		return fail(500, {
-			message:
-				"Sorry about that, we had a database problem. You could try again but I can't promise anything"
+			message
 		});
 	}
 
-	const playerPuzzle = transformPuzzleForPlayer(puzzle);
 	return {
-		playerPuzzle
+		puzzle: playerPuzzle
 	};
 };
 

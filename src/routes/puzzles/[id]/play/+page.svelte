@@ -24,6 +24,7 @@
 	$: ({ puzzle } = data);
 
 	onMount(() => {
+		console.log('hi', data);
 		if (puzzle) {
 			PuzzleStore.set(puzzle);
 			if (dynamicPuzzle) {
