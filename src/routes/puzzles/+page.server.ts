@@ -76,12 +76,11 @@ export const actions = {
 			const cellRows = createCellRows({ cellMap, acrossSpan, downSpan });
 
 			// Specify the update to set a value for the plot field
-			const document: Omit<EditorPuzzle, '_id'> = {
+			const document: Omit<EditorPuzzle, '_id' | 'cellRows'> = {
 				acrossHints: [],
 				acrossSpan,
 				authorEmail: email,
 				cellMap,
-				cellRows,
 				dateCreated,
 				downHints: [],
 				downSpan,

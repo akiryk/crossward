@@ -6,8 +6,13 @@ import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
 import { INCOMPLETE, PUBLISHED } from '$utils/constants';
-import { type CellMapArray, type PlayerPuzzle } from '$utils/types';
-import { removeAnswers, transformCellMapArrayForDb, getErrorMessage } from '$utils/serverHelpers';
+import { type CellMapArray, type PlayerPuzzle, type CellRows } from '$utils/types';
+import {
+	removeAnswers,
+	transformCellMapArrayForDb,
+	getErrorMessage,
+	createCellRows
+} from '$utils/serverHelpers';
 import type { RequestEvent } from '../$types';
 
 function getUserId(email: string): string {
@@ -69,7 +74,6 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 				acrossSpan,
 				authorEmail,
 				cellMap,
-				cellRows,
 				dateCreated,
 				downHints,
 				downSpan,
@@ -79,12 +83,11 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 			} = sourcePuzzle as unknown as PlayerPuzzle;
 
 			// Use puzzleFromSource until we save it and acquire an id
-			const puzzleFromSource: Omit<PlayerPuzzle, '_id'> = {
+			const puzzleFromSource: Omit<PlayerPuzzle, '_id' | 'cellRows'> = {
 				acrossHints,
 				acrossSpan,
 				authorEmail,
 				cellMap,
-				cellRows,
 				dateCreated,
 				downHints,
 				downSpan,
@@ -103,10 +106,20 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 				}
 				const insertedId = result.insertedId;
 
+				// Create cellRows every time the page loads; otherwise, the cells
+				// in cellRows and in cellMap will get out of sync
+				const cellRows: CellRows = createCellRows({
+					cellMap: puzzleFromSource.cellMap,
+					acrossSpan: puzzleFromSource.acrossSpan,
+					downSpan: puzzleFromSource.downSpan
+				});
+
 				playerPuzzle = {
 					...puzzleFromSource,
+					cellRows,
 					_id: insertedId.toString()
 				};
+				createCellRows;
 			} catch (error) {
 				return fail(500, {
 					message: 'Unable to create a new game puzzle.'

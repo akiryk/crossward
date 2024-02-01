@@ -50,21 +50,30 @@ export const editpageServerLoad: PageServerLoad = async ({
 	 * Load the puzzle data
 	 */
 	try {
-		const puzzleFromDb = await puzzlesCollection.findOne({
+		const puzzleFromSource = await puzzlesCollection.findOne({
 			_id: new ObjectId(params.id)
 		});
 
-		if (puzzleFromDb === null) {
+		if (puzzleFromSource === null) {
 			throw new Error('No puzzle');
 		}
 
-		if (puzzleFromDb.authorEmail !== session.user?.email) {
+		if (puzzleFromSource.authorEmail !== session.user?.email) {
 			throw new Error('No access');
 		}
 
+		// Create cellRows every time the page loads; otherwise, the cells
+		// in cellRows and in cellMap will get out of sync
+		const cellRows: CellRows = createCellRows({
+			cellMap: puzzleFromSource.cellMap,
+			acrossSpan: puzzleFromSource.acrossSpan,
+			downSpan: puzzleFromSource.downSpan
+		});
+
 		const puzzle = {
-			...puzzleFromDb,
-			_id: puzzleFromDb._id.toString()
+			...puzzleFromSource,
+			cellRows,
+			_id: puzzleFromSource._id.toString()
 		} as unknown as EditorPuzzle;
 		const create = url.searchParams.get('create');
 
