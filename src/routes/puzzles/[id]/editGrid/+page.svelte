@@ -12,7 +12,7 @@
 	import Banner from '$components/Banner.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
-	let puzzle: EditorPuzzle | null;
+	let editorPuzzle: EditorPuzzle | null;
 	export let data;
 	export let form;
 	export let isCreateSuccess: boolean;
@@ -32,8 +32,7 @@
 
 	const unsubscribe = PuzzleStore.subscribe((data) => {
 		if (data) {
-			console.log(data);
-			puzzle = data;
+			editorPuzzle = data;
 		}
 	});
 
