@@ -4,6 +4,7 @@
 	import { deserialize } from '$app/forms';
 	import { type ActionResult } from '@sveltejs/kit';
 	import { onDestroy, onMount } from 'svelte';
+	import type { ActionData } from './$types';
 	import Banner from '$components/Banner.svelte';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
@@ -16,7 +17,7 @@
 	export let puzzle: EditorPuzzle | null;
 
 	export let data;
-	export let form;
+	export let form: ActionData;
 	let errorMessage: string = '';
 	let successMessage: string = '';
 
@@ -52,6 +53,9 @@
 				const result: ActionResult = deserialize(await response.text());
 				if (result.type === 'failure') {
 					errorMessage = result.data?.message;
+				}
+				if (result.type === 'success' && result?.data?.message) {
+					successMessage = result.data.message;
 				}
 			} catch (error) {
 				console.error('Error saving chunk:', error);

@@ -15,14 +15,13 @@ import type {
 	SanitizeInputParams,
 	CellMapArray
 } from '$utils/types';
-import { Direction } from '$utils/types';
 import { getId } from './helpers';
 import sanitizeHtml from 'sanitize-html';
 import mongodb, { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from '../routes/puzzles/[id]/$types';
-import { UPDATE_TITLE } from './constants';
+import { UPDATE_TITLE, DELETE_PUZZLE } from './constants';
 
 type Props = {
 	puzzle: EditorPuzzle;
@@ -372,9 +371,15 @@ export const handleDeletePuzzle = async (request: Request) => {
 			throw new Error('Missing ID for delete puzzle.');
 		}
 	} catch (error) {
-		throw new Error(getErrorMessage(error));
+		// throw new Error(getErrorMessage(error));
+		const message = getErrorMessage(error);
+		return fail(500, {
+			error: true,
+			action: DELETE_PUZZLE,
+			message
+		});
 	}
-	return;
+	redirect(302, `/puzzles?isDeleteSuccess=true`);
 };
 
 export const handleUpdateTitle = async (request: Request) => {

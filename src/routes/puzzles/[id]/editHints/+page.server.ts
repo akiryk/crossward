@@ -1,10 +1,10 @@
-import mongodb, { ObjectId } from 'mongodb';
-import { fail, redirect } from '@sveltejs/kit';
+import { ObjectId } from 'mongodb';
+import { fail } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import {
 	editpageServerLoad,
 	handleUpdateTitle,
-	getErrorMessage,
+	handleDeletePuzzle,
 	validateHintsForPublishingPuzzle
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
@@ -66,7 +66,7 @@ export const actions = {
 		// Return *after* the loop completes
 		return {
 			status: 200,
-			message: 'Saved hints!'
+			message: `Saved at ${new Date().toLocaleTimeString().replace('AM', '')}`
 		};
 	},
 	publish: async ({ request }: RequestEvent) => {
@@ -148,14 +148,6 @@ export const actions = {
 		return await handleUpdateTitle(request);
 	},
 	delete: async ({ request }: RequestEvent) => {
-		const data = await request.formData();
-		try {
-			await deleteById(data);
-		} catch (error) {
-			fail(500, {
-				message: getErrorMessage(error)
-			});
-		}
-		redirect(302, `/puzzles?isDeleteSuccess=true`);
+		return await handleDeletePuzzle(request);
 	}
 };

@@ -7,11 +7,10 @@ import {
 	handleDeletePuzzle,
 	transformPuzzleDataForCreatingHints,
 	transformCellMapArrayForDb,
-	handleUpdateTitle,
-	getErrorMessage
+	handleUpdateTitle
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
-import { EDITING_HINTS, UPDATE_TITLE, DELETE_PUZZLE } from '$utils/constants';
+import { EDITING_HINTS } from '$utils/constants';
 import type { CellMapArray, EditorPuzzle } from '$utils/types';
 import { ServerErrorType } from '$utils/types';
 
@@ -126,16 +125,6 @@ export const actions = {
 		return await handleUpdateTitle(request);
 	},
 	delete: async ({ request }: RequestEvent) => {
-		try {
-			await handleDeletePuzzle(request);
-			redirect(302, `/puzzles?isDeleteSuccess=true`);
-		} catch (error) {
-			const message = getErrorMessage(error);
-			return fail(500, {
-				error: true,
-				action: DELETE_PUZZLE,
-				message
-			});
-		}
+		return await handleDeletePuzzle(request);
 	}
 };
