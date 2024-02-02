@@ -155,6 +155,13 @@
 		value={cellCorrectValue}
 		missingValueForSymmetricalCell={cell.isSymmetrical && !cell.correctValue}
 	/>
+{:else if userMode === UserMode.GAME_OVER}
+	<PreviewCell
+		gameOver={true}
+		displayNumber={cell.displayNumber}
+		value={cellCorrectValue}
+		missingValueForSymmetricalCell={cell.isSymmetrical && !cell.correctValue}
+	/>
 {:else if userMode === UserMode.EDITING_HINTS}
 	<PreviewCell displayNumber={cell.displayNumber} value={cellCorrectValue} />
 {:else}

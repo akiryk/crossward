@@ -20,6 +20,7 @@
 
 	let errorMessage: string = '';
 	let successMessage: string = '';
+	let showLinkToPlayPage = false;
 
 	$: ({ puzzle } = data);
 
@@ -102,6 +103,7 @@
 			const result: ActionResult = deserialize(await response.text());
 			if (result.type === 'success') {
 				successMessage = result.data?.message;
+				showLinkToPlayPage = true;
 				// rerun all `load` functions, following the successful update
 				await invalidateAll();
 			} else if (result.type === 'failure') {
@@ -146,6 +148,10 @@
 		<!-- SUCCESS MESSAGES -->
 		{#if successMessage}
 			<Banner message={successMessage} bannerType={BannerType.IS_SUCCESS} />
+		{/if}
+
+		{#if showLinkToPlayPage}
+			<a href="/puzzles/{puzzle._id}/play" class="text-sky-400">Play {puzzle.title} now?</a>
 		{/if}
 
 		<div class="mb-5 flex">

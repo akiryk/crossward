@@ -12,12 +12,14 @@
 	import { UserMode } from '$utils/types';
 	import Button from '$components/Button.svelte';
 	import { debounce, chunkArray } from '$utils/helpers';
+	import { COMPLETE_BUT_WITH_ERRORS, COMPLETE_AND_NO_ERRORS, INCOMPLETE } from '$utils/constants';
 
 	export let puzzle: PlayerPuzzle;
 	export let data: LoadData;
 
 	let isComplete = false;
 	const incorrectCells: Array<ID> = [];
+
 	const cellIdsInSaveQueueSet: Set<ID> = new Set();
 
 	$: ({ puzzle } = data);
@@ -56,12 +58,15 @@
 				incorrectCells.splice(index, 1);
 			}
 		});
-		if (isComplete && incorrectCells.length === 0) {
-			PuzzleStore.set(puzzle);
-		} else if (isComplete) {
-			puzzle.incorrectCells = incorrectCells;
-			PuzzleStore.set(puzzle);
+		puzzle.incorrectCells = incorrectCells;
+		if (incorrectCells.length && isComplete) {
+			puzzle.playMode === COMPLETE_BUT_WITH_ERRORS;
+		} else if (incorrectCells.length === 0 && isComplete) {
+			puzzle.playMode === COMPLETE_AND_NO_ERRORS;
+		} else {
+			puzzle.playMode === INCOMPLETE;
 		}
+		PuzzleStore.set(puzzle);
 	}
 
 	async function saveData() {
@@ -80,7 +85,6 @@
 			cellsToUpdate.push([id, puzzle!.cellMap[id]]);
 		});
 		cellIdsInSaveQueueSet.clear();
-
 		const chunkedData = chunkArray(cellsToUpdate, 25);
 
 		chunkedData.forEach(async (chunk) => {
@@ -88,7 +92,7 @@
 			formData.append('chunk', JSON.stringify(chunk));
 			formData.append('id', puzzle!._id);
 			try {
-				const response = await fetch('?/updateCellMap', {
+				const response = await fetch('?/saveGame', {
 					method: 'POST',
 					body: formData
 				});
@@ -124,14 +128,18 @@
 
 	<form
 		method="POST"
-		action="?/updateGame"
+		action="?/saveGame"
 		autocomplete="off"
 		on:submit|preventDefault={handleSubmit}
 	>
 		<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
 		<input type="hidden" name="id" value={puzzle._id} />
 		<div class="mb-5">
-			<Crossword {puzzle} userMode={UserMode.PLAY} onInput={handleSaveOnInput} />
+			<Crossword
+				{puzzle}
+				userMode={isComplete && incorrectCells.length === 0 ? UserMode.GAME_OVER : UserMode.PLAY}
+				onInput={handleSaveOnInput}
+			/>
 		</div>
 		<Hints {puzzle} userMode={UserMode.PLAY} />
 		<div class="mb-5 flex">

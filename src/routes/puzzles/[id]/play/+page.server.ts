@@ -157,7 +157,7 @@ export const load: PageServerLoad = async ({
 };
 
 export const actions = {
-	updateGame: async ({ request }: RequestEvent) => {
+	saveGame: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const newCellMapChunk = data.get('chunk');
 		const id = data.get('id');
@@ -171,6 +171,7 @@ export const actions = {
 			cellMapArray: JSON.parse(newCellMapChunk)
 		});
 
+		console.log(JSON.parse(newCellMapChunk));
 		const filter = {
 			_id: new ObjectId(id)
 		};

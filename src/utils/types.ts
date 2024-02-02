@@ -22,7 +22,8 @@ export enum UserMode {
 	EDITING_CELLS,
 	EDITING_HINTS,
 	PREVIEW,
-	PLAY
+	PLAY,
+	GAME_OVER
 }
 
 // Only applies if PublishStatus is PUBLISHED
