@@ -7,7 +7,7 @@
 	import GameStore from '../../stores/GameStore';
 	import {
 		Direction,
-		GameMode,
+		UserMode,
 		type GameShape,
 		type ID,
 		type PlayerPuzzle,
@@ -20,7 +20,7 @@
 	// Props
 	export let puzzle: PlayerPuzzle | EditorPuzzle;
 	export let cell: CellType;
-	export let gameMode: GameMode;
+	export let userMode: UserMode;
 	export let isHighlighted: boolean;
 	export let gridDirection: Direction;
 	export let onInput: (id: ID) => void;
@@ -49,7 +49,7 @@
 		(event.target as HTMLInputElement).value = cleanValue;
 		cell.value = cleanValue;
 		previousValue = cleanValue;
-		if (gameMode === GameMode.EDITING_CELLS) {
+		if (userMode === UserMode.EDITING_CELLS) {
 			cell.correctValue = cleanValue;
 			updateCellSymmetry(cell);
 		}
@@ -85,7 +85,7 @@
 			case KeyCodes.DELETE_KEY:
 				cell.value = '';
 				previousValue = '';
-				if (gameMode === GameMode.EDITING_CELLS) {
+				if (userMode === UserMode.EDITING_CELLS) {
 					updateCellSymmetry(cell);
 					cell.correctValue = '';
 				}
@@ -118,7 +118,7 @@
 	// $: shouldHighlightFalse = data?.incorrectCells?.includes(cell.id);
 </script>
 
-{#if gameMode === GameMode.PLAY && cell.correctValue}
+{#if userMode === UserMode.PLAY && cell.correctValue}
 	<Cell
 		displayNumber={cell.displayNumber}
 		value={cellValue}
@@ -129,9 +129,9 @@
 		hasFocus={!!cell.hasFocus}
 		onClick={handleClick}
 		{isHighlighted}
-		{gameMode}
+		{userMode}
 	/>
-{:else if gameMode === GameMode.EDITING_CELLS}
+{:else if userMode === UserMode.EDITING_CELLS}
 	<Cell
 		displayNumber={cell.displayNumber}
 		value={cellCorrectValue}
@@ -143,15 +143,15 @@
 		hasFocus={!!cell.hasFocus}
 		onClick={handleClick}
 		{isHighlighted}
-		{gameMode}
+		{userMode}
 	/>
-{:else if gameMode === GameMode.PREVIEW}
+{:else if userMode === UserMode.PREVIEW}
 	<PreviewCell
 		displayNumber={cell.displayNumber}
 		value={cellCorrectValue}
 		missingValueForSymmetricalCell={cell.isSymmetrical && !cell.correctValue}
 	/>
-{:else if gameMode === GameMode.EDITING_HINTS}
+{:else if userMode === UserMode.EDITING_HINTS}
 	<PreviewCell displayNumber={cell.displayNumber} value={cellCorrectValue} />
 {:else}
 	<DeadCell />

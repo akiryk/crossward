@@ -357,35 +357,70 @@ export const validateHintsForPublishingPuzzle = (
 	return isValid;
 };
 
-export async function deleteById(data: FormData) {
-	const id = data.get('id');
-	if (typeof id === 'string') {
-		const query = { _id: new mongodb.ObjectId(id) };
-		const isDeleted = await puzzlesCollection.deleteOne(query);
-		if (!isDeleted) {
-			throw new Error('Unable to delete that puzzle.');
+export const handleDeletePuzzle = async (request: Request) => {
+	try {
+		const data = await request.formData();
+		const id = data.get('id');
+		if (typeof id === 'string') {
+			const query = { _id: new mongodb.ObjectId(id) };
+			const isDeleted = await puzzlesCollection.deleteOne(query);
+			if (!isDeleted) {
+				throw new Error('Unable to delete that puzzle.');
+			}
+		} else {
+			throw new Error('Missing ID for delete puzzle.');
 		}
-	} else {
-		throw new Error('Missing ID for delete puzzle.');
+	} catch (error) {
+		const message = getErrorMessage(error);
+		return fail(500, {
+			error: true,
+			action: 'deletePuzzle',
+			message
+		});
 	}
-}
+	return;
+};
 
-export const handleUpdateTitle = async (data: FormData) => {
-	const originalTitle = data.get('title');
-	if (!originalTitle) {
-		return '';
-	}
-	const newTitle = handleSanitizeInput(originalTitle.toString());
-	const filter = { title: originalTitle };
-	// Specify the update to set a value for the plot field
-	const updateDocument = {
-		$set: {
-			title: newTitle
+export const handleUpdateTitle = async (request: Request) => {
+	try {
+		const data = await request.formData();
+		const id = data.get('id');
+		if (!id || typeof id !== 'string') {
+			return fail(400, {
+				error: true,
+				action: 'updateTitle',
+				message: 'Missing ID field. Lodge a complaint with the developers.'
+			});
 		}
-	};
-	await puzzlesCollection.updateOne(filter, updateDocument);
+		const unsafeTitle = data.get('title');
+		if (!unsafeTitle) {
+			return fail(400, { error: true, action: 'updateTitle', message: 'Please add a title' });
+		}
+		const title = handleSanitizeInput(unsafeTitle?.toString());
 
-	return newTitle;
+		const filter = {
+			_id: new ObjectId(id)
+		};
+
+		// Specify the update to set a value for the plot field
+		const updateDocument = {
+			$set: {
+				title
+			}
+		};
+		await puzzlesCollection.updateOne(filter, updateDocument);
+		return {
+			message: `Saved new title: ${title}`,
+			action: 'updateTitle',
+			success: true
+		};
+	} catch (error) {
+		return fail(422, {
+			error: true,
+			action: 'updateTitle',
+			message: 'You need to add a title!'
+		});
+	}
 };
 
 export function getErrorMessage(error: unknown, fallback?: string): string {

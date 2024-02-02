@@ -5,7 +5,6 @@ import {
 	editpageServerLoad,
 	handleUpdateTitle,
 	getErrorMessage,
-	deleteById,
 	validateHintsForPublishingPuzzle
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
@@ -146,20 +145,7 @@ export const actions = {
 		};
 	},
 	updateTitle: async ({ request }: RequestEvent) => {
-		const data = await request.formData();
-		try {
-			const newTitle = await handleUpdateTitle(data);
-			return {
-				title: newTitle,
-				success: true,
-				message: 'Success updating title!'
-			};
-		} catch (error) {
-			return fail(422, {
-				message: getErrorMessage(error),
-				success: false
-			});
-		}
+		return await handleUpdateTitle(request);
 	},
 	delete: async ({ request }: RequestEvent) => {
 		const data = await request.formData();

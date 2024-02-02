@@ -18,7 +18,7 @@ export enum Direction {
 	GO_FORWARD
 }
 
-export enum GameMode {
+export enum UserMode {
 	EDITING_CELLS,
 	EDITING_HINTS,
 	PREVIEW,

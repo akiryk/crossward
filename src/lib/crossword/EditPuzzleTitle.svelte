@@ -2,6 +2,7 @@
 	// components/crossword/EditPuzzleTitle.svelte
 	import { enhance } from '$app/forms';
 	import Button from '$components/Button.svelte';
+	import type { ActionData } from '../../routes/puzzles/[id]/editGrid/$types';
 
 	type Form = {
 		error?: any;
@@ -14,13 +15,14 @@
 		type?: 'error' | 'success';
 	} | null;
 
-	export let form: Form;
+	let form: Form;
 	export let title: string;
 	export let id: string;
 
 	$: message = getMessage(form);
 
 	function getMessage(form: Form): Message {
+		console.log(form);
 		if (form) {
 			if (!form?.success) {
 				return {
@@ -47,6 +49,7 @@
 	<div class="mr-auto">
 		<form method="POST" action="?/updateTitle" use:enhance>
 			<input type="hidden" name="originalTitle" value={title} />
+			<input type="hidden" name="id" value={id} />
 			<label>
 				Edit the title:
 				<input

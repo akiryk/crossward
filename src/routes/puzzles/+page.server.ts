@@ -73,7 +73,6 @@ export const actions = {
 			const dateCreated = new Date().toISOString();
 
 			const cellMap = createInitialCellMap(acrossSpan, downSpan);
-			const cellRows = createCellRows({ cellMap, acrossSpan, downSpan });
 
 			// Specify the update to set a value for the plot field
 			const document: Omit<EditorPuzzle, '_id' | 'cellRows'> = {

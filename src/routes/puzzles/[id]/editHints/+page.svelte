@@ -10,7 +10,7 @@
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
-	import { BannerType, GameMode, type HintDirection, type EditorPuzzle } from '$utils/types';
+	import { BannerType, UserMode, type HintDirection, type EditorPuzzle } from '$utils/types';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
 	export let puzzle: EditorPuzzle | null;
@@ -113,12 +113,12 @@
 	{#if puzzle}
 		<PuzzleHeading
 			puzzleType={puzzle.puzzleType}
-			gameMode={GameMode.EDITING_HINTS}
+			userMode={UserMode.EDITING_HINTS}
 			title={puzzle.title}
 		/>
 		{#if puzzle || puzzle}
 			<div class="mb-5">
-				<Crossword puzzle={puzzle || puzzle} gameMode={GameMode.EDITING_HINTS} />
+				<Crossword puzzle={puzzle || puzzle} userMode={UserMode.EDITING_HINTS} />
 			</div>
 			<form
 				method="POST"
@@ -133,7 +133,7 @@
 					puzzle={puzzle || puzzle}
 					onAcrossHintInput={handleAcrossHintInput}
 					onDownHintInput={handleDownHintInput}
-					gameMode={GameMode.EDITING_HINTS}
+					userMode={UserMode.EDITING_HINTS}
 				/>
 
 				<!-- ERROR MESSAGES -->

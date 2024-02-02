@@ -4,11 +4,10 @@ import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import {
 	editpageServerLoad,
-	handleUpdateTitle,
-	deleteById,
+	handleDeletePuzzle,
 	transformPuzzleDataForCreatingHints,
 	transformCellMapArrayForDb,
-	getErrorMessage
+	handleUpdateTitle
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { EDITING_HINTS } from '$utils/constants';
@@ -50,7 +49,7 @@ export const actions = {
 			await puzzlesCollection.updateOne(filter, updateDocument);
 			return {
 				status: 200,
-				message: 'Your puzzle data is saved!'
+				message: `Saved at ${new Date().toLocaleTimeString().replace('AM', '')}`
 			};
 		} catch {
 			return fail(500, {
@@ -123,32 +122,10 @@ export const actions = {
 		}
 	},
 	updateTitle: async ({ request }: RequestEvent) => {
-		const data = await request.formData();
-		try {
-			const newTitle = await handleUpdateTitle(data);
-			if (!newTitle) {
-				throw new Error();
-			}
-			console.log('newTitle', newTitle);
-			return {
-				title: newTitle,
-				success: true
-			};
-		} catch (error) {
-			return fail(422, {
-				message: 'You need to add a title!'
-			});
-		}
+		return await handleUpdateTitle(request);
 	},
 	delete: async ({ request }: RequestEvent) => {
-		const data = await request.formData();
-		try {
-			await deleteById(data);
-		} catch (error) {
-			fail(500, {
-				message: getErrorMessage(error)
-			});
-		}
+		await handleDeletePuzzle(request);
 		redirect(302, `/puzzles?isDeleteSuccess=true`);
 	}
 };

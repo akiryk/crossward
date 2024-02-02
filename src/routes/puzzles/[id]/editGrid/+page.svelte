@@ -9,14 +9,18 @@
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import { GameMode, BannerType, type EditorPuzzle, type CellMapArray } from '$utils/types';
+	import { UserMode, BannerType, type EditorPuzzle, type CellMapArray } from '$utils/types';
 	import Banner from '$components/Banner.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
+	import type { ActionData } from './$types.js';
 
 	export let puzzle: EditorPuzzle;
 	export let data: LoadData;
-	export let form;
 	export let isCreateSuccess: boolean;
+
+	let form: ActionData;
+	export let title: string;
+	export let id: string;
 
 	let isSaveForShowHints = false;
 	let errorMessage: string = '';
@@ -141,7 +145,7 @@
 		<PuzzleHeading
 			isCreateSuccess={isCreateSuccess ? true : false}
 			puzzleType={puzzle.puzzleType}
-			gameMode={GameMode.EDITING_CELLS}
+			userMode={UserMode.EDITING_CELLS}
 			title={puzzle.title}
 		/>
 		{#if puzzle}
@@ -156,7 +160,7 @@
 				<div class="mb-5">
 					<Crossword
 						{puzzle}
-						gameMode={isPreview ? GameMode.PREVIEW : GameMode.EDITING_CELLS}
+						userMode={isPreview ? UserMode.PREVIEW : UserMode.EDITING_CELLS}
 						onInput={handleSaveCellMap}
 					/>
 				</div>
@@ -196,7 +200,7 @@
 
 		<hr class="my-10" />
 
-		<EditPuzzleTitle {form} title={form?.title || puzzle.title} id={puzzle._id} />
+		<EditPuzzleTitle title={puzzle.title} id={puzzle._id} />
 	{:else}
 		<p>Something went wrong and we can't load the puzzle.</p>
 	{/if}

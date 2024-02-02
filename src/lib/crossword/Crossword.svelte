@@ -9,7 +9,7 @@
 		ID,
 		Cell
 	} from '$utils/types';
-	import { Direction, GameMode } from '$utils/types';
+	import { Direction, UserMode } from '$utils/types';
 	import { getId } from '$utils/helpers';
 	import PuzzleStore from '../../stores/PuzzleStore';
 	import GameStore from '../../stores/GameStore';
@@ -27,7 +27,7 @@
 
 	export let onInput: (id: ID) => void = (id: ID) => {};
 	export let puzzle: PlayerPuzzle | EditorPuzzle;
-	export let gameMode: GameMode;
+	export let userMode: UserMode;
 	let gridDirection = Direction.GO_RIGHT;
 	let highlightedCellIds: Array<ID> = [];
 
@@ -45,7 +45,7 @@
 		let highlightedCellIds: Array<ID> = [];
 		const currentCellX = cell.x;
 		const currentCellY = cell.y;
-		if (gameMode === GameMode.PLAY) {
+		if (userMode === UserMode.PLAY) {
 			if (gridDirection === Direction.GO_RIGHT) {
 				if (
 					typeof cell.acrossWordStartX === 'number' &&
@@ -173,7 +173,7 @@
 				{#each row as cell}
 					<CellContainer
 						{puzzle}
-						{gameMode}
+						{userMode}
 						{cell}
 						{updateCellSymmetry}
 						{toggleGridDirection}
