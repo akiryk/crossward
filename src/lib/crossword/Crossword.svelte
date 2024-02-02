@@ -135,6 +135,9 @@
 			acrossSpan: puzzle.acrossSpan,
 			downSpan: puzzle.downSpan
 		});
+		if (userMode === UserMode.PLAY && !puzzle.cellMap[getId(nextCellCoords)].correctValue) {
+			return;
+		}
 		updateCellWithFocus(nextCellCoords);
 	}
 
@@ -172,7 +175,6 @@
 			<tr class="flex justify-center flex-wrap" role="row">
 				{#each row as cell}
 					<CellContainer
-						{puzzle}
 						{userMode}
 						{cell}
 						{updateCellSymmetry}
@@ -180,7 +182,6 @@
 						{goToNextCell}
 						{updateCellWithFocus}
 						isHighlighted={highlightedCellIds.includes(cell.id)}
-						{gridDirection}
 						{onInput}
 					/>
 				{/each}

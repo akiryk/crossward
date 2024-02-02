@@ -4,12 +4,7 @@
 	import Button from '$components/Button.svelte';
 	import { UPDATE_TITLE, DELETE_PUZZLE } from '$utils/constants';
 	import type { ActionData } from '../../routes/puzzles/[id]/editGrid/$types';
-
-	type Form = {
-		error?: any;
-		success?: boolean;
-		message?: string;
-	};
+	import type { ActionData as ActionDataFromHints } from '../../routes/puzzles/[id]/editHints/$types';
 
 	type Message = {
 		text?: string;
@@ -17,13 +12,13 @@
 		action?: string;
 	} | null;
 
-	export let form: ActionData;
+	export let form: ActionData | ActionDataFromHints;
 	export let title: string;
 	export let id: string;
 
 	$: message = getMessage(form);
 
-	function getMessage(form: ActionData): Message {
+	function getMessage(form: ActionData | ActionDataFromHints): Message {
 		if (form) {
 			if (!form?.success) {
 				return {

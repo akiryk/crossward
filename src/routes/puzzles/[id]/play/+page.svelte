@@ -3,19 +3,18 @@
 	import { type ActionResult } from '@sveltejs/kit';
 	import { deserialize } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
+	import type { LoadData } from './+page.server.ts';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
-	import type { Puzzle, PuzzleWithId, ID, IdCellTuple } from '$utils/types';
+	import type { PlayerPuzzle, ID, CellIdTuple } from '$utils/types';
 	import { UserMode } from '$utils/types';
 	import Button from '$components/Button.svelte';
-	import { debounce, chunkArray, getId } from '$utils/helpers';
-	import { GAME_OVER } from '$utils/constants';
+	import { debounce, chunkArray } from '$utils/helpers';
 
-	export let dynamicPuzzle: Puzzle | null;
-
-	export let data;
+	export let puzzle: PlayerPuzzle;
+	export let data: LoadData;
 
 	let isComplete = false;
 	const incorrectCells: Array<ID> = [];
@@ -24,18 +23,15 @@
 	$: ({ puzzle } = data);
 
 	onMount(() => {
-		console.log('hi', data);
 		if (puzzle) {
 			PuzzleStore.set(puzzle);
-			if (dynamicPuzzle) {
-				checkIfComplete(dynamicPuzzle);
-			}
+			checkIfComplete(puzzle);
 		}
 	});
 
 	const unsubscribe = PuzzleStore.subscribe((data) => {
-		if (data) {
-			dynamicPuzzle = data;
+		if (data && 'incorrectCells' in data && 'playMode' in data) {
+			puzzle = data;
 		}
 	});
 
@@ -43,7 +39,7 @@
 		unsubscribe();
 	});
 
-	function checkIfComplete(puzzle: Puzzle) {
+	function checkIfComplete(puzzle: PlayerPuzzle) {
 		isComplete = true;
 		Object.values(puzzle.cellMap).forEach((cell, i) => {
 			const id: ID = `${cell.x}:${cell.y}`;
@@ -61,7 +57,6 @@
 			}
 		});
 		if (isComplete && incorrectCells.length === 0) {
-			puzzle.publishStatus = GAME_OVER;
 			PuzzleStore.set(puzzle);
 		} else if (isComplete) {
 			puzzle.incorrectCells = incorrectCells;
@@ -70,7 +65,7 @@
 	}
 
 	async function saveData() {
-		if (dynamicPuzzle === null) {
+		if (puzzle === null) {
 			return;
 		}
 
@@ -80,9 +75,9 @@
 
 		// Save endpoint expects data as array of tupples, so make it here.
 		// It should be fast since the array will only have 3 or 4 items max.
-		const cellsToUpdate: Array<IdCellTuple> = [];
+		const cellsToUpdate: Array<CellIdTuple> = [];
 		cellIdsInSaveQueueSet.forEach((id: ID) => {
-			cellsToUpdate.push([id, dynamicPuzzle!.cellMap[id]]);
+			cellsToUpdate.push([id, puzzle!.cellMap[id]]);
 		});
 		cellIdsInSaveQueueSet.clear();
 
@@ -91,7 +86,7 @@
 		chunkedData.forEach(async (chunk) => {
 			const formData = new FormData();
 			formData.append('chunk', JSON.stringify(chunk));
-			formData.append('id', dynamicPuzzle!._id);
+			formData.append('id', puzzle!._id);
 			try {
 				const response = await fetch('?/updateCellMap', {
 					method: 'POST',
@@ -114,45 +109,35 @@
 		cellIdsInSaveQueueSet.add(id);
 		debounceSaveUpdatedCellMap();
 
-		if (dynamicPuzzle) {
-			checkIfComplete(dynamicPuzzle);
+		if (puzzle) {
+			checkIfComplete(puzzle);
 		}
 	};
 
-	const handleSubmit = async (event: Event) => {
+	const handleSubmit = async () => {
 		debounceSaveUpdatedCellMap();
 	};
 </script>
 
 <div>
-	{#if puzzle}
-		<PuzzleHeading puzzleType={puzzle.puzzleType} userMode={UserMode.PLAY} title={puzzle.title} />
+	<PuzzleHeading puzzleType={puzzle.puzzleType} userMode={UserMode.PLAY} title={puzzle.title} />
 
-		{#if dynamicPuzzle || puzzle}
-			<form
-				method="POST"
-				action="?/updateCellMap"
-				autocomplete="off"
-				on:submit|preventDefault={handleSubmit}
-			>
-				<input type="hidden" name="cellMap" value={JSON.stringify(dynamicPuzzle?.cellMap)} />
-				<input type="hidden" name="id" value={puzzle._id} />
-				<div class="mb-5">
-					<Crossword
-						puzzle={dynamicPuzzle || puzzle}
-						userMode={UserMode.PLAY}
-						onInput={handleSaveOnInput}
-					/>
-				</div>
-				<Hints puzzle={dynamicPuzzle || puzzle} userMode={UserMode.PLAY} />
-				<div class="mb-5 flex">
-					<div class="mr-5">
-						<Button buttonType="submit">Save for later</Button>
-					</div>
-				</div>
-			</form>
-		{/if}
-	{:else}
-		<p>huh.</p>
-	{/if}
+	<form
+		method="POST"
+		action="?/updateGame"
+		autocomplete="off"
+		on:submit|preventDefault={handleSubmit}
+	>
+		<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
+		<input type="hidden" name="id" value={puzzle._id} />
+		<div class="mb-5">
+			<Crossword {puzzle} userMode={UserMode.PLAY} onInput={handleSaveOnInput} />
+		</div>
+		<Hints {puzzle} userMode={UserMode.PLAY} />
+		<div class="mb-5 flex">
+			<div class="mr-5">
+				<Button buttonType="submit">Save for later</Button>
+			</div>
+		</div>
+	</form>
 </div>

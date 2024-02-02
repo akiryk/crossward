@@ -42,8 +42,9 @@ export function getCellAbove({ coords, acrossSpan, downSpan }: GetNextCellProps)
 	let newY = y - 1;
 	let newX = x; // row = y
 	if (newY < 0) {
-		newY = downSpan - 1;
-		newX = x - 1 < 0 ? acrossSpan - 1 : x - 1;
+		return { x, y };
+		// newY = downSpan - 1;
+		// newX = x - 1 < 0 ? acrossSpan - 1 : x - 1;
 	}
 	return { x: newX, y: newY };
 }
@@ -52,8 +53,9 @@ export function getCellBelow({ coords, acrossSpan, downSpan }: GetNextCellProps)
 	let newY = y + 1;
 	let newX = x; // row = y
 	if (newY >= downSpan) {
-		newY = 0;
-		newX = x + 1 >= acrossSpan ? 0 : x + 1;
+		return { x, y };
+		// newY = 0;
+		// newX = x + 1 >= acrossSpan ? 0 : x + 1;
 	}
 	return { x: newX, y: newY };
 }
@@ -62,8 +64,9 @@ export function getCellToTheLeft({ coords, acrossSpan, downSpan }: GetNextCellPr
 	let newX = x - 1; // column = x
 	let newY = y; // row = y
 	if (newX < 0) {
-		newX = acrossSpan - 1;
-		newY = y - 1 < 0 ? downSpan - 1 : y - 1;
+		return { x, y };
+		// newX = acrossSpan - 1;
+		// newY = y - 1 < 0 ? downSpan - 1 : y - 1;
 	}
 	return { x: newX, y: newY };
 }
@@ -72,8 +75,7 @@ export function getCellToTheRight({ coords, acrossSpan, downSpan }: GetNextCellP
 	let newX = x + 1; // column = x
 	let newY = y; // row = y
 	if (newX >= acrossSpan) {
-		newX = 0;
-		newY = y + 1 === downSpan ? 0 : y + 1;
+		return { x, y };
 	}
 
 	return { x: newX, y: newY };

@@ -5,24 +5,14 @@
 	import DeadCell from './DeadCell.svelte';
 	import PreviewCell from './PreviewCell.svelte';
 	import GameStore from '../../stores/GameStore';
-	import {
-		Direction,
-		UserMode,
-		type GameShape,
-		type ID,
-		type PlayerPuzzle,
-		type EditorPuzzle,
-		type Cell as CellType,
-		type Coords
-	} from '$utils/types';
+	import { Direction, UserMode, type ID, type Cell as CellType, type Coords } from '$utils/types';
 	import { KeyCodes } from '../utils/keyCodes';
 
 	// Props
-	export let puzzle: PlayerPuzzle | EditorPuzzle;
 	export let cell: CellType;
 	export let userMode: UserMode;
 	export let isHighlighted: boolean;
-	export let gridDirection: Direction;
+	let gridDirection: Direction;
 	export let onInput: (id: ID) => void;
 	export let updateCellSymmetry: (cell: CellType) => void;
 	export let goToNextCell: (cell: CellType, direction: Direction) => void;
@@ -31,7 +21,7 @@
 
 	// Game Store
 	const unsubscribeGameStore = GameStore.subscribe((data) => {
-		//
+		gridDirection = data.gridDirection;
 	});
 
 	onDestroy(() => {
@@ -75,6 +65,7 @@
 
 	export function handleKeyDown(event: KeyboardEvent) {
 		const code = event.code.toUpperCase();
+
 		switch (code) {
 			case KeyCodes.SPACEBAR_KEY:
 				// prevent default so spacebar doesn't insert a blank space
@@ -97,15 +88,28 @@
 				onInput(cell.id);
 				break;
 			case KeyCodes.LEFT_ARROW_KEY:
+				if (gridDirection === Direction.GO_DOWN || gridDirection === Direction.GO_UP) {
+					toggleGridDirection(cell);
+				}
 				goToNextCell(cell, Direction.GO_LEFT);
 				break;
 			case KeyCodes.RIGHT_ARROW_KEY:
+				if (gridDirection === Direction.GO_DOWN || gridDirection === Direction.GO_UP) {
+					toggleGridDirection(cell);
+				}
 				goToNextCell(cell, Direction.GO_RIGHT);
 				break;
+
 			case KeyCodes.UP_ARROW_KEY:
+				if (gridDirection === Direction.GO_LEFT || gridDirection === Direction.GO_RIGHT) {
+					toggleGridDirection(cell);
+				}
 				goToNextCell(cell, Direction.GO_UP);
 				break;
 			case KeyCodes.DOWN_ARROW_KEY:
+				if (gridDirection === Direction.GO_LEFT || gridDirection === Direction.GO_RIGHT) {
+					toggleGridDirection(cell);
+				}
 				goToNextCell(cell, Direction.GO_DOWN);
 				break;
 			default:

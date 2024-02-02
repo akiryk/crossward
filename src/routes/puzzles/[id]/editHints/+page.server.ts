@@ -72,9 +72,10 @@ export const actions = {
 	publish: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const id = data.get('id');
+
 		if (!id || typeof id !== 'string') {
 			return fail(422, {
-				message: 'Missing puzzle id.'
+				message: 'Missing puzzle id, so unable to publish.'
 			});
 		}
 
@@ -99,11 +100,17 @@ export const actions = {
 			}
 		} catch {
 			return fail(500, {
-				message: 'Server error getting the puzzle'
+				message: 'Unable to publish: the source puzzle may have been deleted.'
 			});
 		}
 
 		const { acrossHints, downHints, cellMap } = result;
+
+		if (!acrossHints || !downHints) {
+			return fail(400, {
+				message: 'Problem getting hints data across the wire'
+			});
+		}
 
 		// 2. Validate that all hints have been filled in
 		try {

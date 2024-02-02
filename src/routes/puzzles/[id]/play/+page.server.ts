@@ -1,7 +1,7 @@
 // PLAY SERVER
-import { ServerErrorType, type EditorPuzzle } from '$utils/types';
+import { type EditorPuzzle } from '$utils/types';
 import { ObjectId } from 'mongodb';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail, redirect, type ActionFailure } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
@@ -13,7 +13,11 @@ import {
 	getErrorMessage,
 	createCellRows
 } from '$utils/serverHelpers';
-import type { RequestEvent } from '../$types';
+import type { RequestEvent } from './$types';
+
+export type LoadData = {
+	puzzle: PlayerPuzzle;
+};
 
 function getUserId(email: string): string {
 	const regex = /@|\./gi; // select all instances of either '@' or '.'
@@ -24,7 +28,10 @@ function createUserGameId({ email, puzzleId }: { email: string; puzzleId: string
 	return `${getUserId(email)}_${puzzleId}`;
 }
 
-export const load: PageServerLoad = async ({ params, locals }): Promise<any> => {
+export const load: PageServerLoad = async ({
+	params,
+	locals
+}): Promise<LoadData | ActionFailure<{ message: string }>> => {
 	let session;
 	/**
 	 * Redirect unauthorized users to login page!
@@ -44,7 +51,7 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 	// User johndoe@example.com playing puzzle ABCD2343 would have userGameId
 	// of johndoe_example_com_ABCD2342
 	const userGameId = createUserGameId({ email, puzzleId });
-	let playerPuzzle: PlayerPuzzle;
+	let playerPuzzle: Omit<PlayerPuzzle, 'cellRows'>;
 	// Check if the user already has this puzzle underway, in which case
 	// it will be found in the userPuzzlesCollection by userGameId
 	try {
@@ -105,18 +112,8 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 					throw new Error('oh no! unable to save the new puzzle');
 				}
 				const insertedId = result.insertedId;
-
-				// Create cellRows every time the page loads; otherwise, the cells
-				// in cellRows and in cellMap will get out of sync
-				const cellRows: CellRows = createCellRows({
-					cellMap: puzzleFromSource.cellMap,
-					acrossSpan: puzzleFromSource.acrossSpan,
-					downSpan: puzzleFromSource.downSpan
-				});
-
 				playerPuzzle = {
 					...puzzleFromSource,
-					cellRows,
 					_id: insertedId.toString()
 				};
 				createCellRows;
@@ -128,8 +125,6 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 		} else {
 			playerPuzzle = {
 				...(existingPlayerPuzzle as unknown as PlayerPuzzle),
-				acrossHints: removeAnswers(existingPlayerPuzzle.acrossHints),
-				downHints: removeAnswers(existingPlayerPuzzle.downHints),
 				_id: existingPlayerPuzzle._id.toString()
 			};
 		}
@@ -142,21 +137,33 @@ export const load: PageServerLoad = async ({ params, locals }): Promise<any> => 
 			message
 		});
 	}
+	// Create cellRows every time the page loads; otherwise, the cells
+	// in cellRows and in cellMap will get out of sync
+	const cellRows: CellRows = createCellRows({
+		cellMap: playerPuzzle.cellMap,
+		acrossSpan: playerPuzzle.acrossSpan,
+		downSpan: playerPuzzle.downSpan
+	});
+	const puzzle = {
+		...playerPuzzle,
+		acrossHints: removeAnswers(playerPuzzle.acrossHints),
+		downHints: removeAnswers(playerPuzzle.downHints),
+		cellRows
+	};
 
 	return {
-		puzzle: playerPuzzle
+		puzzle
 	};
 };
 
 export const actions = {
-	updateCellMap: async ({ request }: RequestEvent) => {
+	updateGame: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const newCellMapChunk = data.get('chunk');
 		const id = data.get('id');
 
 		if (!id || typeof id !== 'string' || !newCellMapChunk || typeof newCellMapChunk !== 'string') {
 			return fail(422, {
-				errorType: ServerErrorType.MISSING_FORM_DATA,
 				message: 'Sorry but there was a problem.'
 			});
 		}
@@ -178,12 +185,11 @@ export const actions = {
 		try {
 			await userPuzzlesCollection.updateOne(filter, updateDocument);
 			return {
-				status: 200
+				status: 200,
+				message: 'Success!'
 			};
 		} catch {
-			return fail(500, {
-				errorType: ServerErrorType.DB_ERROR
-			});
+			return fail(500, { message: 'Error' });
 		}
 	}
 };

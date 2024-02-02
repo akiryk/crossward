@@ -61,7 +61,6 @@ export const editpageServerLoad: PageServerLoad = async ({
 		if (puzzleFromSource.authorEmail !== session.user?.email) {
 			throw new Error('No access');
 		}
-
 		// Create cellRows every time the page loads; otherwise, the cells
 		// in cellRows and in cellMap will get out of sync
 		const cellRows: CellRows = createCellRows({
@@ -344,6 +343,9 @@ export const validateHintsForPublishingPuzzle = (
 	acrossHints: Array<Hint>,
 	downHints: Array<Hint>
 ): boolean => {
+	if (typeof acrossHints === 'undefined' || typeof downHints === 'undefined') {
+		return false;
+	}
 	let isValid = true;
 	const allHints = [...acrossHints, ...downHints];
 	let i = allHints.length;
@@ -383,9 +385,11 @@ export const handleDeletePuzzle = async (request: Request) => {
 };
 
 export const handleUpdateTitle = async (request: Request) => {
+	let id: FormDataEntryValue | null;
+	let title: FormDataEntryValue | null;
 	try {
 		const data = await request.formData();
-		const id = data.get('id');
+		id = data.get('id');
 		if (!id || typeof id !== 'string') {
 			return fail(400, {
 				error: true,
@@ -395,10 +399,13 @@ export const handleUpdateTitle = async (request: Request) => {
 		}
 		const unsafeTitle = data.get('title');
 		if (!unsafeTitle) {
-			return fail(400, { error: true, action: UPDATE_TITLE, message: 'Please add a title' });
+			throw new Error();
 		}
-		const title = handleSanitizeInput(unsafeTitle?.toString());
-
+		title = handleSanitizeInput(unsafeTitle?.toString());
+	} catch {
+		return fail(400, { error: true, action: UPDATE_TITLE, message: 'Please add a title' });
+	}
+	try {
 		const filter = {
 			_id: new ObjectId(id)
 		};
@@ -416,10 +423,10 @@ export const handleUpdateTitle = async (request: Request) => {
 			success: true
 		};
 	} catch (error) {
-		return fail(422, {
+		return fail(500, {
 			error: true,
 			action: UPDATE_TITLE,
-			message: 'You need to add a title!'
+			message: 'Unable to save the new title'
 		});
 	}
 };

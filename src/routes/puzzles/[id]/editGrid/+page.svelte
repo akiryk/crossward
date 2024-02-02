@@ -19,8 +19,6 @@
 	export let isCreateSuccess: boolean;
 
 	export let form: ActionData;
-	export let title: string;
-	export let id: string;
 
 	let isSaveForShowHints = false;
 	let errorMessage: string = '';
