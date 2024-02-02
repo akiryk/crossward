@@ -18,7 +18,7 @@
 	export let data: LoadData;
 	export let isCreateSuccess: boolean;
 
-	let form: ActionData;
+	export let form: ActionData;
 	export let title: string;
 	export let id: string;
 
@@ -200,7 +200,7 @@
 
 		<hr class="my-10" />
 
-		<EditPuzzleTitle title={puzzle.title} id={puzzle._id} />
+		<EditPuzzleTitle {form} title={puzzle.title} id={puzzle._id} />
 	{:else}
 		<p>Something went wrong and we can't load the puzzle.</p>
 	{/if}

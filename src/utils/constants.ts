@@ -17,12 +17,6 @@ export const EDIT_PUZZLE = 'editPuzzle';
 export const EDITING_HINTS = 'editHints';
 export const GAME_OVER = 'gameOver';
 
-// export const GO_DOWN = 'GO_DOWN';
-// export const GO_UP = 'GO_UP';
-// export const GO_RIGHT = 'GO_RIGHT';
-// export const GO_LEFT = 'GO_LEFT';
-// export const GO_FORWARD = 'GO_FORWARD';
-
 // Cell Modes
 export const EDIT_MODE = 'EDIT_MODE';
 export const PLAY_MODE = 'PLAY_MODE';
@@ -34,3 +28,7 @@ export const DEBOUNCE_DEFAULT_DELAY = 300;
 export const INCOMPLETE = 'INCOMPLETE';
 export const COMPLETE_AND_NO_ERRORS = 'COMPLETE_AND_NO_ERRORS';
 export const COMPLETE_BUT_WITH_ERRORS = 'COMPLETE_BUT_WITH_ERRORS';
+
+// Error and Success types for form submission
+export const UPDATE_TITLE = 'updateTitle';
+export const DELETE_PUZZLE = 'deletePuzzle';

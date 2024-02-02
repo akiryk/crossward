@@ -22,6 +22,7 @@ import mongodb, { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from '../routes/puzzles/[id]/$types';
+import { UPDATE_TITLE } from './constants';
 
 type Props = {
 	puzzle: EditorPuzzle;
@@ -371,12 +372,7 @@ export const handleDeletePuzzle = async (request: Request) => {
 			throw new Error('Missing ID for delete puzzle.');
 		}
 	} catch (error) {
-		const message = getErrorMessage(error);
-		return fail(500, {
-			error: true,
-			action: 'deletePuzzle',
-			message
-		});
+		throw new Error(getErrorMessage(error));
 	}
 	return;
 };
@@ -388,13 +384,13 @@ export const handleUpdateTitle = async (request: Request) => {
 		if (!id || typeof id !== 'string') {
 			return fail(400, {
 				error: true,
-				action: 'updateTitle',
+				action: UPDATE_TITLE,
 				message: 'Missing ID field. Lodge a complaint with the developers.'
 			});
 		}
 		const unsafeTitle = data.get('title');
 		if (!unsafeTitle) {
-			return fail(400, { error: true, action: 'updateTitle', message: 'Please add a title' });
+			return fail(400, { error: true, action: UPDATE_TITLE, message: 'Please add a title' });
 		}
 		const title = handleSanitizeInput(unsafeTitle?.toString());
 
@@ -411,13 +407,13 @@ export const handleUpdateTitle = async (request: Request) => {
 		await puzzlesCollection.updateOne(filter, updateDocument);
 		return {
 			message: `Saved new title: ${title}`,
-			action: 'updateTitle',
+			action: UPDATE_TITLE,
 			success: true
 		};
 	} catch (error) {
 		return fail(422, {
 			error: true,
-			action: 'updateTitle',
+			action: UPDATE_TITLE,
 			message: 'You need to add a title!'
 		});
 	}
