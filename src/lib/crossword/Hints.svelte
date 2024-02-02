@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { UserMode, type EditorPuzzle, type PlayerPuzzle } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
-
+	import HintInput from './HintInput.svelte';
 	export let puzzle: EditorPuzzle | PlayerPuzzle;
 	export let userMode: UserMode;
 	export let onAcrossHintInput: () => void = () => {};
@@ -25,69 +25,29 @@
 </script>
 
 {#if puzzle.acrossHints || puzzle.downHints}
-	<div class="flex justify-between">
-		<div>
+	<div class="flex">
+		<div class="mr-2 w-full">
 			<h2 class="font-bold text-left">Across Hints</h2>
 			{#each puzzle.acrossHints as hint}
-				<div class="flex items-center my-2">
-					<label
-						for={`acrossHintFor${hint?.displayNumber}`}
-						class="block text-sm font-medium text-gray-900 dark:text-black mr-5 w-2"
-					>
-						{hint?.displayNumber}
-					</label>
-					{#if userMode === UserMode.EDITING_HINTS}
-						<input
-							type="text"
-							placeholder={hint?.answer}
-							value={hint?.hint}
-							size={50}
-							name="hint"
-							on:input={(event) => handleAcrossInput(event, hint?.displayNumber)}
-							id={`acrossHintFor${hint?.displayNumber}`}
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:border-blue-500 block w-full p-2.5"
-						/>
-						<div
-							class="bg-gray-500 border border-gray-500 text-gray-200 text-sm block w-full p-2.5"
-						>
-							{hint.answer}
-						</div>
-					{:else}
-						<p>{hint.hint}</p>
-					{/if}
-				</div>
+				<HintInput
+					hint={hint.hint}
+					answer={hint.answer}
+					displayNumber={hint.displayNumber}
+					onInput={handleAcrossInput}
+					isEditing={userMode === UserMode.EDITING_HINTS}
+				/>
 			{/each}
 		</div>
-		<div>
+		<div class="ml-2 w-full">
 			<h2 class="font-bold text-left">Down Hints</h2>
 			{#each puzzle.downHints as hint}
-				<div class="flex items-center my-2">
-					<label
-						for={`downHintFor${hint?.displayNumber}`}
-						class="block text-sm font-medium text-gray-900 dark:text-black mr-5 w-2"
-					>
-						{hint?.displayNumber}
-					</label>
-					{#if userMode === UserMode.EDITING_HINTS}
-						<input
-							type="text"
-							placeholder={`${hint?.answer}`}
-							size={50}
-							value={hint?.hint}
-							name="hint"
-							on:input={(event) => handleDownInput(event, hint?.displayNumber)}
-							id={`downHintFor${hint?.displayNumber}`}
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-						/>
-						<div
-							class="bg-gray-500 border border-gray-500 text-gray-200 text-sm block w-full p-2.5"
-						>
-							{hint.answer}
-						</div>
-					{:else}
-						<p>{hint.hint}</p>
-					{/if}
-				</div>
+				<HintInput
+					hint={hint.hint}
+					answer={hint.answer}
+					displayNumber={hint.displayNumber}
+					onInput={handleDownInput}
+					isEditing={userMode === UserMode.EDITING_HINTS}
+				/>
 			{/each}
 		</div>
 	</div>

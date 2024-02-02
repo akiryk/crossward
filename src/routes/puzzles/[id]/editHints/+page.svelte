@@ -147,7 +147,7 @@
 
 		<!-- SUCCESS MESSAGES -->
 		{#if successMessage}
-			<Banner message={successMessage} bannerType={BannerType.IS_SUCCESS} />
+			<p>{successMessage}</p>
 		{/if}
 
 		{#if showLinkToPlayPage}
