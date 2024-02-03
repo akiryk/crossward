@@ -77,12 +77,12 @@ export const actions = {
 			// Specify the update to set a value for the plot field
 			const document: Omit<EditorPuzzle, '_id' | 'cellRows'> = {
 				acrossHints: [],
-				acrossSpan: 4,
+				acrossSpan,
 				authorEmail: email,
 				cellMap,
 				dateCreated,
 				downHints: [],
-				downSpan: 4,
+				downSpan,
 				publishStatus: EDIT_PUZZLE,
 				puzzleType: sizeName as PuzzleType,
 				title
