@@ -22,6 +22,8 @@
 	let successMessage: string = '';
 	let showLinkToPlayPage = false;
 
+	let timerId: ReturnType<typeof setTimeout>;
+
 	$: ({ puzzle } = data);
 
 	onMount(() => {
@@ -56,7 +58,11 @@
 					errorMessage = result.data?.message;
 				}
 				if (result.type === 'success' && result?.data?.message) {
+					clearTimeout(timerId);
 					successMessage = result.data.message;
+					timerId = setTimeout(() => {
+						successMessage = '';
+					}, 3000);
 				}
 			} catch (error) {
 				console.error('Error saving chunk:', error);
@@ -115,60 +121,63 @@
 	};
 </script>
 
-<PuzzleHeading
-	puzzleType={puzzle.puzzleType}
-	userMode={UserMode.EDITING_HINTS}
-	title={puzzle.title}
-/>
-{#if puzzle || puzzle}
-	<div class="mb-5">
-		<Crossword puzzle={puzzle || puzzle} userMode={UserMode.EDITING_HINTS} />
-	</div>
-	<form
-		method="POST"
-		action={'?/publish'}
-		autocomplete="off"
-		on:submit|preventDefault={handleSaveHints}
-	>
-		<input type="hidden" name="id" value={puzzle?._id} />
-		<input type="hidden" name="acrossHints" value={JSON.stringify(puzzle?.acrossHints)} />
-		<input type="hidden" name="downHints" value={JSON.stringify(puzzle?.downHints)} />
-		<Hints
-			puzzle={puzzle || puzzle}
-			onAcrossHintInput={handleAcrossHintInput}
-			onDownHintInput={handleDownHintInput}
-			userMode={UserMode.EDITING_HINTS}
-		/>
-
-		<!-- ERROR MESSAGES -->
-		{#if errorMessage}
-			<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} />
-		{/if}
-
-		<!-- SUCCESS MESSAGES -->
-		{#if successMessage}
-			<p>{successMessage}</p>
-		{/if}
-
-		{#if showLinkToPlayPage}
-			<a href="/puzzles/{puzzle._id}/play" class="text-sky-400">Play {puzzle.title} now?</a>
-		{/if}
-
-		<div class="mb-5 flex">
-			<button
-				class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
-				>Update save</button
-			>
-			<button
-				type="button"
-				on:click={handlePublish}
-				class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
-				>Publish The Puzzle!</button
-			>
+<div class="p-4">
+	<PuzzleHeading
+		puzzleType={puzzle.puzzleType}
+		userMode={UserMode.EDITING_HINTS}
+		title={puzzle.title}
+	/>
+	{#if puzzle || puzzle}
+		<div class="mb-5">
+			<Crossword puzzle={puzzle || puzzle} userMode={UserMode.EDITING_HINTS} />
 		</div>
-	</form>
-{/if}
+		<form
+			method="POST"
+			action={'?/publish'}
+			autocomplete="off"
+			on:submit|preventDefault={handleSaveHints}
+		>
+			<input type="hidden" name="id" value={puzzle?._id} />
+			<input type="hidden" name="acrossHints" value={JSON.stringify(puzzle?.acrossHints)} />
+			<input type="hidden" name="downHints" value={JSON.stringify(puzzle?.downHints)} />
+			<Hints
+				puzzle={puzzle || puzzle}
+				onAcrossHintInput={handleAcrossHintInput}
+				onDownHintInput={handleDownHintInput}
+				userMode={UserMode.EDITING_HINTS}
+			/>
 
-<hr class="my-10" />
+			<!-- ERROR MESSAGES -->
+			{#if errorMessage}
+				<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} />
+			{/if}
 
-<EditPuzzleTitle {form} title={puzzle.title} id={puzzle._id} />
+			{#if showLinkToPlayPage}
+				<a href="/puzzles/{puzzle._id}/play" class="text-sky-400">Play {puzzle.title} now?</a>
+			{/if}
+
+			<div class="my-6 flex items-center">
+				<!-- 	<button
+					class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+					>Update save</button
+				>-->
+				<div class="mr-4">
+					<button
+						type="button"
+						on:click={handlePublish}
+						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+						>Publish!</button
+					>
+				</div>
+				{#if successMessage}
+					<p class="text-gray-400 text-sm">{successMessage}</p>
+				{/if}
+			</div>
+		</form>
+	{/if}
+</div>
+<div class="bg-gray-100 bottom-0">
+	<div class="p-4">
+		<EditPuzzleTitle {form} title={puzzle.title} id={puzzle._id} />
+	</div>
+</div>
