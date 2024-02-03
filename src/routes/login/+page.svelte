@@ -10,7 +10,7 @@
 		'text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 ';
 </script>
 
-<div>
+<div class="p-4">
 	<h1>Login page</h1>
 	{#if session?.user}
 		<p>Actually, you're already logged in. Were you hoping to log out?</p>
