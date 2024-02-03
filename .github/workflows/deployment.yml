@@ -9,8 +9,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
-      - run: npm ci && npx playwright install --with-deps
-      - run: echo "Github url ${{ github.event.deployment_status.environment_url }} "
+        run: npm ci && npx playwright install --with-deps
+        run: echo "Github url ${{ github.event.deployment_status.environment_url }} "
       - name: Run tests
         run: npx playwright test
         env:
