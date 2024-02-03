@@ -1,6 +1,6 @@
 <script>
-	// import { signIn, signOut } from '@auth/sveltekit/client';
-	// import { page } from '$app/stores';
+	import { signIn, signOut } from '@auth/sveltekit/client';
+	import { page } from '$app/stores';
 	import '../app.css';
 
 	export let classes =
@@ -64,7 +64,7 @@
 						>
 					</li>
 					<li>
-						<!-- {#if $page.data.session?.user}
+						{#if $page.data.session?.user}
 							<button
 								type="button"
 								on:click={() => signOut()}
@@ -75,7 +75,7 @@
 							<button type="button" on:click={() => signIn('google')} class={classes}
 								>Sign In</button
 							>
-						{/if} -->
+						{/if}
 					</li>
 				</ul>
 			</div>
