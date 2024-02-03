@@ -12,7 +12,6 @@ import type {
 	PlayerPuzzle,
 	CellsArray,
 	Hint,
-	SanitizeInputParams,
 	CellMapArray
 } from '$utils/types';
 import { getId } from './helpers';
@@ -217,7 +216,6 @@ export function transformPuzzleDataForCreatingHints({
 	initialCellMap
 }: {
 	initialCellMap: CellMap;
-	clearValues?: boolean;
 }): { cellMap: CellMap; acrossHints: Array<Hint>; downHints: Array<Hint> } {
 	const cellMap = structuredClone(initialCellMap);
 	let cellDisplayNumber = 1;

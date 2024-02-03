@@ -2,10 +2,10 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';
-import type { Puzzles, PublishStatus, EditorPuzzle, PuzzleType } from '$utils/types';
+import type { Puzzles, EditorPuzzle, PuzzleType } from '$utils/types';
 import { GRID_SIZES, EDIT_PUZZLE } from '$utils/constants';
-import { createInitialCellMap, handleSanitizeInput, createCellRows } from '$utils/serverHelpers';
-import type { RequestEvent } from '../$types';
+import { createInitialCellMap, handleSanitizeInput } from '$utils/serverHelpers';
+import type { RequestEvent } from './$types';
 
 export const load: PageServerLoad = async ({ locals }): Promise<any> => {
 	let session;
@@ -77,12 +77,12 @@ export const actions = {
 			// Specify the update to set a value for the plot field
 			const document: Omit<EditorPuzzle, '_id' | 'cellRows'> = {
 				acrossHints: [],
-				acrossSpan,
+				acrossSpan: 4,
 				authorEmail: email,
 				cellMap,
 				dateCreated,
 				downHints: [],
-				downSpan,
+				downSpan: 4,
 				publishStatus: EDIT_PUZZLE,
 				puzzleType: sizeName as PuzzleType,
 				title
