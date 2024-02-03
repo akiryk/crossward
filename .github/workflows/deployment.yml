@@ -1,6 +1,10 @@
 name: Playwright Tests
 env:
   AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+  GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
+  GOOGLE_ID: ${{ secrets.GOOGLE_ID }}
+  MONGO_DB_PASSWORD: ${{ secrets.MONGO_DB_PASSWORD }}
+  MONGODB_URI: ${{ secrets.MONGODB_URI }}
 on:
   push:
     branches:
