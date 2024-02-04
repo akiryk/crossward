@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import CellContainer from './CellContainer.svelte';
 	import type {
 		EditorPuzzle,
@@ -27,8 +28,18 @@
 	export let onInput: (id: ID) => void = (id: ID) => {};
 	export let puzzle: PlayerPuzzle | EditorPuzzle;
 	export let userMode: UserMode;
-	export let isPreview: boolean = false;
 	let gridDirection = Direction.GO_RIGHT;
+	let highlightedCellIds: Array<ID> = [];
+
+	// Game Store
+	const unsubscribeGameStore = GameStore.subscribe((data) => {
+		gridDirection = data.gridDirection;
+		highlightedCellIds = data.highlightedCellIds;
+	});
+
+	onDestroy(() => {
+		unsubscribeGameStore();
+	});
 
 	function getHighlightedCellIds(cell: Cell): Array<ID> {
 		let highlightedCellIds: Array<ID> = [];
@@ -74,15 +85,14 @@
 
 	function updateCellWithFocus(coords: Coords) {
 		const id = getIdFromCoords(coords);
-		// const { x, y } = coords;
-		// puzzle.cellMap[id].hasFocus = true;
-		// puzzle.cellRows[y][x].hasFocus = true;
-
+		const { x, y } = coords;
+		puzzle.cellMap[id].hasFocus = true;
+		puzzle.cellRows[y][x].hasFocus = true;
 		const highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[id]);
+
 		GameStore.update((current) => {
 			return {
 				...current,
-				cellWithFocusId: id,
 				highlightedCellIds
 			};
 		});
@@ -118,8 +128,8 @@
 		}
 		// remove focus from current cell
 		const id = cell.id;
-		// puzzle.cellMap[id].hasFocus = false;
-		// puzzle.cellRows[cell.y][cell.x].hasFocus = false;
+		puzzle.cellMap[id].hasFocus = false;
+		puzzle.cellRows[cell.y][cell.x].hasFocus = false;
 		const nextCellCoords = nextCellFunction({
 			coords: { x: cell.x, y: cell.y },
 			acrossSpan: puzzle.acrossSpan,
@@ -171,8 +181,8 @@
 						{toggleGridDirection}
 						{goToNextCell}
 						{updateCellWithFocus}
+						isHighlighted={highlightedCellIds.includes(cell.id)}
 						{onInput}
-						{isPreview}
 					/>
 				{/each}
 			</tr>

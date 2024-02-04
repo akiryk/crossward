@@ -200,7 +200,6 @@ export function transformCellMapArrayForDb({
 }): CellMapArray {
 	const newCellMapArray: CellMapArray = cellMapArray.map(([key, cell]) => {
 		const newCell = transformCellForDb({ cell, clearValues: false });
-
 		return [key, newCell];
 	});
 	return newCellMapArray;
