@@ -29,6 +29,7 @@
 		isHighlighted = data.highlightedCellIds.includes(cell.id);
 		hasFocus = data.cellWithFocusId === cell.id;
 		if (isPreview && data.twoLetterWordIds.includes(cell.id)) {
+			console.log('yes!', cell.id);
 			shouldSignalWarning = true;
 		} else {
 			shouldSignalWarning = false;
@@ -53,10 +54,7 @@
 		if (userMode === UserMode.EDITING_CELLS) {
 			cell.correctValue = cleanValue;
 			updateCellSymmetry(cell);
-		}
-		goToNextCell(cell, Direction.GO_FORWARD);
 
-		if (userMode === UserMode.EDITING_CELLS) {
 			GameStore.update((current) => {
 				if (!current.activeCellIds.includes(cell.id)) {
 					current.activeCellIds.push(cell.id);
@@ -64,6 +62,8 @@
 				return current;
 			});
 		}
+		goToNextCell(cell, Direction.GO_FORWARD);
+
 		onInput(cell.id);
 	}
 

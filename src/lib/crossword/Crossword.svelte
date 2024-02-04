@@ -86,13 +86,9 @@
 
 	function updateCellWithFocus(coords: Coords) {
 		const id = getIdFromCoords(coords);
-		// const { x, y } = coords;
-		// puzzle.cellMap[id].hasFocus = true;
-		// puzzle.cellRows[y][x].hasFocus = true;
 		const highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[id]);
 
 		GameStore.update((current) => {
-			console.log(current);
 			return {
 				...current,
 				cellWithFocusId: id,

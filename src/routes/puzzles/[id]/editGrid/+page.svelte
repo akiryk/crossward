@@ -1,5 +1,6 @@
 <script lang="ts">
 	// [id]/editGrid/page.svelte
+	import { get } from 'svelte/store';
 	import { type ActionResult } from '@sveltejs/kit';
 	import { deserialize } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
@@ -44,7 +45,6 @@
 					activeCellIds.push(cell.id);
 				}
 			});
-			console.log(activeCellIds);
 
 			GameStore.update((current) => {
 				return {
