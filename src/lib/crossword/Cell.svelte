@@ -49,7 +49,7 @@
 				style = 'bg-blue-100 outline-blue-400';
 				break;
 			case isHighlighted:
-				style = isSymmetrical ? 'bg-cyan-100' : 'bg-cyan-200';
+				style = isSymmetrical ? 'bg-cyan-100' : 'bg-gray-200';
 				break;
 		}
 
