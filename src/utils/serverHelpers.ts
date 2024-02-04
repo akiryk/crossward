@@ -9,7 +9,6 @@ import type {
 	CellRows,
 	ID,
 	EditorPuzzle,
-	PlayerPuzzle,
 	CellsArray,
 	Hint,
 	CellMapArray

@@ -4,7 +4,8 @@ import type { GameShape } from '$utils/types';
 
 const initialStore: GameShape = {
 	gridDirection: Direction.GO_RIGHT,
-	highlightedCellIds: []
+	highlightedCellIds: [],
+	twoLetterWordIds: []
 };
 
 const gameStore = writable<GameShape>(initialStore);

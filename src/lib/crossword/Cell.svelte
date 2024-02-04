@@ -8,12 +8,14 @@
 	export let userMode: UserMode;
 	export let isHighlighted: boolean;
 	export let isSymmetrical: boolean = false;
+	export let isWarning: boolean = false;
+	export let isError: boolean = false;
+	export let isBlack: boolean = false;
 	export let onInput: (event: Event) => void;
 	export let onKeydown: (event: KeyboardEvent) => void;
 	export let onFocus: (event: Event) => void;
 	export let onBlur: (event: Event) => void;
 	export let onClick: (event: MouseEvent) => void;
-	export let isFalseValue = false;
 	export let isGameOver = false;
 
 	let inputElement: HTMLInputElement;
@@ -24,32 +26,56 @@
 
 	export const CLASSES = `${SHARED_INPUT_STYLES} ${SHARED_CELL_FONT_STYLES} ${SHARED_CELL_STYLES} ${SHARED_PSEUDO_STYLES}`;
 
-	$: classes = getStyles(value, isSymmetrical, isHighlighted, isFalseValue, isGameOver);
+	$: classes = getStyles({
+		value,
+		isSymmetrical,
+		isHighlighted,
+		isGameOver,
+		isWarning,
+		isError,
+		isBlack
+	});
 
 	$: if (hasFocus) {
 		inputElement.focus();
 	}
 
-	function getStyles(
-		value: string,
-		isSymmetrical: boolean,
-		isHighlighted: boolean,
-		isFalseValue: boolean,
-		isGameOver: boolean
-	) {
+	function getStyles({
+		value,
+		isSymmetrical,
+		isHighlighted,
+		isGameOver,
+		isWarning,
+		isError,
+		isBlack
+	}: {
+		value: string;
+		isSymmetrical: boolean;
+		isHighlighted: boolean;
+		isGameOver: boolean;
+		isWarning: boolean;
+		isError: boolean;
+		isBlack: boolean;
+	}) {
 		let style = 'bg-gray-300';
 		if (userMode === UserMode.PLAY || value || isSymmetrical) {
 			style = 'bg-white';
 		}
 		switch (true) {
-			case isFalseValue:
-				style = 'bg-red-300';
+			case isError:
+				style = 'bg-red-500';
+				break;
+			case isWarning:
+				style = 'bg-red-200';
 				break;
 			case isGameOver:
 				style = 'bg-blue-100 outline-blue-400';
 				break;
 			case isHighlighted:
 				style = isSymmetrical ? 'bg-cyan-100' : 'bg-gray-200';
+				break;
+			case isBlack:
+				style = 'bg-black';
 				break;
 		}
 

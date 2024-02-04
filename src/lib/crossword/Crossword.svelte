@@ -28,18 +28,9 @@
 	export let onInput: (id: ID) => void = (id: ID) => {};
 	export let puzzle: PlayerPuzzle | EditorPuzzle;
 	export let userMode: UserMode;
+	export let isPreview: boolean = false;
 	let gridDirection = Direction.GO_RIGHT;
 	let highlightedCellIds: Array<ID> = [];
-
-	// Game Store
-	const unsubscribeGameStore = GameStore.subscribe((data) => {
-		gridDirection = data.gridDirection;
-		highlightedCellIds = data.highlightedCellIds;
-	});
-
-	onDestroy(() => {
-		unsubscribeGameStore();
-	});
 
 	function getHighlightedCellIds(cell: Cell): Array<ID> {
 		let highlightedCellIds: Array<ID> = [];
@@ -183,6 +174,7 @@
 						{updateCellWithFocus}
 						isHighlighted={highlightedCellIds.includes(cell.id)}
 						{onInput}
+						{isPreview}
 					/>
 				{/each}
 			</tr>

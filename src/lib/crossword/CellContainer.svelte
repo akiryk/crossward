@@ -12,16 +12,24 @@
 	export let cell: CellType;
 	export let userMode: UserMode;
 	export let isHighlighted: boolean;
-	let gridDirection: Direction;
+	export let isPreview: boolean;
+	let shouldSignalWarning: boolean = false;
 	export let onInput: (id: ID) => void;
 	export let updateCellSymmetry: (cell: CellType) => void;
 	export let goToNextCell: (cell: CellType, direction: Direction) => void;
 	export let toggleGridDirection: (cell: CellType) => void;
 	export let updateCellWithFocus: (coords: Coords) => void;
 
+	let gridDirection: Direction;
+
 	// Game Store
 	const unsubscribeGameStore = GameStore.subscribe((data) => {
 		gridDirection = data.gridDirection;
+		if (isPreview && data.twoLetterWordIds.includes(cell.id)) {
+			shouldSignalWarning = true;
+		} else {
+			shouldSignalWarning = false;
+		}
 	});
 
 	onDestroy(() => {
@@ -119,7 +127,9 @@
 
 	$: cellValue = cell.value;
 	$: cellCorrectValue = cell.correctValue;
-	// $: shouldHighlightFalse = data?.incorrectCells?.includes(cell.id);
+	$: isError = isPreview && cell.isSymmetrical && !cell.correctValue;
+	$: isWarning = isPreview && shouldSignalWarning;
+	$: isBlack = isPreview && !cell.value && !isError && !isWarning;
 </script>
 
 {#if userMode === UserMode.PLAY && cell.correctValue}
@@ -148,12 +158,16 @@
 		onClick={handleClick}
 		{isHighlighted}
 		{userMode}
+		{isWarning}
+		{isError}
+		{isBlack}
 	/>
 {:else if userMode === UserMode.PREVIEW}
 	<PreviewCell
 		displayNumber={cell.displayNumber}
 		value={cellCorrectValue}
 		missingValueForSymmetricalCell={cell.isSymmetrical && !cell.correctValue}
+		id={cell.id}
 	/>
 {:else if userMode === UserMode.GAME_OVER}
 	<PreviewCell
@@ -161,6 +175,7 @@
 		displayNumber={cell.displayNumber}
 		value={cellCorrectValue}
 		missingValueForSymmetricalCell={cell.isSymmetrical && !cell.correctValue}
+		id={cell.id}
 	/>
 {:else if userMode === UserMode.EDITING_HINTS}
 	<PreviewCell displayNumber={cell.displayNumber} value={cellCorrectValue} />

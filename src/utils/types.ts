@@ -133,4 +133,5 @@ export type Hint = {
 export type GameShape = {
 	gridDirection: Direction;
 	highlightedCellIds: Array<ID>;
+	twoLetterWordIds: Array<ID>;
 };

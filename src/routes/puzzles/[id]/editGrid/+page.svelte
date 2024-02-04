@@ -6,12 +6,20 @@
 	import { goto } from '$app/navigation';
 	import type { LoadData } from './+page.server.ts';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
+	import GameStore from '../../../../stores/GameStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import { UserMode, BannerType, type EditorPuzzle, type CellMapArray } from '$utils/types';
+	import {
+		UserMode,
+		BannerType,
+		type EditorPuzzle,
+		type CellMapArray,
+		type CellsArray,
+		type ID
+	} from '$utils/types';
 	import Banner from '$components/Banner.svelte';
-	import { promiseDebounce, chunkArray } from '$utils/helpers';
+	import { promiseDebounce, chunkArray, getId } from '$utils/helpers';
 	import type { ActionData } from './$types.js';
 
 	export let puzzle: EditorPuzzle;
@@ -45,12 +53,72 @@
 		unsubscribePuzzleStore();
 	});
 
-	const handleOnPreview = () => {
-		isPreview = true;
-	};
+	function setTwoLetterWords() {
+		const cellMap = puzzle.cellMap;
+		const twoLetterWordIds: Array<ID> = [];
+		// go through every letter
+		// if it has a value, go to the letter to its right
+		const cellsArray: CellsArray = Object.values(cellMap);
+		const newArray = [];
+		for (let j = 0; j < 10000000; j++) {
+			newArray.push({ x: 1000, y: 1000, id: getId({ x: 1000, y: 1000 }), correctValue: 'XXX' });
+		}
+		const xArray = [...cellsArray, newArray];
+		for (let i = 0; i < xArray.length; i++) {
+			const cell = xArray[i];
+			if (!cell.correctValue) continue;
 
-	const handleOffPreview = () => {
-		isPreview = false;
+			const { x, y, id: cellId } = cell;
+
+			// Find the across cells
+			const leftCellId: ID = getId({ x: x - 1, y });
+			const secondRightCell: ID = getId({ x: x + 1, y });
+			const thirdRightCell: ID = getId({ x: x + 2, y });
+
+			// This is a 2-letter word if:
+			// - the left-side cell is empty,
+			// - the across-side cell has content
+			// - the cell below that is empty
+			if (
+				!cellMap[leftCellId]?.correctValue &&
+				cellMap[secondRightCell]?.correctValue &&
+				!cellMap[thirdRightCell].correctValue
+			) {
+				twoLetterWordIds.push(cellId, secondRightCell);
+			}
+
+			// Find the down words
+			const aboveCellId: ID = getId({ x, y: y - 1 });
+			const secondDownCell: ID = getId({ x, y: y + 1 });
+			const thirdDownCell: ID = getId({ x, y: y + 2 });
+
+			// This is a 2-letter word if:
+			// - the above-side cell is empty,
+			// - the down-side cell has content
+			// - the cell below that is empty
+			if (
+				!cellMap[aboveCellId]?.correctValue &&
+				cellMap[secondDownCell]?.correctValue &&
+				!cellMap[thirdDownCell].correctValue
+			) {
+				twoLetterWordIds.push(cellId, secondDownCell);
+			}
+		}
+		GameStore.update((current) => {
+			return {
+				...current,
+				twoLetterWordIds
+			};
+		});
+	}
+
+	const handleTogglePreview = () => {
+		if (isPreview) {
+			isPreview = false;
+		} else {
+			setTimeout(setTwoLetterWords, 0);
+			isPreview = true;
+		}
 	};
 
 	async function saveData(data: FormData) {
@@ -129,6 +197,10 @@
 		formData.append('cellMap', JSON.stringify(puzzle.cellMap));
 		formData.append('id', puzzle._id);
 		promiseDebounceSave(formData);
+
+		if (isPreview) {
+			setTimeout(setTwoLetterWords, 0);
+		}
 	};
 
 	const handleFinishGrid = async () => {
@@ -158,7 +230,8 @@
 				<div class="mb-5">
 					<Crossword
 						{puzzle}
-						userMode={isPreview ? UserMode.PREVIEW : UserMode.EDITING_CELLS}
+						{isPreview}
+						userMode={UserMode.EDITING_CELLS}
 						onInput={handleSaveCellMap}
 					/>
 				</div>
@@ -185,9 +258,7 @@
 					>
 					<button
 						type="button"
-						on:mousedown={handleOnPreview}
-						on:mouseup={handleOffPreview}
-						on:mouseout={handleOffPreview}
+						on:click={handleTogglePreview}
 						on:blur={handleOffPreview}
 						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
 						>Preview</button
