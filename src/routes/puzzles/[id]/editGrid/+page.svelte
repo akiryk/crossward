@@ -188,20 +188,21 @@
 					<Banner message={successMessage} bannerType={BannerType.IS_SUCCESS} />
 				{/if}
 
-				<div class="mb-5 flex">
+				<div class="mb-5 flex items-center">
 					<button
-						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+						class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
 						>Update save</button
 					>
 					<button
 						type="button"
 						on:click={handleFinishGrid}
-						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+						class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
 						>Make Hints</button
 					>
+
 					<label for="togglePreview">
 						<input id="togglePreview" type="checkbox" on:change={handleTogglePreview} />
-						Toggle Preview Mode -
+						Toggle Preview Mode
 					</label>
 				</div>
 			</form>
