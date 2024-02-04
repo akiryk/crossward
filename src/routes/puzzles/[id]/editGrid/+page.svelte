@@ -6,6 +6,7 @@
 	import { goto } from '$app/navigation';
 	import type { LoadData } from './+page.server.ts';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
+	import GameStore from '../../../../stores/GameStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
@@ -30,6 +31,21 @@
 	onMount(() => {
 		if (puzzle) {
 			PuzzleStore.set(puzzle);
+			const activeCellIds: Array<ID> = [];
+			const cellMap = puzzle.cellMap;
+			Object.values(cellMap).forEach((cell) => {
+				if (cell.correctValue || cell.isSymmetrical) {
+					activeCellIds.push(cell.id);
+				}
+			});
+			console.log(activeCellIds);
+
+			GameStore.update((current) => {
+				return {
+					...current,
+					activeCellIds
+				};
+			});
 		}
 	});
 

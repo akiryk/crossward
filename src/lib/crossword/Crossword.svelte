@@ -106,6 +106,7 @@
 	 * updateCellSymmetry
 	 */
 	export function goToNextCell(cell: Cell, direction: Direction) {
+		console.log('NEXT');
 		let nextCellFunction: (props: GetNextCellProps) => Coords;
 		switch (direction) {
 			case Direction.GO_FORWARD:
