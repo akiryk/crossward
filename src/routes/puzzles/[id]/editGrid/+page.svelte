@@ -10,7 +10,13 @@
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import { UserMode, BannerType, type EditorPuzzle, type CellMapArray } from '$utils/types';
+	import {
+		UserMode,
+		BannerType,
+		type EditorPuzzle,
+		type CellMapArray,
+		type ID
+	} from '$utils/types';
 	import Banner from '$components/Banner.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 	import type { ActionData } from './$types.js';

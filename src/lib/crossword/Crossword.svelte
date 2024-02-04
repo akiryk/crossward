@@ -85,14 +85,16 @@
 
 	function updateCellWithFocus(coords: Coords) {
 		const id = getIdFromCoords(coords);
-		const { x, y } = coords;
-		puzzle.cellMap[id].hasFocus = true;
-		puzzle.cellRows[y][x].hasFocus = true;
+		// const { x, y } = coords;
+		// puzzle.cellMap[id].hasFocus = true;
+		// puzzle.cellRows[y][x].hasFocus = true;
 		const highlightedCellIds = getHighlightedCellIds(puzzle.cellMap[id]);
 
 		GameStore.update((current) => {
+			console.log(current);
 			return {
 				...current,
+				cellWithFocusId: id,
 				highlightedCellIds
 			};
 		});
@@ -128,8 +130,8 @@
 		}
 		// remove focus from current cell
 		const id = cell.id;
-		puzzle.cellMap[id].hasFocus = false;
-		puzzle.cellRows[cell.y][cell.x].hasFocus = false;
+		// puzzle.cellMap[id].hasFocus = false;
+		// puzzle.cellRows[cell.y][cell.x].hasFocus = false;
 		const nextCellCoords = nextCellFunction({
 			coords: { x: cell.x, y: cell.y },
 			acrossSpan: puzzle.acrossSpan,

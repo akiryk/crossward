@@ -71,7 +71,14 @@
 		updateCellWithFocus({ x: cell.x, y: cell.y });
 	}
 
-	export function handleOnBlur() {}
+	export function handleOnBlur() {
+		GameStore.update((current) => {
+			if (current.cellWithFocusId === cell.id) {
+				current.cellWithFocusId = null;
+			}
+			return current;
+		});
+	}
 
 	export function handleClick(event: MouseEvent) {
 		// if (cellIsInteractive) {
