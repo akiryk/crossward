@@ -28,6 +28,7 @@
 	export let onInput: (id: ID) => void = (id: ID) => {};
 	export let puzzle: PlayerPuzzle | EditorPuzzle;
 	export let userMode: UserMode;
+	export let isPreview: boolean = false;
 	let gridDirection = Direction.GO_RIGHT;
 	let highlightedCellIds: Array<ID> = [];
 
@@ -174,7 +175,7 @@
 >
 	{#if puzzle}
 		{#each puzzle.cellRows as row}
-			<tr class="flex justify-center flex-wrap" role="row">
+			<tr class="flex justify-center flex-wrap">
 				{#each row as cell}
 					<CellContainer
 						{userMode}
@@ -183,8 +184,8 @@
 						{toggleGridDirection}
 						{goToNextCell}
 						{updateCellWithFocus}
-						isHighlighted={highlightedCellIds.includes(cell.id)}
 						{onInput}
+						{isPreview}
 					/>
 				{/each}
 			</tr>

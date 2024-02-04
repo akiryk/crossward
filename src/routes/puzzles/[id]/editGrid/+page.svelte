@@ -234,7 +234,8 @@
 				<div class="mb-5">
 					<Crossword
 						{puzzle}
-						userMode={isPreview ? UserMode.PREVIEW : UserMode.EDITING_CELLS}
+						{isPreview}
+						userMode={UserMode.EDITING_CELLS}
 						onInput={handleSaveCellMap}
 					/>
 				</div>
