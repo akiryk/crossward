@@ -18,7 +18,7 @@
 		type ID
 	} from '$utils/types';
 	import Banner from '$components/Banner.svelte';
-	import { promiseDebounce, chunkArray } from '$utils/helpers';
+	import { promiseDebounce, chunkArray, getId } from '$utils/helpers';
 	import type { ActionData } from './$types.js';
 
 	export let puzzle: EditorPuzzle;
@@ -67,7 +67,58 @@
 		unsubscribePuzzleStore();
 	});
 
-	function setTwoLetterWords() {}
+	function setTwoLetterWords() {
+		const activeCellIds = get(GameStore).activeCellIds;
+		const cellMap = puzzle.cellMap;
+		const twoLetterWordIds: Array<ID> = [];
+
+		for (let i = 0; i < activeCellIds.length; i++) {
+			const cell = cellMap[activeCellIds[i]];
+			if (!cell.correctValue) continue;
+
+			const { x, y, id: cellId } = cell;
+
+			// Find the across cells
+			const leftCellId: ID = getId({ x: x - 1, y });
+			const secondRightCell: ID = getId({ x: x + 1, y });
+			const thirdRightCell: ID = getId({ x: x + 2, y });
+
+			// This is a 2-letter word if:
+			// - the left-side cell is empty,
+			// - the across-side cell has content
+			// - the cell below that is empty
+			if (
+				!cellMap[leftCellId]?.correctValue &&
+				cellMap[secondRightCell]?.correctValue &&
+				!cellMap[thirdRightCell].correctValue
+			) {
+				twoLetterWordIds.push(cellId, secondRightCell);
+			}
+
+			// Find the down words
+			const aboveCellId: ID = getId({ x, y: y - 1 });
+			const secondDownCell: ID = getId({ x, y: y + 1 });
+			const thirdDownCell: ID = getId({ x, y: y + 2 });
+
+			// This is a 2-letter word if:
+			// - the above-side cell is empty,
+			// - the down-side cell has content
+			// - the cell below that is empty
+			if (
+				!cellMap[aboveCellId]?.correctValue &&
+				cellMap[secondDownCell]?.correctValue &&
+				!cellMap[thirdDownCell].correctValue
+			) {
+				twoLetterWordIds.push(cellId, secondDownCell);
+			}
+		}
+		GameStore.update((current) => {
+			return {
+				...current,
+				twoLetterWordIds
+			};
+		});
+	}
 
 	const handleTogglePreview = (event: Event) => {
 		if ((event.target as HTMLInputElement).checked) {
