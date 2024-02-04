@@ -67,7 +67,16 @@
 		unsubscribePuzzleStore();
 	});
 
-	const handleTogglePreview = () => {};
+	function setTwoLetterWords() {}
+
+	const handleTogglePreview = (event: Event) => {
+		if ((event.target as HTMLInputElement).checked) {
+			setTimeout(setTwoLetterWords, 0);
+			isPreview = true;
+		} else {
+			isPreview = false;
+		}
+	};
 
 	async function saveData(data: FormData) {
 		// don't try to save if we redirect to hints page because data is already saved
