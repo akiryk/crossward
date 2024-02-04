@@ -130,8 +130,10 @@ export type Hint = {
 	answer: string;
 };
 
-export type GameShape = {
+export type GameContext = {
 	gridDirection: Direction;
 	highlightedCellIds: Array<ID>;
 	twoLetterWordIds: Array<ID>;
+	cellWithFocusId: ID | null;
+	activeCellIds: Array<ID>;
 };

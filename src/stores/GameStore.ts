@@ -1,13 +1,15 @@
 import { writable } from 'svelte/store';
 import { Direction } from '$utils/types';
-import type { GameShape } from '$utils/types';
+import type { GameContext } from '$utils/types';
 
-const initialStore: GameShape = {
+const initialStore: GameContext = {
 	gridDirection: Direction.GO_RIGHT,
 	highlightedCellIds: [],
-	twoLetterWordIds: []
+	twoLetterWordIds: [],
+	cellWithFocusId: null,
+	activeCellIds: []
 };
 
-const gameStore = writable<GameShape>(initialStore);
+const gameStore = writable<GameContext>(initialStore);
 
 export default gameStore;

@@ -1,6 +1,7 @@
 <script lang="ts">
 	// [id]/editGrid/page.svelte
 	import { type ActionResult } from '@sveltejs/kit';
+	import { get } from 'svelte/store';
 	import { deserialize } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -38,6 +39,20 @@
 	onMount(() => {
 		if (puzzle) {
 			PuzzleStore.set(puzzle);
+			const activeCellIds: Array<ID> = [];
+			const cellMap = puzzle.cellMap;
+			Object.values(cellMap).forEach((cell) => {
+				if (cell.correctValue || cell.isSymmetrical) {
+					activeCellIds.push(cell.id);
+				}
+			});
+			GameStore.update((current) => {
+				console.log(current);
+				return {
+					...current,
+					activeCellIds
+				};
+			});
 		}
 	});
 
@@ -54,18 +69,12 @@
 	});
 
 	function setTwoLetterWords() {
+		const activeCellIds = get(GameStore).activeCellIds;
 		const cellMap = puzzle.cellMap;
 		const twoLetterWordIds: Array<ID> = [];
-		// go through every letter
-		// if it has a value, go to the letter to its right
-		const cellsArray: CellsArray = Object.values(cellMap);
-		const newArray = [];
-		for (let j = 0; j < 10000000; j++) {
-			newArray.push({ x: 1000, y: 1000, id: getId({ x: 1000, y: 1000 }), correctValue: 'XXX' });
-		}
-		const xArray = [...cellsArray, newArray];
-		for (let i = 0; i < xArray.length; i++) {
-			const cell = xArray[i];
+
+		for (let i = 0; i < activeCellIds.length; i++) {
+			const cell = cellMap[activeCellIds[i]];
 			if (!cell.correctValue) continue;
 
 			const { x, y, id: cellId } = cell;
@@ -112,12 +121,12 @@
 		});
 	}
 
-	const handleTogglePreview = () => {
-		if (isPreview) {
-			isPreview = false;
-		} else {
+	const handleTogglePreview = (event: Event) => {
+		if ((event.target as HTMLInputElement).checked) {
 			setTimeout(setTwoLetterWords, 0);
 			isPreview = true;
+		} else {
+			isPreview = false;
 		}
 	};
 
@@ -245,24 +254,22 @@
 					<Banner message={successMessage} bannerType={BannerType.IS_SUCCESS} />
 				{/if}
 
-				<div class="mb-5 flex">
+				<div class="mb-5 flex items-center">
 					<button
-						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+						class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
 						>Update save</button
 					>
 					<button
 						type="button"
 						on:click={handleFinishGrid}
-						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+						class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
 						>Make Hints</button
 					>
-					<button
-						type="button"
-						on:click={handleTogglePreview}
-						on:blur={handleOffPreview}
-						class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
-						>Preview</button
-					>
+
+					<label for="togglePreview">
+						<input id="togglePreview" type="checkbox" on:change={handleTogglePreview} />
+						Toggle Preview Mode
+					</label>
 				</div>
 			</form>
 		{/if}

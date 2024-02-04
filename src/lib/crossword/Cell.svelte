@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { UserMode, type GameShape } from '$utils/types';
+	import { UserMode, type GameContext } from '$utils/types';
 
 	// Props
 	export let value: string;
@@ -20,9 +20,9 @@
 
 	let inputElement: HTMLInputElement;
 	const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
-	const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
+	const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none p-0';
 	const SHARED_INPUT_STYLES = 'caret-transparent cursor-pointer selection:bg-transparent';
-	const SHARED_PSEUDO_STYLES = 'focus:bg-cyan-300';
+	const SHARED_PSEUDO_STYLES = 'focus:bg-cyan-300 focus:ring-gray-400';
 
 	export const CLASSES = `${SHARED_INPUT_STYLES} ${SHARED_CELL_FONT_STYLES} ${SHARED_CELL_STYLES} ${SHARED_PSEUDO_STYLES}`;
 

@@ -11,20 +11,23 @@
 	// Props
 	export let cell: CellType;
 	export let userMode: UserMode;
-	export let isHighlighted: boolean;
 	export let isPreview: boolean;
-	let shouldSignalWarning: boolean = false;
 	export let onInput: (id: ID) => void;
 	export let updateCellSymmetry: (cell: CellType) => void;
 	export let goToNextCell: (cell: CellType, direction: Direction) => void;
 	export let toggleGridDirection: (cell: CellType) => void;
 	export let updateCellWithFocus: (coords: Coords) => void;
 
+	let isHighlighted: boolean;
+	let hasFocus: boolean = false;
+	let shouldSignalWarning: boolean = false;
 	let gridDirection: Direction;
 
 	// Game Store
 	const unsubscribeGameStore = GameStore.subscribe((data) => {
 		gridDirection = data.gridDirection;
+		isHighlighted = data.highlightedCellIds.includes(cell.id);
+		hasFocus = data.cellWithFocusId === cell.id;
 		if (isPreview && data.twoLetterWordIds.includes(cell.id)) {
 			shouldSignalWarning = true;
 		} else {
@@ -52,6 +55,15 @@
 			updateCellSymmetry(cell);
 		}
 		goToNextCell(cell, Direction.GO_FORWARD);
+
+		if (userMode === UserMode.EDITING_CELLS) {
+			GameStore.update((current) => {
+				if (!current.activeCellIds.includes(cell.id)) {
+					current.activeCellIds.push(cell.id);
+				}
+				return current;
+			});
+		}
 		onInput(cell.id);
 	}
 
@@ -59,9 +71,7 @@
 		updateCellWithFocus({ x: cell.x, y: cell.y });
 	}
 
-	export function handleOnBlur() {
-		cell.hasFocus = false;
-	}
+	export function handleOnBlur() {}
 
 	export function handleClick(event: MouseEvent) {
 		// if (cellIsInteractive) {
@@ -87,12 +97,20 @@
 				if (userMode === UserMode.EDITING_CELLS) {
 					updateCellSymmetry(cell);
 					cell.correctValue = '';
+					GameStore.update((current) => {
+						const index = current.activeCellIds.indexOf(cell.id);
+						if (index > -1) {
+							current.activeCellIds.splice(index, 1);
+						}
+						return current;
+					});
 				}
 				setTimeout(() => {
 					const direction =
 						gridDirection === Direction.GO_RIGHT ? Direction.GO_LEFT : Direction.GO_UP;
 					goToNextCell(cell, direction);
 				}, 0);
+
 				onInput(cell.id);
 				break;
 			case KeyCodes.LEFT_ARROW_KEY:
@@ -140,7 +158,7 @@
 		onKeydown={handleKeyDown}
 		onFocus={handleOnFocus}
 		onBlur={handleOnBlur}
-		hasFocus={!!cell.hasFocus}
+		{hasFocus}
 		onClick={handleClick}
 		{isHighlighted}
 		{userMode}
@@ -154,7 +172,7 @@
 		onFocus={handleOnFocus}
 		onBlur={handleOnBlur}
 		isSymmetrical={cell.isSymmetrical}
-		hasFocus={!!cell.hasFocus}
+		{hasFocus}
 		onClick={handleClick}
 		{isHighlighted}
 		{userMode}
