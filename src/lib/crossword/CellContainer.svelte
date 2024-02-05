@@ -45,7 +45,7 @@
 	// by the user.
 	let previousValue = cell.value;
 
-	export function handleInput(event: Event) {
+	function handleInput(event: Event) {
 		const cleanValue = getCleanValueOfInput({ event, previousValue: cell.value });
 		(event.target as HTMLInputElement).value = cleanValue;
 		cell.value = cleanValue;

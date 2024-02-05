@@ -215,6 +215,12 @@
 		const formData = new FormData();
 		formData.append('cellMap', JSON.stringify(puzzle.cellMap));
 		formData.append('id', puzzle._id);
+
+		// If we are previewing the puzzle, update the warnings as user types
+		if (isPreview) {
+			setTwoLetterWords();
+		}
+
 		promiseDebounceSave(formData);
 	};
 
