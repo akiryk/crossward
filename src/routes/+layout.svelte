@@ -16,7 +16,7 @@
 			<button
 				data-collapse-toggle="navbar-default"
 				type="button"
-				class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+				class="btninline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
 				aria-controls="navbar-default"
 				aria-expanded="false"
 			>
@@ -69,12 +69,10 @@
 								type="button"
 								on:click={() => signOut()}
 								title={`signed in as ${$page.data.session.user?.name}`}
-								class={classes}>Sign Out</button
+								class="btn">Sign Out</button
 							>
 						{:else}
-							<button type="button" on:click={() => signIn('google')} class={classes}
-								>Sign In</button
-							>
+							<button type="button" on:click={() => signIn('google')} class="btn">Sign In</button>
 						{/if}
 					</li>
 				</ul>

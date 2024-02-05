@@ -20,6 +20,7 @@
 	} from '$utils/types';
 	import Banner from '$components/Banner.svelte';
 	import { promiseDebounce, chunkArray, getId } from '$utils/helpers';
+	import { DEBOUNCE_DEFAULT_DELAY } from '$utils/constants';
 	import type { ActionData } from './$types.js';
 
 	export let puzzle: EditorPuzzle;
@@ -28,7 +29,7 @@
 
 	export let form: ActionData;
 
-	let isSaveForShowHints = false;
+	let preventSaveOnTransitionToHintsPage = false;
 	let errorMessage: string = '';
 	let successMessage: string = '';
 	let isPreview = false;
@@ -67,6 +68,29 @@
 		unsubscribePuzzleStore();
 	});
 
+	function clickOutside(node: HTMLDivElement) {
+		const handleClick = (event: MouseEvent) => {
+			if (!node.contains(event.target as Node) && !event.defaultPrevented) {
+				GameStore.update((current) => ({
+					...current,
+					highlightedCellIds: []
+				}));
+			}
+		};
+
+		function update() {
+			document.addEventListener('click', handleClick, true); // Use capture phase
+		}
+
+		update();
+
+		return {
+			update,
+			destroy() {
+				document.removeEventListener('click', handleClick, true);
+			}
+		};
+	}
 	// Add all words that are less than 3 characters to the list of ids to be
 	// highlighted in preview mode.
 	function findWordsThatAreTooShort() {
@@ -122,7 +146,6 @@
 					twoLetterWordIds.push(secondRightCell);
 				}
 			}
-			console.log('We get here!');
 		}
 
 		GameStore.update((current) => {
@@ -143,9 +166,10 @@
 	};
 
 	async function saveData(data: FormData) {
-		// don't try to save if we redirect to hints page because data is already saved
-		// and the context will switch and we'll get errors when trying to hit nonexistent endpoint
-		if (isSaveForShowHints) {
+		// don't try to save if we redirect to hints page!
+		// - the data is already saved (it happens just before we call createHints())
+		// - if we do try to save, we'll get errors after the page changes and we try to hit a nonexistent endpoint
+		if (preventSaveOnTransitionToHintsPage) {
 			return;
 		}
 		const formCellMap = data?.get('cellMap');
@@ -167,7 +191,7 @@
 					body: formData
 				});
 				const result: ActionResult = deserialize(await response.text());
-				if (result.type === 'success' && !isSaveForShowHints) {
+				if (result.type === 'success') {
 					successMessage = result.data?.message;
 					// rerun all `load` functions, following the successful update
 					// await invalidateAll();
@@ -181,7 +205,6 @@
 	}
 
 	async function createHints() {
-		// @ts-ignore
 		if (puzzle === null) {
 			return;
 		}
@@ -198,8 +221,6 @@
 
 			if (result.type === 'success') {
 				goto(`/puzzles/${id}/editHints`);
-				// rerun all `load` functions, following the successful update
-				// await invalidateAll();
 			} else if (result.type === 'failure') {
 				errorMessage = result.data?.message;
 			}
@@ -210,7 +231,7 @@
 
 	const promiseDebounceSave = promiseDebounce(saveData);
 
-	const handleSaveCellMap = async () => {
+	const handleSaveCellMap = async (debounceDelay: number = DEBOUNCE_DEFAULT_DELAY) => {
 		if (!puzzle) {
 			return;
 		}
@@ -223,18 +244,39 @@
 			findWordsThatAreTooShort();
 		}
 
-		promiseDebounceSave(formData);
+		promiseDebounceSave(formData, debounceDelay);
+	};
+
+	// Enable the event handler to call a function
+	// that doesn't accept event:Event as a parameter
+	const handleSubmit = () => {
+		handleSaveCellMap();
+	};
+
+	// Enable the event handler to call a function
+	// that doesn't accept event:Event as a parameter
+	const handleInput = () => {
+		handleSaveCellMap();
 	};
 
 	const handleFinishGrid = async () => {
-		await handleSaveCellMap();
-		isSaveForShowHints = true;
+		const { twoLetterWordIds, activeCellIds } = get(GameStore);
+		if (twoLetterWordIds.length > 0) {
+			alert('But you have short words?');
+			return;
+		}
+		if (activeCellIds.length < 3) {
+			alert('Not enough words');
+			return;
+		}
+		await handleSaveCellMap(0);
+		preventSaveOnTransitionToHintsPage = true;
 		createHints();
 	};
 </script>
 
 <div class="p-4">
-	<div>
+	<div class="w-fit">
 		<PuzzleHeading
 			isCreateSuccess={isCreateSuccess ? true : false}
 			puzzleType={puzzle.puzzleType}
@@ -246,17 +288,12 @@
 				method="POST"
 				action="?/updateCellMap"
 				autocomplete="off"
-				on:submit|preventDefault={handleSaveCellMap}
+				on:submit|preventDefault={handleSubmit}
 			>
 				<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
 				<input type="hidden" name="id" value={puzzle._id} />
-				<div class="mb-5">
-					<Crossword
-						{puzzle}
-						{isPreview}
-						userMode={UserMode.EDITING_CELLS}
-						onInput={handleSaveCellMap}
-					/>
+				<div class="mb-5" use:clickOutside>
+					<Crossword {puzzle} {isPreview} userMode={UserMode.EDITING_CELLS} onInput={handleInput} />
 				</div>
 				<!-- ERROR MESSAGES -->
 				{#if errorMessage}
