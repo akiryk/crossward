@@ -67,7 +67,9 @@
 		unsubscribePuzzleStore();
 	});
 
-	function setTwoLetterWords() {
+	// Add all words that are less than 3 characters to the list of ids to be
+	// highlighted in preview mode.
+	function findWordsThatAreTooShort() {
 		const activeCellIds = get(GameStore).activeCellIds;
 		const cellMap = puzzle.cellMap;
 		const twoLetterWordIds: Array<ID> = [];
@@ -82,6 +84,10 @@
 			const aboveCellId: ID = getId({ x, y: y - 1 });
 			const secondDownCell: ID = getId({ x, y: y + 1 });
 			const thirdDownCell: ID = getId({ x, y: y + 2 });
+			// Find the across cells
+			const leftCellId: ID = getId({ x: x - 1, y });
+			const secondRightCell: ID = getId({ x: x + 1, y });
+			const thirdRightCell: ID = getId({ x: x + 2, y });
 
 			// This is a 2-letter word if:
 			// - the above-side cell is empty,
@@ -99,10 +105,6 @@
 					twoLetterWordIds.push(secondDownCell);
 				}
 			}
-			// Find the across cells
-			const leftCellId: ID = getId({ x: x - 1, y });
-			const secondRightCell: ID = getId({ x: x + 1, y });
-			const thirdRightCell: ID = getId({ x: x + 2, y });
 
 			// This is a 2-letter word if:
 			// - the left-side cell is empty,
@@ -133,7 +135,7 @@
 
 	const handleTogglePreview = (event: Event) => {
 		if ((event.target as HTMLInputElement).checked) {
-			setTimeout(setTwoLetterWords, 0);
+			setTimeout(findWordsThatAreTooShort, 0);
 			isPreview = true;
 		} else {
 			isPreview = false;
@@ -218,7 +220,7 @@
 
 		// If we are previewing the puzzle, update the warnings as user types
 		if (isPreview) {
-			setTwoLetterWords();
+			findWordsThatAreTooShort();
 		}
 
 		promiseDebounceSave(formData);
