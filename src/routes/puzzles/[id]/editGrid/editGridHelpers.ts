@@ -5,10 +5,9 @@ import { getId } from '$utils/helpers';
 
 // Add all words that are less than 3 characters to GameStore's list of ids to be
 // highlighted in preview mode.
-export function findWordsThatAreTooShort(cellMap: CellMap) {
-	const activeCellIds = get(GameStore).activeCellIds;
+export function findWordsThatAreTooShort(cellMap: CellMap, activeCellIds: Array<ID>): Array<ID> {
 	const twoLetterWordIds: Array<ID> = [];
-
+	console.log('activeCellIds', activeCellIds);
 	for (let i = 0; i < activeCellIds.length; i++) {
 		const cell = cellMap[activeCellIds[i]];
 		if (!cell.correctValue) continue;
@@ -58,11 +57,16 @@ export function findWordsThatAreTooShort(cellMap: CellMap) {
 			}
 		}
 	}
+	console.log('two', twoLetterWordIds);
+	return twoLetterWordIds;
+}
 
-	GameStore.update((current: GameContext) => {
-		return {
-			...current,
-			twoLetterWordIds
-		};
+export function getActiveCellIdsFromCellMap(cellMap: CellMap): Array<ID> {
+	const activeCellIds: Array<ID> = [];
+	Object.values(cellMap).forEach((cell) => {
+		if (cell.correctValue) {
+			activeCellIds.push(cell.id);
+		}
 	});
+	return activeCellIds;
 }
