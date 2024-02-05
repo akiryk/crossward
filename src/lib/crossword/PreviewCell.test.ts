@@ -1,6 +1,6 @@
 import { it, expect } from 'vitest';
 import { render } from '@testing-library/svelte';
-import PreviewCell from '$lib/crossword/PreviewCell';
+import PreviewCell from '$lib/crossword/PreviewCell.svelte';
 
 describe('PreviewCell', () => {
 	it('Displays value passed by prop', () => {
