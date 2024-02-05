@@ -1,7 +1,7 @@
 /**
  * General Helpers for all files
  */
-import type { ID, HintDirection } from '$utils/types';
+import type { ID } from '$utils/types';
 import { DEBOUNCE_DEFAULT_DELAY } from '$utils/constants';
 
 export function getId({ x, y }: { x: number; y: number }): ID {

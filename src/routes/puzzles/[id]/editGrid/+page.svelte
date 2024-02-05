@@ -20,9 +20,11 @@
 		type ID
 	} from '$utils/types';
 	import Banner from '$components/Banner.svelte';
-	import { promiseDebounce, chunkArray, getId } from '$utils/helpers';
+	import Modal from '$components/Modal.svelte';
+	import { promiseDebounce, chunkArray } from '$utils/helpers';
 	import { DEBOUNCE_DEFAULT_DELAY } from '$utils/constants';
 	import type { ActionData } from './$types.js';
+	import { findWordsThatAreTooShort } from './editGridHelpers.js';
 
 	export let puzzle: EditorPuzzle;
 	export let data: LoadData;
@@ -34,6 +36,9 @@
 	let errorMessage: string = '';
 	let successMessage: string = '';
 	let isPreview = false;
+	let showModal = false;
+	let modalTitle = '';
+	let modalMessage = '';
 
 	$: ({ puzzle, isCreateSuccess } = data);
 
@@ -43,7 +48,7 @@
 			const activeCellIds: Array<ID> = [];
 			const cellMap = puzzle.cellMap;
 			Object.values(cellMap).forEach((cell) => {
-				if (cell.correctValue || cell.isSymmetrical) {
+				if (cell.correctValue) {
 					activeCellIds.push(cell.id);
 				}
 			});
@@ -75,74 +80,12 @@
 			highlightedCellIds: []
 		}));
 	}
-	// Add all words that are less than 3 characters to the list of ids to be
-	// highlighted in preview mode.
-	function findWordsThatAreTooShort() {
-		const activeCellIds = get(GameStore).activeCellIds;
-		const cellMap = puzzle.cellMap;
-		const twoLetterWordIds: Array<ID> = [];
-
-		for (let i = 0; i < activeCellIds.length; i++) {
-			const cell = cellMap[activeCellIds[i]];
-			if (!cell.correctValue) continue;
-
-			const { x, y, id: cellId } = cell;
-
-			// Find the down words
-			const aboveCellId: ID = getId({ x, y: y - 1 });
-			const secondDownCell: ID = getId({ x, y: y + 1 });
-			const thirdDownCell: ID = getId({ x, y: y + 2 });
-			// Find the across cells
-			const leftCellId: ID = getId({ x: x - 1, y });
-			const secondRightCell: ID = getId({ x: x + 1, y });
-			const thirdRightCell: ID = getId({ x: x + 2, y });
-
-			// This is a 2-letter word if:
-			// - the above-side cell is empty,
-			// - the down-side cell has content
-			// - the cell below that is empty
-			if (
-				!cellMap[aboveCellId]?.correctValue &&
-				cellMap[secondDownCell]?.correctValue &&
-				!cellMap[thirdDownCell]?.correctValue
-			) {
-				if (!twoLetterWordIds.includes(cellId)) {
-					twoLetterWordIds.push(cellId);
-				}
-				if (!twoLetterWordIds.includes(secondDownCell)) {
-					twoLetterWordIds.push(secondDownCell);
-				}
-			}
-
-			// This is a 2-letter word if:
-			// - the left-side cell is empty,
-			// - the across-side cell has content
-			// - the cell below that is empty
-			if (
-				!cellMap[leftCellId]?.correctValue &&
-				cellMap[secondRightCell]?.correctValue &&
-				!cellMap[thirdRightCell]?.correctValue
-			) {
-				if (!twoLetterWordIds.includes(cellId)) {
-					twoLetterWordIds.push(cellId);
-				}
-				if (!twoLetterWordIds.includes(secondRightCell)) {
-					twoLetterWordIds.push(secondRightCell);
-				}
-			}
-		}
-
-		GameStore.update((current) => {
-			return {
-				...current,
-				twoLetterWordIds
-			};
-		});
-	}
 
 	const handleTogglePreview = (event: Event) => {
 		if ((event.target as HTMLInputElement).checked) {
-			setTimeout(findWordsThatAreTooShort, 0);
+			setTimeout(() => {
+				findWordsThatAreTooShort(puzzle.cellMap);
+			}, 0);
 			isPreview = true;
 		} else {
 			isPreview = false;
@@ -225,7 +168,7 @@
 
 		// If we are previewing the puzzle, update the warnings as user types
 		if (isPreview) {
-			findWordsThatAreTooShort();
+			findWordsThatAreTooShort(puzzle.cellMap);
 		}
 
 		promiseDebounceSave(formData, debounceDelay);
@@ -243,20 +186,34 @@
 		handleSaveCellMap();
 	};
 
-	const handleFinishGrid = async () => {
+	const validateGridIsReadyForHints = async () => {
+		findWordsThatAreTooShort(puzzle.cellMap);
 		const { twoLetterWordIds, activeCellIds } = get(GameStore);
 		if (twoLetterWordIds.length > 0) {
-			alert('But you have short words?');
+			modalTitle = 'Hold on, there!';
+			modalMessage = `This puzzle has ${
+				twoLetterWordIds.length === 2
+					? 'a two-letter word'
+					: twoLetterWordIds.length / 2 + ' two-letter words'
+			}. Are you sure you want to proceed?`;
+			showModal = true;
 			return;
 		}
 		if (activeCellIds.length < 3) {
-			alert('Not enough words');
+			modalTitle = 'Hold on, there!';
+			modalMessage = `This puzzle doesn't have much content. Are you sure you want to proceed?`;
+			showModal = true;
 			return;
 		}
-		await handleSaveCellMap(0);
+
+		saveGridAndCreateHints();
+	};
+
+	async function saveGridAndCreateHints() {
+		await handleSaveCellMap();
 		preventSaveOnTransitionToHintsPage = true;
 		createHints();
-	};
+	}
 </script>
 
 <PuzzleHeading
@@ -294,7 +251,7 @@
 			>
 			<button
 				type="button"
-				on:click={handleFinishGrid}
+				on:click={validateGridIsReadyForHints}
 				class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
 				>Make Hints</button
 			>
@@ -309,3 +266,12 @@
 
 <hr class="my-10" />
 <EditPuzzleTitle {form} title={puzzle.title} id={puzzle._id} />
+
+<Modal bind:showModal>
+	<h2 slot="header">
+		{modalTitle}
+	</h2>
+
+	<p class="mb-10">{modalMessage}</p>
+	<button class="btn" on:click={saveGridAndCreateHints}>Yes I do!</button>
+</Modal>
