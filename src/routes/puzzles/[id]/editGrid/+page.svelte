@@ -78,23 +78,6 @@
 
 			const { x, y, id: cellId } = cell;
 
-			// Find the across cells
-			const leftCellId: ID = getId({ x: x - 1, y });
-			const secondRightCell: ID = getId({ x: x + 1, y });
-			const thirdRightCell: ID = getId({ x: x + 2, y });
-
-			// This is a 2-letter word if:
-			// - the left-side cell is empty,
-			// - the across-side cell has content
-			// - the cell below that is empty
-			if (
-				!cellMap[leftCellId]?.correctValue &&
-				cellMap[secondRightCell]?.correctValue &&
-				!cellMap[thirdRightCell].correctValue
-			) {
-				twoLetterWordIds.push(cellId, secondRightCell);
-			}
-
 			// Find the down words
 			const aboveCellId: ID = getId({ x, y: y - 1 });
 			const secondDownCell: ID = getId({ x, y: y + 1 });
@@ -107,11 +90,39 @@
 			if (
 				!cellMap[aboveCellId]?.correctValue &&
 				cellMap[secondDownCell]?.correctValue &&
-				!cellMap[thirdDownCell].correctValue
+				!cellMap[thirdDownCell]?.correctValue
 			) {
-				twoLetterWordIds.push(cellId, secondDownCell);
+				if (!twoLetterWordIds.includes(cellId)) {
+					twoLetterWordIds.push(cellId);
+				}
+				if (!twoLetterWordIds.includes(secondDownCell)) {
+					twoLetterWordIds.push(secondDownCell);
+				}
 			}
+			// Find the across cells
+			const leftCellId: ID = getId({ x: x - 1, y });
+			const secondRightCell: ID = getId({ x: x + 1, y });
+			const thirdRightCell: ID = getId({ x: x + 2, y });
+
+			// This is a 2-letter word if:
+			// - the left-side cell is empty,
+			// - the across-side cell has content
+			// - the cell below that is empty
+			if (
+				!cellMap[leftCellId]?.correctValue &&
+				cellMap[secondRightCell]?.correctValue &&
+				!cellMap[thirdRightCell]?.correctValue
+			) {
+				if (!twoLetterWordIds.includes(cellId)) {
+					twoLetterWordIds.push(cellId);
+				}
+				if (!twoLetterWordIds.includes(secondRightCell)) {
+					twoLetterWordIds.push(secondRightCell);
+				}
+			}
+			console.log('We get here!');
 		}
+
 		GameStore.update((current) => {
 			return {
 				...current,
