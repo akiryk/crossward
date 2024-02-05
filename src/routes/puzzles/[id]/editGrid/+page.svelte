@@ -5,6 +5,7 @@
 	import { deserialize } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { clickOutside } from '$utils/useClickOutside';
 	import type { LoadData } from './+page.server.ts';
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import GameStore from '../../../../stores/GameStore';
@@ -68,28 +69,11 @@
 		unsubscribePuzzleStore();
 	});
 
-	function clickOutside(node: HTMLDivElement) {
-		const handleClick = (event: MouseEvent) => {
-			if (!node.contains(event.target as Node) && !event.defaultPrevented) {
-				GameStore.update((current) => ({
-					...current,
-					highlightedCellIds: []
-				}));
-			}
-		};
-
-		function update() {
-			document.addEventListener('click', handleClick, true); // Use capture phase
-		}
-
-		update();
-
-		return {
-			update,
-			destroy() {
-				document.removeEventListener('click', handleClick, true);
-			}
-		};
+	function handleClickOutside() {
+		GameStore.update((current) => ({
+			...current,
+			highlightedCellIds: []
+		}));
 	}
 	// Add all words that are less than 3 characters to the list of ids to be
 	// highlighted in preview mode.
@@ -275,57 +259,53 @@
 	};
 </script>
 
-<div class="p-4">
-	<div class="w-fit">
-		<PuzzleHeading
-			isCreateSuccess={isCreateSuccess ? true : false}
-			puzzleType={puzzle.puzzleType}
-			userMode={UserMode.EDITING_CELLS}
-			title={puzzle.title}
-		/>
-		{#if puzzle}
-			<form
-				method="POST"
-				action="?/updateCellMap"
-				autocomplete="off"
-				on:submit|preventDefault={handleSubmit}
-			>
-				<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
-				<input type="hidden" name="id" value={puzzle._id} />
-				<div class="mb-5" use:clickOutside>
-					<Crossword {puzzle} {isPreview} userMode={UserMode.EDITING_CELLS} onInput={handleInput} />
-				</div>
-				<!-- ERROR MESSAGES -->
-				{#if errorMessage}
-					<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} />
-				{/if}
-
-				<!-- SUCCESS MESSAGES -->
-				{#if successMessage}
-					<Banner message={successMessage} bannerType={BannerType.IS_SUCCESS} />
-				{/if}
-
-				<div class="mb-5 flex items-center">
-					<button
-						class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
-						>Update save</button
-					>
-					<button
-						type="button"
-						on:click={handleFinishGrid}
-						class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
-						>Make Hints</button
-					>
-
-					<label for="togglePreview">
-						<input id="togglePreview" type="checkbox" on:change={handleTogglePreview} />
-						Toggle Preview Mode
-					</label>
-				</div>
-			</form>
+<PuzzleHeading
+	isCreateSuccess={isCreateSuccess ? true : false}
+	puzzleType={puzzle.puzzleType}
+	userMode={UserMode.EDITING_CELLS}
+	title={puzzle.title}
+/>
+{#if puzzle}
+	<form
+		method="POST"
+		action="?/updateCellMap"
+		autocomplete="off"
+		on:submit|preventDefault={handleSubmit}
+	>
+		<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
+		<input type="hidden" name="id" value={puzzle._id} />
+		<div class="mb-5" use:clickOutside={{ callback: handleClickOutside }}>
+			<Crossword {puzzle} {isPreview} userMode={UserMode.EDITING_CELLS} onInput={handleInput} />
+		</div>
+		<!-- ERROR MESSAGES -->
+		{#if errorMessage}
+			<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} />
 		{/if}
 
-		<hr class="my-10" />
-	</div>
-	<EditPuzzleTitle {form} title={puzzle.title} id={puzzle._id} />
-</div>
+		<!-- SUCCESS MESSAGES -->
+		{#if successMessage}
+			<Banner message={successMessage} bannerType={BannerType.IS_SUCCESS} />
+		{/if}
+
+		<div class="mb-5 flex items-center">
+			<button
+				class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+				>Update save</button
+			>
+			<button
+				type="button"
+				on:click={handleFinishGrid}
+				class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+				>Make Hints</button
+			>
+
+			<label for="togglePreview">
+				<input id="togglePreview" type="checkbox" on:change={handleTogglePreview} />
+				Toggle Preview Mode
+			</label>
+		</div>
+	</form>
+{/if}
+
+<hr class="my-10" />
+<EditPuzzleTitle {form} title={puzzle.title} id={puzzle._id} />
