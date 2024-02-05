@@ -5,7 +5,7 @@ import PreviewCell from '$lib/crossword/PreviewCell.svelte';
 describe('PreviewCell', () => {
 	it('Displays value passed by prop', () => {
 		const { queryByText } = render(PreviewCell, { value: 'A' });
-		expect(queryByText('A')).toBeInTheDocument();
+		expect(queryByText('B')).toBeInTheDocument();
 	});
 
 	it('Does not display other values', () => {
