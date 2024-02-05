@@ -81,9 +81,6 @@
 		if ((event.target as HTMLInputElement).checked) {
 			setTimeout(() => {
 				const { activeCellIds } = get(GameStore);
-				console.log('NOW HWERE');
-				console.log(activeCellIds);
-				console.log('NOW HWERE`');
 				const twoLetterWordIds = findWordsThatAreTooShort(puzzle.cellMap, activeCellIds);
 				GameStore.update((current: GameContext) => {
 					return {
@@ -174,7 +171,12 @@
 
 		// If we are previewing the puzzle, update the warnings as user types
 		if (isPreview) {
-			findWordsThatAreTooShort(puzzle.cellMap);
+			const { activeCellIds } = get(GameStore);
+			const twoLetterWordIds = findWordsThatAreTooShort(puzzle.cellMap, activeCellIds);
+			GameStore.update((current) => ({
+				...current,
+				twoLetterWordIds
+			}));
 		}
 
 		promiseDebounceSave(formData, debounceDelay);
