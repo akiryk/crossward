@@ -13,7 +13,12 @@
 	import { UserMode } from '$utils/types';
 	import Button from '$components/Button.svelte';
 	import { debounce, chunkArray } from '$utils/helpers';
-	import { COMPLETE_BUT_WITH_ERRORS, COMPLETE_AND_NO_ERRORS, INCOMPLETE } from '$utils/constants';
+	import {
+		COMPLETE_BUT_WITH_ERRORS,
+		COMPLETE_AND_NO_ERRORS,
+		INCOMPLETE,
+		DEFAULT_CHUNK_SIZE
+	} from '$utils/constants';
 	import { clickOutside } from '$utils/useClickOutside';
 
 	export let puzzle: PlayerPuzzle;
@@ -94,7 +99,7 @@
 			cellsToUpdate.push([id, puzzle!.cellMap[id]]);
 		});
 		cellIdsInSaveQueueSet.clear();
-		const chunkedData = chunkArray(cellsToUpdate, 25);
+		const chunkedData = chunkArray(cellsToUpdate, DEFAULT_CHUNK_SIZE);
 
 		chunkedData.forEach(async (chunk) => {
 			const formData = new FormData();

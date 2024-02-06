@@ -17,14 +17,15 @@
 		BannerType,
 		type EditorPuzzle,
 		type CellMapArray,
-		type ID
+		type ID,
+		type GameContext
 	} from '$utils/types';
 	import Banner from '$components/Banner.svelte';
 	import Modal from '$components/Modal.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
-	import { DEBOUNCE_DEFAULT_DELAY } from '$utils/constants';
+	import { DEBOUNCE_DEFAULT_DELAY, DEFAULT_CHUNK_SIZE } from '$utils/constants';
 	import type { ActionData } from './$types.js';
-	import { findWordsThatAreTooShort } from './editGridHelpers.js';
+	import { findWordsThatAreTooShort, getActiveCellIdsFromCellMap } from './editGridHelpers.js';
 
 	export let puzzle: EditorPuzzle;
 	export let data: LoadData;
@@ -45,13 +46,8 @@
 	onMount(() => {
 		if (puzzle) {
 			PuzzleStore.set(puzzle);
-			const activeCellIds: Array<ID> = [];
 			const cellMap = puzzle.cellMap;
-			Object.values(cellMap).forEach((cell) => {
-				if (cell.correctValue) {
-					activeCellIds.push(cell.id);
-				}
-			});
+			const activeCellIds: Array<ID> = getActiveCellIdsFromCellMap(cellMap);
 
 			GameStore.update((current) => {
 				return {
@@ -84,7 +80,14 @@
 	const handleTogglePreview = (event: Event) => {
 		if ((event.target as HTMLInputElement).checked) {
 			setTimeout(() => {
-				findWordsThatAreTooShort(puzzle.cellMap);
+				const { activeCellIds } = get(GameStore);
+				const twoLetterWordIds = findWordsThatAreTooShort(puzzle.cellMap, activeCellIds);
+				GameStore.update((current: GameContext) => {
+					return {
+						...current,
+						twoLetterWordIds
+					};
+				});
 			}, 0);
 			isPreview = true;
 		} else {
@@ -105,7 +108,7 @@
 			return;
 		}
 		const cellsArray: CellMapArray = Object.entries(JSON.parse(formCellMap));
-		const chunkedData = chunkArray(cellsArray, 25);
+		const chunkedData = chunkArray(cellsArray, DEFAULT_CHUNK_SIZE);
 
 		chunkedData.forEach(async (chunk) => {
 			// chunk = [["0:0", cell1], ["0:1", cell2], etc ... ]
@@ -168,7 +171,12 @@
 
 		// If we are previewing the puzzle, update the warnings as user types
 		if (isPreview) {
-			findWordsThatAreTooShort(puzzle.cellMap);
+			const { activeCellIds } = get(GameStore);
+			const twoLetterWordIds = findWordsThatAreTooShort(puzzle.cellMap, activeCellIds);
+			GameStore.update((current) => ({
+				...current,
+				twoLetterWordIds
+			}));
 		}
 
 		promiseDebounceSave(formData, debounceDelay);
@@ -187,8 +195,14 @@
 	};
 
 	const validateGridIsReadyForHints = async () => {
-		findWordsThatAreTooShort(puzzle.cellMap);
-		const { twoLetterWordIds, activeCellIds } = get(GameStore);
+		const { activeCellIds } = get(GameStore);
+		const twoLetterWordIds = findWordsThatAreTooShort(puzzle.cellMap, activeCellIds);
+		GameStore.update((current: GameContext) => {
+			return {
+				...current,
+				twoLetterWordIds
+			};
+		});
 		if (twoLetterWordIds.length > 0) {
 			modalTitle = 'Hold on, there!';
 			modalMessage = `This puzzle has ${

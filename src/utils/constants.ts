@@ -24,6 +24,7 @@ export const VIEW_ONLY_MODE = 'VIEW_ONLY_MODE';
 export const DEAD_CELL_MODE = 'DEAD_CELL_MODE';
 
 export const DEBOUNCE_DEFAULT_DELAY = 300;
+export const DEFAULT_CHUNK_SIZE = 25;
 
 export const INCOMPLETE = 'INCOMPLETE';
 export const COMPLETE_AND_NO_ERRORS = 'COMPLETE_AND_NO_ERRORS';
