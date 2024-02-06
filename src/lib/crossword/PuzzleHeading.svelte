@@ -2,7 +2,7 @@
 	import { type PuzzleType, UserMode } from '$utils/types';
 
 	// PROPS
-	export let isCreateSuccess: Boolean = false;
+	export let isCreateSuccess: boolean = false;
 	export let puzzleType: PuzzleType;
 	export let userMode: UserMode;
 	export let title: string;

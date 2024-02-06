@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { UserMode, type GameContext } from '$utils/types';
+	import { UserMode } from '$utils/types';
 
 	// Props
 	export let value: string;
