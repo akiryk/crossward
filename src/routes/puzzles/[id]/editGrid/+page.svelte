@@ -71,6 +71,7 @@
 	});
 
 	function handleClickOutside() {
+		console.log('OUTSIDE');
 		GameStore.update((current) => ({
 			...current,
 			highlightedCellIds: []
@@ -179,7 +180,7 @@
 			}));
 		}
 
-		promiseDebounceSave(formData, debounceDelay);
+		promiseDebounceSave(formData);
 	};
 
 	// Enable the event handler to call a function
@@ -245,7 +246,7 @@
 	>
 		<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
 		<input type="hidden" name="id" value={puzzle._id} />
-		<div class="mb-5" use:clickOutside={{ callback: handleClickOutside }}>
+		<div class="mb-5 w-fit" use:clickOutside={{ callback: handleClickOutside }}>
 			<Crossword {puzzle} {isPreview} userMode={UserMode.EDITING_CELLS} onInput={handleInput} />
 		</div>
 		<!-- ERROR MESSAGES -->

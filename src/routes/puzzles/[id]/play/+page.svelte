@@ -138,22 +138,15 @@
 
 <PuzzleHeading puzzleType={puzzle.puzzleType} userMode={UserMode.PLAY} title={puzzle.title} />
 
-<div class="w-fit">
-	<form
-		method="POST"
-		action="?/saveGame"
-		autocomplete="off"
-		on:submit|preventDefault={handleSubmit}
-	>
-		<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
-		<input type="hidden" name="id" value={puzzle._id} />
-		<div class="mb-5" use:clickOutside={{ callback: handleClickOutside }}>
-			<Crossword
-				{puzzle}
-				userMode={isComplete && incorrectCells.length === 0 ? UserMode.GAME_OVER : UserMode.PLAY}
-				onInput={handleSaveOnInput}
-			/>
-		</div>
-	</form>
-</div>
+<form method="POST" action="?/saveGame" autocomplete="off" on:submit|preventDefault={handleSubmit}>
+	<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
+	<input type="hidden" name="id" value={puzzle._id} />
+	<div class="mb-5 w-fit" use:clickOutside={{ callback: handleClickOutside }}>
+		<Crossword
+			{puzzle}
+			userMode={isComplete && incorrectCells.length === 0 ? UserMode.GAME_OVER : UserMode.PLAY}
+			onInput={handleSaveOnInput}
+		/>
+	</div>
+</form>
 <Hints {puzzle} />
