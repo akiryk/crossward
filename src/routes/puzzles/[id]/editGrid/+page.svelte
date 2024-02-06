@@ -23,7 +23,7 @@
 	import Banner from '$components/Banner.svelte';
 	import Modal from '$components/Modal.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
-	import { DEBOUNCE_DEFAULT_DELAY, DEFAULT_CHUNK_SIZE } from '$utils/constants';
+	import { DEFAULT_CHUNK_SIZE } from '$utils/constants';
 	import type { ActionData } from './$types.js';
 	import { findWordsThatAreTooShort, getActiveCellIdsFromCellMap } from './editGridHelpers.js';
 
@@ -161,7 +161,7 @@
 
 	const promiseDebounceSave = promiseDebounce(saveData);
 
-	const handleSaveCellMap = async (debounceDelay: number = DEBOUNCE_DEFAULT_DELAY) => {
+	const handleSaveCellMap = async () => {
 		if (!puzzle) {
 			return;
 		}
@@ -179,7 +179,7 @@
 			}));
 		}
 
-		promiseDebounceSave(formData, debounceDelay);
+		promiseDebounceSave(formData);
 	};
 
 	// Enable the event handler to call a function
@@ -245,7 +245,7 @@
 	>
 		<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
 		<input type="hidden" name="id" value={puzzle._id} />
-		<div class="mb-5" use:clickOutside={{ callback: handleClickOutside }}>
+		<div class="mb-5 w-fit" use:clickOutside={{ callback: handleClickOutside }}>
 			<Crossword {puzzle} {isPreview} userMode={UserMode.EDITING_CELLS} onInput={handleInput} />
 		</div>
 		<!-- ERROR MESSAGES -->

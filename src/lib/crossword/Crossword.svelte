@@ -159,7 +159,7 @@
 </script>
 
 <table
-	class="relative w-fit mb-10 table-fixed border-collapse"
+	class="relative mb-10 table-fixed border-collapse"
 	cellpadding="0"
 	cellspacing="0"
 	border="0"
