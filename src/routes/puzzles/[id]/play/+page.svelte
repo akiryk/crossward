@@ -8,7 +8,7 @@
 	import GameStore from '../../../../stores/GameStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import Hints from '$lib/crossword/Hints.svelte';
+	import Hints from '$lib/crossword/PlayHints.svelte';
 	import type { PlayerPuzzle, ID, CellIdTuple } from '$utils/types';
 	import { UserMode } from '$utils/types';
 	import Button from '$components/Button.svelte';
@@ -149,7 +149,7 @@
 			onInput={handleSaveOnInput}
 		/>
 	</div>
-	<Hints {puzzle} userMode={UserMode.PLAY} />
+	<Hints {puzzle} />
 	<div class="mb-5 flex">
 		<div class="mr-5">
 			<Button buttonType="submit">Save for later</Button>

@@ -72,7 +72,7 @@
 				style = 'bg-blue-100 outline-blue-400';
 				break;
 			case isHighlighted:
-				style = isSymmetrical ? 'bg-cyan-100' : 'bg-gray-200';
+				style = isSymmetrical || userMode === UserMode.PLAY ? 'bg-cyan-100' : 'bg-gray-200';
 				break;
 			case isBlack:
 				style = 'bg-black';

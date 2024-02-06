@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { UserMode, type EditorPuzzle, type PlayerPuzzle } from '$utils/types';
+	import { UserMode, type EditorPuzzle } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
 	import HintInput from './HintInput.svelte';
-	export let puzzle: EditorPuzzle | PlayerPuzzle;
-	export let userMode: UserMode;
+	export let puzzle: EditorPuzzle;
 	export let onAcrossHintInput: () => void = () => {};
 	export let onDownHintInput: () => void = () => {};
 
@@ -34,7 +33,6 @@
 					answer={hint.answer}
 					displayNumber={hint.displayNumber}
 					onInput={handleAcrossInput}
-					isEditing={userMode === UserMode.EDITING_HINTS}
 				/>
 			{/each}
 		</div>
@@ -46,7 +44,6 @@
 					answer={hint.answer}
 					displayNumber={hint.displayNumber}
 					onInput={handleDownInput}
-					isEditing={userMode === UserMode.EDITING_HINTS}
 				/>
 			{/each}
 		</div>

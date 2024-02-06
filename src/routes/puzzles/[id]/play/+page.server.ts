@@ -171,7 +171,6 @@ export const actions = {
 			cellMapArray: JSON.parse(newCellMapChunk)
 		});
 
-		console.log(JSON.parse(newCellMapChunk));
 		const filter = {
 			_id: new ObjectId(id)
 		};

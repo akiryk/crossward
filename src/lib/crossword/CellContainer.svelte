@@ -39,12 +39,6 @@
 		unsubscribeGameStore();
 	});
 
-	// Track previous value so that we can be sure to always save only
-	// the most recently entered value. Using event.target.value.slice(-1)
-	// gets the last value, but this isn't always the last value entered
-	// by the user.
-	// eslint-disable-next-line no-unused-vars
-
 	function handleInput(event: Event) {
 		const cleanValue = getCleanValueOfInput({ event, previousValue: cell.value });
 		(event.target as HTMLInputElement).value = cleanValue;
