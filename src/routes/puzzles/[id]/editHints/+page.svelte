@@ -149,7 +149,6 @@
 			puzzle={puzzle || puzzle}
 			onAcrossHintInput={handleAcrossHintInput}
 			onDownHintInput={handleDownHintInput}
-			userMode={UserMode.EDITING_HINTS}
 		/>
 
 		<!-- ERROR MESSAGES -->
