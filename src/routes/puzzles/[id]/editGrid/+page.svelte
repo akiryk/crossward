@@ -23,7 +23,7 @@
 	import Banner from '$components/Banner.svelte';
 	import Modal from '$components/Modal.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
-	import { DEBOUNCE_DEFAULT_DELAY } from '$utils/constants';
+	import { DEBOUNCE_DEFAULT_DELAY, DEFAULT_CHUNK_SIZE } from '$utils/constants';
 	import type { ActionData } from './$types.js';
 	import { findWordsThatAreTooShort, getActiveCellIdsFromCellMap } from './editGridHelpers.js';
 
@@ -108,7 +108,7 @@
 			return;
 		}
 		const cellsArray: CellMapArray = Object.entries(JSON.parse(formCellMap));
-		const chunkedData = chunkArray(cellsArray, 25);
+		const chunkedData = chunkArray(cellsArray, DEFAULT_CHUNK_SIZE);
 
 		chunkedData.forEach(async (chunk) => {
 			// chunk = [["0:0", cell1], ["0:1", cell2], etc ... ]

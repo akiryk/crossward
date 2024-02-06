@@ -1,6 +1,4 @@
-import { get } from 'svelte/store';
-import type { ID, GameContext, CellMap } from '$utils/types';
-import GameStore from '../../../../stores/GameStore';
+import type { ID, CellMap } from '$utils/types';
 import { getId } from '$utils/helpers';
 
 // Add all words that are less than 3 characters to GameStore's list of ids to be
