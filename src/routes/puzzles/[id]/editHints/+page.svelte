@@ -10,7 +10,7 @@
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import Hints from '$lib/crossword/Hints.svelte';
+	import Hints from '$lib/crossword/EditHints.svelte';
 	import {
 		BannerType,
 		UserMode,
@@ -149,7 +149,6 @@
 			puzzle={puzzle || puzzle}
 			onAcrossHintInput={handleAcrossHintInput}
 			onDownHintInput={handleDownHintInput}
-			userMode={UserMode.EDITING_HINTS}
 		/>
 
 		<!-- ERROR MESSAGES -->

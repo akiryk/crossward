@@ -8,10 +8,9 @@
 	import GameStore from '../../../../stores/GameStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import Hints from '$lib/crossword/Hints.svelte';
+	import Hints from '$lib/crossword/PlayHints.svelte';
 	import type { PlayerPuzzle, ID, CellIdTuple } from '$utils/types';
 	import { UserMode } from '$utils/types';
-	import Button from '$components/Button.svelte';
 	import { debounce, chunkArray } from '$utils/helpers';
 	import {
 		COMPLETE_BUT_WITH_ERRORS,
@@ -139,20 +138,22 @@
 
 <PuzzleHeading puzzleType={puzzle.puzzleType} userMode={UserMode.PLAY} title={puzzle.title} />
 
-<form method="POST" action="?/saveGame" autocomplete="off" on:submit|preventDefault={handleSubmit}>
-	<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
-	<input type="hidden" name="id" value={puzzle._id} />
-	<div class="mb-5" use:clickOutside={{ callback: handleClickOutside }}>
-		<Crossword
-			{puzzle}
-			userMode={isComplete && incorrectCells.length === 0 ? UserMode.GAME_OVER : UserMode.PLAY}
-			onInput={handleSaveOnInput}
-		/>
-	</div>
-	<Hints {puzzle} userMode={UserMode.PLAY} />
-	<div class="mb-5 flex">
-		<div class="mr-5">
-			<Button buttonType="submit">Save for later</Button>
+<div class="w-fit">
+	<form
+		method="POST"
+		action="?/saveGame"
+		autocomplete="off"
+		on:submit|preventDefault={handleSubmit}
+	>
+		<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
+		<input type="hidden" name="id" value={puzzle._id} />
+		<div class="mb-5" use:clickOutside={{ callback: handleClickOutside }}>
+			<Crossword
+				{puzzle}
+				userMode={isComplete && incorrectCells.length === 0 ? UserMode.GAME_OVER : UserMode.PLAY}
+				onInput={handleSaveOnInput}
+			/>
 		</div>
-	</div>
-</form>
+	</form>
+</div>
+<Hints {puzzle} />
