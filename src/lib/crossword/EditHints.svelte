@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { UserMode, type EditorPuzzle } from '$utils/types';
+	import { type EditorPuzzle } from '$utils/types';
 	import PuzzleStore from '../../stores/PuzzleStore';
 	import HintInput from './HintInput.svelte';
 	export let puzzle: EditorPuzzle;
