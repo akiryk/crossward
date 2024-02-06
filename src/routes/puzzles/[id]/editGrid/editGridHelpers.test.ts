@@ -22,7 +22,7 @@ const mockActiveCellIds = [
 describe('findWordsThatAreTooShort', () => {
 	it('returns an array of cell IDs that are two-letters long', () => {
 		const cellMap = mockCellMapForFindWordsThatAreTooShort;
-		// @ts-ignore
+		// @ts-expect-error - the ID is valid
 		expect(findWordsThatAreTooShort(cellMap, mockActiveCellIds)).toEqual([
 			'3:2',
 			'3:3',
@@ -37,22 +37,22 @@ describe('getActiveCellIdsFromCellMap', () => {
 	it('correctly returns only IDs for cells that have a value', () => {
 		// mockCellMap only has the fields necessary for this helper function
 		const mockCellMap: CellMap = {
-			// @ts-ignore
+			// @ts-expect-error - the ID is valid
 			'0:0': {
 				id: '0:0',
 				correctValue: 'A'
 			},
-			// @ts-ignore
+			// @ts-expect-error - the ID is valid
 			'0:1': {
 				id: '0:1',
 				correctValue: 'B'
 			},
-			// @ts-ignore
+			// @ts-expect-error - the ID is valid
 			'0:2': {
 				id: '0:2',
 				correctValue: ''
 			},
-			// @ts-ignore
+			// @ts-expect-error - the ID is valid
 			'0:3': {
 				id: '0:2',
 				correctValue: ''

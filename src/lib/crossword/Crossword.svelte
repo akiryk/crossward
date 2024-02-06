@@ -30,12 +30,10 @@
 	export let userMode: UserMode;
 	export let isPreview: boolean = false;
 	let gridDirection = Direction.GO_RIGHT;
-	let highlightedCellIds: Array<ID> = [];
 
 	// Game Store
 	const unsubscribeGameStore = GameStore.subscribe((data) => {
 		gridDirection = data.gridDirection;
-		highlightedCellIds = data.highlightedCellIds;
 	});
 
 	onDestroy(() => {
@@ -125,8 +123,6 @@
 			default:
 				nextCellFunction = getCellToTheRight;
 		}
-		// remove focus from current cell
-		const id = cell.id;
 		// puzzle.cellMap[id].hasFocus = false;
 		// puzzle.cellRows[cell.y][cell.x].hasFocus = false;
 		const nextCellCoords = nextCellFunction({

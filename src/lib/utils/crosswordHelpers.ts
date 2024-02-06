@@ -39,38 +39,34 @@ export function getCleanValueOfInput({
 
 export function getCellAbove({ coords }: GetNextCellProps): Coords {
 	const { x, y } = coords;
-	let newY = y - 1;
-	let newX = x; // row = y
+	const newY = y - 1;
 	if (newY < 0) {
 		return { x, y };
 	}
-	return { x: newX, y: newY };
+	return { x, y: newY };
 }
 export function getCellBelow({ coords, downSpan }: GetNextCellProps): Coords {
 	const { x, y } = coords;
-	let newY = y + 1;
-	let newX = x; // row = y
+	const newY = y + 1;
 	if (newY >= downSpan) {
 		return { x, y };
 	}
-	return { x: newX, y: newY };
+	return { x, y: newY };
 }
 export function getCellToTheLeft({ coords }: GetNextCellProps): Coords {
 	const { x, y } = coords;
-	let newX = x - 1; // column = x
-	let newY = y; // row = y
+	const newX = x - 1; // column = x
 	if (newX < 0) {
 		return { x, y };
 	}
-	return { x: newX, y: newY };
+	return { x: newX, y };
 }
 export function getCellToTheRight({ coords, acrossSpan }: GetNextCellProps): Coords {
 	const { x, y } = coords;
-	let newX = x + 1; // column = x
-	let newY = y; // row = y
+	const newX = x + 1; // column = x
 	if (newX >= acrossSpan) {
 		return { x, y };
 	}
 
-	return { x: newX, y: newY };
+	return { x: newX, y };
 }

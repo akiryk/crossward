@@ -8,7 +8,7 @@ export function getId({ x, y }: { x: number; y: number }): ID {
 	return `${x}:${y}`;
 }
 
-export const debounce = <T extends any[]>(
+export const debounce = <T extends unknown[]>(
 	callback: (...args: T) => void,
 	wait = DEBOUNCE_DEFAULT_DELAY
 ) => {
@@ -21,7 +21,7 @@ export const debounce = <T extends any[]>(
 	};
 };
 
-export const promiseDebounce = <T extends any[]>(
+export const promiseDebounce = <T extends unknown[]>(
 	callback: (...args: T) => void,
 	wait = DEBOUNCE_DEFAULT_DELAY
 ) => {
@@ -42,7 +42,7 @@ export const promiseDebounce = <T extends any[]>(
 	};
 };
 
-export const chunkArray = <T extends any[]>(arr: T, chunkSize: number): T[][] => {
+export const chunkArray = <T extends unknown[]>(arr: T, chunkSize: number): T[][] => {
 	const chunks = [];
 	for (let i = 0; i < arr.length; i += chunkSize) {
 		chunks.push(arr.slice(i, i + chunkSize));
