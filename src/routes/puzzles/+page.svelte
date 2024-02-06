@@ -9,13 +9,14 @@
 	import ListItem from '$components/ListItem.svelte';
 	import Button from '$components/Button.svelte';
 
-	export let puzzles: Puzzles;
+	export let puzzles: Puzzles | undefined;
 	export let data: PageData;
 	export let form: ActionData & {
 		error?: boolean;
 		message?: string;
 	};
 	// destructure puzzles from data
+	// @ts-expect-error session is any
 	$: ({ puzzles, session } = data);
 </script>
 
@@ -27,7 +28,7 @@
 		>
 			<h2 class="my-2 text-md font-medium">Create a puzzle</h2>
 			<form method="POST" action="?/create" use:enhance>
-				<input type="hidden" name="userEmail" value={data.session?.user?.email} />
+				<input type="hidden" name="userEmail" value={session?.user?.email} />
 				<div>
 					<label>
 						Title:

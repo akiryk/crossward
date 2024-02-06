@@ -11,7 +11,13 @@
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/Hints.svelte';
-	import { BannerType, UserMode, type HintDirection, type EditorPuzzle } from '$utils/types';
+	import {
+		BannerType,
+		UserMode,
+		type HintDirection,
+		type EditorPuzzle,
+		type Hint
+	} from '$utils/types';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 
 	export let puzzle: EditorPuzzle;
@@ -42,7 +48,7 @@
 		unsubscribe();
 	});
 
-	const saveHintData = async (chunkedData: any[], id: string, direction: HintDirection) => {
+	const saveHintData = async (chunkedData: Hint[], id: string, direction: HintDirection) => {
 		chunkedData.forEach(async (chunk) => {
 			const formData = new FormData();
 			formData.append('chunk', JSON.stringify(chunk));

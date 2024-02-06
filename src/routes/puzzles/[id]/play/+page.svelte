@@ -57,7 +57,7 @@
 
 	function checkIfComplete(puzzle: PlayerPuzzle) {
 		isComplete = true;
-		Object.values(puzzle.cellMap).forEach((cell, i) => {
+		Object.values(puzzle.cellMap).forEach((cell) => {
 			const id: ID = `${cell.x}:${cell.y}`;
 			if (!cell.value && cell.correctValue) {
 				isComplete = false;

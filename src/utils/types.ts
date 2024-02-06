@@ -80,6 +80,7 @@ export interface PlayerPuzzle extends PuzzleTemplate {
 	userGameId: string;
 }
 
+export type Puzzle = EditorPuzzle | PlayerPuzzle;
 export type Puzzles = Array<EditorPuzzle | PlayerPuzzle>;
 
 export type SanitizeInputParams = {

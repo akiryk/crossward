@@ -43,13 +43,12 @@
 	// the most recently entered value. Using event.target.value.slice(-1)
 	// gets the last value, but this isn't always the last value entered
 	// by the user.
-	let previousValue = cell.value;
+	// eslint-disable-next-line no-unused-vars
 
 	function handleInput(event: Event) {
 		const cleanValue = getCleanValueOfInput({ event, previousValue: cell.value });
 		(event.target as HTMLInputElement).value = cleanValue;
 		cell.value = cleanValue;
-		previousValue = cleanValue;
 		if (userMode === UserMode.EDITING_CELLS) {
 			cell.correctValue = cleanValue;
 			updateCellSymmetry(cell);
@@ -99,7 +98,6 @@
 				break;
 			case KeyCodes.DELETE_KEY:
 				cell.value = '';
-				previousValue = '';
 				if (userMode === UserMode.EDITING_CELLS) {
 					updateCellSymmetry(cell);
 					cell.correctValue = '';

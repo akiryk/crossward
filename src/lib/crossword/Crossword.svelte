@@ -25,17 +25,15 @@
 	export const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
 
-	export let onInput: (id: ID) => void = (id: ID) => {};
+	export let onInput: (id: ID) => void = () => {};
 	export let puzzle: PlayerPuzzle | EditorPuzzle;
 	export let userMode: UserMode;
 	export let isPreview: boolean = false;
 	let gridDirection = Direction.GO_RIGHT;
-	let highlightedCellIds: Array<ID> = [];
 
 	// Game Store
 	const unsubscribeGameStore = GameStore.subscribe((data) => {
 		gridDirection = data.gridDirection;
-		highlightedCellIds = data.highlightedCellIds;
 	});
 
 	onDestroy(() => {
@@ -125,8 +123,6 @@
 			default:
 				nextCellFunction = getCellToTheRight;
 		}
-		// remove focus from current cell
-		const id = cell.id;
 		// puzzle.cellMap[id].hasFocus = false;
 		// puzzle.cellRows[cell.y][cell.x].hasFocus = false;
 		const nextCellCoords = nextCellFunction({

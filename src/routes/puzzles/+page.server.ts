@@ -1,5 +1,5 @@
 // [id] page.server.ts
-import { redirect, fail } from '@sveltejs/kit';
+import { fail, redirect, type ActionFailure } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';
 import type { Puzzles, EditorPuzzle, PuzzleType } from '$utils/types';
@@ -7,7 +7,13 @@ import { GRID_SIZES, EDIT_PUZZLE } from '$utils/constants';
 import { createInitialCellMap, handleSanitizeInput } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 
-export const load: PageServerLoad = async ({ locals }): Promise<any> => {
+export type LoadData = {
+	puzzles: Puzzles;
+};
+
+export const load: PageServerLoad = async ({
+	locals
+}): Promise<LoadData | ActionFailure<{ message: string }>> => {
 	let session;
 
 	/**
@@ -42,7 +48,9 @@ export const load: PageServerLoad = async ({ locals }): Promise<any> => {
 			puzzles: shapedPuzzles
 		};
 	} catch (error) {
-		return fail(500);
+		return fail(500, {
+			message: 'Something went wrong on the server'
+		});
 	}
 };
 
