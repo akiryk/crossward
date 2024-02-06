@@ -71,7 +71,6 @@
 	});
 
 	function handleClickOutside() {
-		console.log('OUTSIDE');
 		GameStore.update((current) => ({
 			...current,
 			highlightedCellIds: []
