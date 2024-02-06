@@ -11,7 +11,6 @@
 	import Hints from '$lib/crossword/PlayHints.svelte';
 	import type { PlayerPuzzle, ID, CellIdTuple } from '$utils/types';
 	import { UserMode } from '$utils/types';
-	import Button from '$components/Button.svelte';
 	import { debounce, chunkArray } from '$utils/helpers';
 	import {
 		COMPLETE_BUT_WITH_ERRORS,
