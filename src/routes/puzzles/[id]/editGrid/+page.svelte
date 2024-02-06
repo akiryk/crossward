@@ -23,7 +23,7 @@
 	import Banner from '$components/Banner.svelte';
 	import Modal from '$components/Modal.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
-	import { DEBOUNCE_DEFAULT_DELAY, DEFAULT_CHUNK_SIZE } from '$utils/constants';
+	import { DEFAULT_CHUNK_SIZE } from '$utils/constants';
 	import type { ActionData } from './$types.js';
 	import { findWordsThatAreTooShort, getActiveCellIdsFromCellMap } from './editGridHelpers.js';
 
