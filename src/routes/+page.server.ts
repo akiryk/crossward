@@ -35,7 +35,10 @@ export const load: PageServerLoad = async ({
 	// I could remove it with a projection, _id: 0, but we need it.
 	try {
 		const puzzlesFromDb = await puzzlesCollection
-			.find(queryFilter, { limit: 20, projection: { title: 1, authorEmail: 1, publishStatus: 1 } })
+			.find(queryFilter, {
+				limit: 20,
+				projection: { title: 1, authorEmail: 1, publishStatus: 1, puzzleType: 1 }
+			})
 			.toArray();
 
 		// make the _id field serializable

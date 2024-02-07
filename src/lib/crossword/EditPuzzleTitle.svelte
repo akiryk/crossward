@@ -1,7 +1,9 @@
 <script lang="ts">
 	// components/crossword/EditPuzzleTitle.svelte
 	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
 	import Button from '$components/Button.svelte';
+	import Modal from '$components/Modal.svelte';
 	import { UPDATE_TITLE, DELETE_PUZZLE } from '$utils/constants';
 	import type { ActionData } from '../../routes/puzzles/[id]/editGrid/$types';
 	import type { ActionData as ActionDataFromHints } from '../../routes/puzzles/[id]/editHints/$types';
@@ -16,7 +18,23 @@
 	export let title: string;
 	export let id: string;
 
+	let showModal = false;
+
 	$: message = getMessage(form);
+
+	async function handleDelete() {
+		const formData = new FormData();
+		formData.append('id', id);
+		try {
+			const result = await fetch(`?/delete`, {
+				method: 'POST',
+				body: formData
+			});
+			goto('/?isDeleteSuccess=true');
+		} catch (error) {
+			console.error('Error deleting puzzle');
+		}
+	}
 
 	function getMessage(form: ActionData | ActionDataFromHints): Message {
 		if (form) {
@@ -61,7 +79,13 @@
 			<Button buttonType="submit" style="primary">Update</Button>
 		</form>
 	</div>
-	<form method="POST" action="?/delete" use:enhance>
+	<form
+		method="POST"
+		action="?/delete"
+		on:submit|preventDefault={() => {
+			showModal = true;
+		}}
+	>
 		<input type="hidden" name="id" value={id} />
 		Danger Zone!
 		<Button buttonType="submit" style="primary">Delete</Button>
@@ -74,3 +98,10 @@
 		<p class="text-green-500 mb-4">{message?.text}</p>
 	{/if}
 {/if}
+
+<Modal bind:showModal>
+	<h2 slot="header">Hoo, boy! You gonna Delete?</h2>
+
+	<p class="mb-10">You sher 'bout that?'</p>
+	<button class="btn" on:click={handleDelete}>Yes, Delete!</button>
+</Modal>

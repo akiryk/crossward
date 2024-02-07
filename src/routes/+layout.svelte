@@ -1,5 +1,4 @@
 <script>
-	import { Modals, closeModal } from 'svelte-modals';
 	import { signIn, signOut } from '@auth/sveltekit/client';
 	import { page } from '$app/stores';
 	import '../app.css';
@@ -9,7 +8,7 @@
 	<nav class="bg-white border-gray-200">
 		<div class="flex flex-wrap items-center justify-between mx-auto py-4">
 			<a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
-				<span class="self-center text-2xl font-semibold whitespace-nowrap">Crossward</span>
+				<span class="self-center text-2xl font-bold whitespace-nowrap font-sans">Crossward</span>
 			</a>
 			<button
 				data-collapse-toggle="navbar-default"
@@ -57,7 +56,3 @@
 	</nav>
 </div>
 <slot />
-
-<Modals>
-	<div slot="backdrop" class="backdrop" on:click={closeModal} />
-</Modals>

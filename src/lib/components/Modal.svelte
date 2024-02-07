@@ -15,9 +15,7 @@
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div on:click|stopPropagation>
 		<slot name="header" />
-		<hr />
 		<slot />
-		<hr />
 		<!-- svelte-ignore a11y-autofocus -->
 		<button autofocus on:click={() => dialog.close()}>close modal</button>
 	</div>
@@ -25,7 +23,7 @@
 
 <style>
 	dialog {
-		max-width: 32em;
+		max-width: 800px;
 		border-radius: 0.2em;
 		border: none;
 		padding: 0;

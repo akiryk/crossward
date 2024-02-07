@@ -35,15 +35,22 @@
 	}
 	@font-face {
 		font-family: 'Inria Sans';
+		src: local('Inria Sans'), local('Inria_Sans'), local('InriaSans_Light'), local('inria-sans'),
+			url('/fonts/Inria_Sans/InriaSans-Light.ttf');
+		font-weight: light;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'Inria Sans';
 		src: local('Inria Sans'), local('Inria_Sans'), local('InriaSans_Regular'), local('inria-sans'),
-			url('/fonts/Inria_Serif/InriaSans-Regular.ttf');
+			url('/fonts/Inria_Sans/InriaSans-Regular.ttf');
 		font-weight: normal;
 		font-display: swap;
 	}
 	@font-face {
 		font-family: 'Inria Sans';
 		src: local('Inria Sans Bold'), local('InriaSans_Bold'), local('inria-sans-bold'),
-			url('/fonts/Inria_Sans/InriaSerif-Bold.ttf');
+			url('/fonts/Inria_Sans/InriaSans-Bold.ttf');
 		font-weight: bold;
 		font-display: swap;
 	}
