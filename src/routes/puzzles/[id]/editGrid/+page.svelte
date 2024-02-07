@@ -1,5 +1,6 @@
 <script lang="ts">
 	// [id]/editGrid/page.svelte
+	import { Modals, closeModal, openModal, modals } from 'svelte-modals';
 	import { get } from 'svelte/store';
 	import { type ActionResult } from '@sveltejs/kit';
 	import { deserialize } from '$app/forms';
@@ -21,7 +22,7 @@
 		type GameContext
 	} from '$utils/types';
 	import Banner from '$components/Banner.svelte';
-	import Modal from '$components/Modal.svelte';
+	// import Modal from '$components/Modal.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 	import { DEBOUNCE_DEFAULT_DELAY, DEFAULT_CHUNK_SIZE } from '$utils/constants';
 	import type { ActionData } from './$types.js';

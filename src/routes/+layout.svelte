@@ -1,4 +1,5 @@
 <script>
+	import { Modals, closeModal } from 'svelte-modals';
 	import { signIn, signOut } from '@auth/sveltekit/client';
 	import { page } from '$app/stores';
 	import '../app.css';
@@ -56,3 +57,7 @@
 	</nav>
 </div>
 <slot />
+
+<Modals>
+	<div slot="backdrop" class="backdrop" on:click={closeModal} />
+</Modals>
