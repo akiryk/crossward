@@ -17,6 +17,7 @@
 	export let onBlur: (event: Event) => void;
 	export let onClick: (event: MouseEvent) => void;
 	export let isGameOver = false;
+	export let tabindex: string = '-1';
 
 	let inputElement: HTMLInputElement;
 	const SHARED_CELL_FONT_STYLES = 'text-center text-xl uppercase';
@@ -37,7 +38,7 @@
 	});
 
 	$: if (hasFocus) {
-		inputElement.focus();
+		inputElement?.focus();
 	}
 
 	function getStyles({
@@ -88,6 +89,7 @@
 		type="text"
 		class={classes}
 		name="cell"
+		{tabindex}
 		on:input={onInput}
 		on:keydown={onKeydown}
 		bind:this={inputElement}
