@@ -40,17 +40,17 @@ describe('findWordsThatAreTooShort', () => {
 describe('findIfPuzzleFailsRadialSymmetry', () => {
 	it('returns false if all radially symmetrical cells have content', () => {
 		const cellMap: CellMap = {
-			// @ts-ignore
+			// @ts-expect-error - no need to test the fully cell type
 			'0:0': {
 				correctValue: 'A',
 				isSymmetrical: true
 			},
-			// @ts-ignore
+			// @ts-expect-error - no need to test the fully cell type
 			'2:1': {
 				correctValue: 'B',
 				isSymmetrical: true
 			},
-			// @ts-ignore
+			// @ts-expect-error - no need to test the fully cell type
 			'3:3': {
 				correctValue: '',
 				isSymmetrical: false
@@ -62,17 +62,17 @@ describe('findIfPuzzleFailsRadialSymmetry', () => {
 
 	it("returns true if any radially symmetrical cells don't have content", () => {
 		const cellMap: CellMap = {
-			// @ts-ignore
+			// @ts-expect-error - no need to test the fully cell type
 			'0:0': {
 				correctValue: '',
 				isSymmetrical: true
 			},
-			// @ts-ignore
+			// @ts-expect-error - no need to test the fully cell type
 			'2:1': {
 				correctValue: 'B',
 				isSymmetrical: true
 			},
-			// @ts-ignore
+			// @ts-expect-error - no need to test the fully cell type
 			'3:3': {
 				correctValue: '',
 				isSymmetrical: false
