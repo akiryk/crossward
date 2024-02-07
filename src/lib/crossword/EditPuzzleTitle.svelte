@@ -26,7 +26,7 @@
 		const formData = new FormData();
 		formData.append('id', id);
 		try {
-			const result = await fetch(`?/delete`, {
+			await fetch(`?/delete`, {
 				method: 'POST',
 				body: formData
 			});

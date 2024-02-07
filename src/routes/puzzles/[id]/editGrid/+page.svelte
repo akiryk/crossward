@@ -161,7 +161,7 @@
 
 	const promiseDebounceSave = promiseDebounce(saveData);
 
-	const handleSaveCellMap = async (debounceDelay: number = DEBOUNCE_DEFAULT_DELAY) => {
+	const handleSaveCellMap = async () => {
 		if (!puzzle) {
 			return;
 		}
