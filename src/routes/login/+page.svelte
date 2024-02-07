@@ -18,5 +18,8 @@
 	{:else}
 		<p>You need to login, right?</p>
 		<button type="button" on:click={() => signIn('google')} class={classes}>Sign In</button>
+		<button type="button" on:click={() => signIn('name & password')} class={classes}
+			>Sign In Bad</button
+		>
 	{/if}
 </div>
