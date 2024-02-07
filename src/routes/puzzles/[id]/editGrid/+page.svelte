@@ -25,7 +25,11 @@
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
 	import { DEFAULT_CHUNK_SIZE } from '$utils/constants';
 	import type { ActionData } from './$types.js';
-	import { findWordsThatAreTooShort, getActiveCellIdsFromCellMap } from './editGridHelpers.js';
+	import {
+		findWordsThatAreTooShort,
+		getActiveCellIdsFromCellMap,
+		findIfPuzzleFailsRadialSymmetry
+	} from './editGridHelpers.js';
 
 	export let puzzle: EditorPuzzle;
 	export let data: LoadData;
@@ -195,6 +199,13 @@
 	};
 
 	const validateGridIsReadyForHints = async () => {
+		if (findIfPuzzleFailsRadialSymmetry(puzzle.cellMap)) {
+			modalTitle = 'Ah, nuts!';
+			modalMessage = `This puzzle doesn't have radial symmetry. Toggle on preview mode to see the red squares that you should complete.`;
+			showModal = true;
+			return;
+		}
+
 		const { activeCellIds } = get(GameStore);
 		const twoLetterWordIds = findWordsThatAreTooShort(puzzle.cellMap, activeCellIds);
 		GameStore.update((current: GameContext) => {

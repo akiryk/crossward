@@ -1,5 +1,9 @@
 import { it, describe, expect } from 'vitest';
-import { getActiveCellIdsFromCellMap, findWordsThatAreTooShort } from './editGridHelpers';
+import {
+	getActiveCellIdsFromCellMap,
+	findWordsThatAreTooShort,
+	findIfPuzzleFailsRadialSymmetry
+} from './editGridHelpers';
 import mockCellMapForFindWordsThatAreTooShort from '../../../../__mocks__/mockCellMapForFindWordsThatAreTooShort';
 import type { CellMap } from '$utils/types';
 
@@ -30,6 +34,52 @@ describe('findWordsThatAreTooShort', () => {
 			'1:4',
 			'2:4'
 		]);
+	});
+});
+
+describe('findIfPuzzleFailsRadialSymmetry', () => {
+	it('returns false if all radially symmetrical cells have content', () => {
+		const cellMap: CellMap = {
+			// @ts-ignore
+			'0:0': {
+				correctValue: 'A',
+				isSymmetrical: true
+			},
+			// @ts-ignore
+			'2:1': {
+				correctValue: 'B',
+				isSymmetrical: true
+			},
+			// @ts-ignore
+			'3:3': {
+				correctValue: '',
+				isSymmetrical: false
+			}
+		};
+
+		expect(findIfPuzzleFailsRadialSymmetry(cellMap)).toBe(false);
+	});
+
+	it("returns true if any radially symmetrical cells don't have content", () => {
+		const cellMap: CellMap = {
+			// @ts-ignore
+			'0:0': {
+				correctValue: '',
+				isSymmetrical: true
+			},
+			// @ts-ignore
+			'2:1': {
+				correctValue: 'B',
+				isSymmetrical: true
+			},
+			// @ts-ignore
+			'3:3': {
+				correctValue: '',
+				isSymmetrical: false
+			}
+		};
+
+		expect(findIfPuzzleFailsRadialSymmetry(cellMap)).toBe(true);
 	});
 });
 
