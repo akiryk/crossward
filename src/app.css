@@ -19,6 +19,42 @@
 		@apply h-6 relative inline-block;
 	}
 
+	@font-face {
+		font-family: 'Inria Serif';
+		src: local('Inria Serif'), local('Inria_Serif'), local('InriaSerif_Regular'),
+			local('inria-serif'), url('/fonts/Inria_Serif/InriaSerif-Regular.ttf');
+		font-weight: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'Inria Serif';
+		src: local('Inria Serif Bold'), local('InriaSerif_Bold'), local('inria-serif-bold'),
+			url('/fonts/Inria_Serif/InriaSerif-Bold.ttf');
+		font-weight: bold;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'Inria Sans';
+		src: local('Inria Sans'), local('Inria_Sans'), local('InriaSans_Light'), local('inria-sans'),
+			url('/fonts/Inria_Sans/InriaSans-Light.ttf');
+		font-weight: light;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'Inria Sans';
+		src: local('Inria Sans'), local('Inria_Sans'), local('InriaSans_Regular'), local('inria-sans'),
+			url('/fonts/Inria_Sans/InriaSans-Regular.ttf');
+		font-weight: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'Inria Sans';
+		src: local('Inria Sans Bold'), local('InriaSans_Bold'), local('inria-sans-bold'),
+			url('/fonts/Inria_Sans/InriaSans-Bold.ttf');
+		font-weight: bold;
+		font-display: swap;
+	}
+
 	[type='checkbox'] {
 		@apply w-11 h-0 cursor-pointer inline-block;
 		@apply focus:outline-0 dark:focus:outline-0;

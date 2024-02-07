@@ -3,7 +3,7 @@ import { fail, redirect, type ActionFailure } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import type { PageServerLoad } from './$types';
 import type { Puzzles, EditorPuzzle, PuzzleType } from '$utils/types';
-import { GRID_SIZES, EDIT_PUZZLE } from '$utils/constants';
+import { GRID_SIZES, EDIT_PUZZLE, PUBLISHED } from '$utils/constants';
 import { createInitialCellMap, handleSanitizeInput } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 
@@ -15,14 +15,14 @@ export const load: PageServerLoad = async ({
 	locals
 }): Promise<LoadData | ActionFailure<{ message: string }>> => {
 	let session;
-
+	let queryFilter = {};
 	/**
 	 * Redirect unauthorized users to login page!
 	 */
 	try {
 		session = await locals.getSession();
 		if (!session) {
-			throw new Error('not authenticated');
+			queryFilter = { publishStatus: PUBLISHED };
 		}
 	} catch {
 		throw redirect(302, '/login');
@@ -35,7 +35,10 @@ export const load: PageServerLoad = async ({
 	// I could remove it with a projection, _id: 0, but we need it.
 	try {
 		const puzzlesFromDb = await puzzlesCollection
-			.find({}, { limit: 10, projection: { title: 1, authorEmail: 1, publishStatus: 1 } })
+			.find(queryFilter, {
+				limit: 20,
+				projection: { title: 1, authorEmail: 1, publishStatus: 1, puzzleType: 1 }
+			})
 			.toArray();
 
 		// make the _id field serializable

@@ -2,7 +2,12 @@
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
-		extend: {}
+		extend: {
+			fontFamily: {
+				serif: ['Inria Serif'],
+				sans: ['Inria Sans']
+			}
+		}
 	},
 	plugins: [require('@tailwindcss/forms')]
 };

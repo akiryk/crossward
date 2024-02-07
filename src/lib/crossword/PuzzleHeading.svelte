@@ -23,12 +23,11 @@
 	}
 </script>
 
-{#if isCreateSuccess}
-	<p class="text-lime-600 font-medium mb-3">
-		Yay, you created a new {puzzleType} puzzle!
-	</p>
-{/if}
-
-<h2 class="font-medium text-xl mb-3">
+<h2 class="font-medium font-sans text-md mb-2">
+	{#if isCreateSuccess}
+		<span class="text-lime-600">
+			Yay, you created a new {puzzleType} puzzle!
+		</span>
+	{/if}
 	{headingText}
 </h2>

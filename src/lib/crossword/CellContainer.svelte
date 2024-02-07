@@ -19,9 +19,9 @@
 	export let updateCellWithFocus: (coords: Coords) => void;
 
 	let isHighlighted: boolean;
-	let hasFocus: boolean = false;
 	let shouldSignalWarning: boolean = false;
 	let gridDirection: Direction;
+	let hasFocus: boolean = false;
 
 	// Game Store
 	const unsubscribeGameStore = GameStore.subscribe((data) => {
@@ -146,6 +146,7 @@
 	$: isError = isPreview && cell.isSymmetrical && !cell.correctValue;
 	$: isWarning = isPreview && shouldSignalWarning;
 	$: isBlack = isPreview && !cell.value && !isError && !isWarning;
+	$: tabindex = cell.id === '0:0' || hasFocus ? '0' : '-1';
 </script>
 
 {#if userMode === UserMode.PLAY && cell.correctValue}
@@ -160,6 +161,7 @@
 		onClick={handleClick}
 		{isHighlighted}
 		{userMode}
+		{tabindex}
 	/>
 {:else if userMode === UserMode.EDITING_CELLS}
 	<Cell
@@ -177,6 +179,7 @@
 		{isWarning}
 		{isError}
 		{isBlack}
+		{tabindex}
 	/>
 {:else if userMode === UserMode.PREVIEW}
 	<PreviewCell
@@ -194,7 +197,7 @@
 		id={cell.id}
 	/>
 {:else if userMode === UserMode.EDITING_HINTS}
-	<PreviewCell displayNumber={cell.displayNumber} value={cellCorrectValue} />
+	<PreviewCell id={cell.id} displayNumber={cell.displayNumber} value={cellCorrectValue} />
 {:else}
 	<DeadCell />
 {/if}
