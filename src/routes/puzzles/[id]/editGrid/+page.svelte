@@ -220,13 +220,13 @@
 				twoLetterWordIds.length === 2
 					? 'a two-letter word'
 					: twoLetterWordIds.length / 2 + ' two-letter words'
-			}. Are you sure you want to proceed?`;
+			}. Toggle on preview mode to see the pink squares identifying these words.`;
 			showModal = true;
 			return;
 		}
 		if (activeCellIds.length < 3) {
 			modalTitle = 'Hold on, there!';
-			modalMessage = `This puzzle doesn't have much content. Are you sure you want to proceed?`;
+			modalMessage = `This puzzle doesn't seem finished. You think it is? Forget that, you need more words.`;
 			showModal = true;
 			return;
 		}
@@ -298,5 +298,4 @@
 	</h2>
 
 	<p class="mb-10">{modalMessage}</p>
-	<button class="btn" on:click={saveGridAndCreateHints}>Yes I do!</button>
 </Modal>
