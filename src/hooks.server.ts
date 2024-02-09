@@ -2,7 +2,7 @@ import { SvelteKitAuth } from '@auth/sveltekit';
 import argon2 from 'argon2';
 import Google from '@auth/sveltekit/providers/google';
 import Credentials from '@auth/sveltekit/providers/credentials';
-import { GOOGLE_ID, GOOGLE_SECRET, TEST_EMAIL_ACCOUNT } from '$env/static/private';
+import { GOOGLE_ID, GOOGLE_SECRET, TEST_EMAIL_ACCOUNT, AUTH_SECRET } from '$env/static/private';
 import { startMongo } from '$db/mongo';
 import { usersCollection } from '$db/auth';
 
@@ -77,7 +77,8 @@ export const handle = SvelteKitAuth({
 			clientId: GOOGLE_ID,
 			clientSecret: GOOGLE_SECRET
 		})
-	]
+	],
+	secret: AUTH_SECRET
 });
 
 /**
