@@ -1,4 +1,5 @@
 import { SvelteKitAuth } from '@auth/sveltekit';
+import { redirect } from '@sveltejs/kit';
 import argon2 from 'argon2';
 import Google from '@auth/sveltekit/providers/google';
 import Credentials from '@auth/sveltekit/providers/credentials';
@@ -73,16 +74,11 @@ export const handle = SvelteKitAuth({
 				// }
 			}
 		}),
-		Google({ clientId: GOOGLE_ID, clientSecret: GOOGLE_SECRET })
-	],
-	callbacks: {
-		async jwt({ token, user }) {
-			if (user) {
-				console.log('hello callback!', user);
-			}
-			return token;
-		}
-	}
+		Google({
+			clientId: GOOGLE_ID,
+			clientSecret: GOOGLE_SECRET
+		})
+	]
 });
 
 /**

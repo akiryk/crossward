@@ -7,6 +7,7 @@
 
 	import List from '$components/List.svelte';
 	import ListItem from '$components/ListItem.svelte';
+	import { goto } from '$app/navigation';
 
 	export let puzzles: Puzzles | undefined;
 	export let data: PageData;
@@ -17,6 +18,15 @@
 
 	let showModal = false;
 
+	function handleCreateAPuzzle() {
+		console.log('create puzzle click');
+		if (data.session?.user) {
+			showModal = true;
+		} else {
+			goto('/login');
+		}
+	}
+
 	$: ({ puzzles } = data);
 </script>
 
@@ -24,7 +34,7 @@
 	<section>
 		<div class="flex items-center mb-6">
 			<h1 class="mr-4 mt-0 text-xl font-medium leading-tight text-primary font-serif">Play!</h1>
-			<button class="btn" on:click={() => (showModal = true)}>Create a puzzle</button>
+			<button class="btn" on:click={handleCreateAPuzzle}>Create a puzzle</button>
 		</div>
 		{#if puzzles}
 			<List type="ul">
