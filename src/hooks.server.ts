@@ -1,5 +1,4 @@
 import { SvelteKitAuth } from '@auth/sveltekit';
-import { redirect } from '@sveltejs/kit';
 import argon2 from 'argon2';
 import Google from '@auth/sveltekit/providers/google';
 import Credentials from '@auth/sveltekit/providers/credentials';
