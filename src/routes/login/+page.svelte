@@ -7,19 +7,39 @@
 	$: ({ session } = data);
 
 	export let classes =
-		'text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 ';
+		'text-white text-md bg-lime-600 border border-green-700 focus:outline-none hover:bg-green-700 focus:ring-4 focus:ring-pink-300 font-medium rounded-lg px-5 py-2.5 ';
 </script>
 
 <div class="p-4">
-	<h1>Login page</h1>
+	<h1 class="mr-4 mt-0 mb-2 text-xl font-medium leading-tight text-primary font-serif">Log in</h1>
 	{#if session?.user}
-		<p>Actually, you're already logged in. Were you hoping to log out?</p>
+		<p class="mb-1">
+			You're already logged in! Strange, you should have been redirected to the puzzles page.
+		</p>
+		<p class="mb-10">No matter, <a class="text-blue-500" href="/">go to puzzles page</a></p>
 		<button type="button" on:click={() => signOut()} class={classes}>Sign Out</button>
 	{:else}
-		<p>You need to login, right?</p>
-		<button type="button" on:click={() => signIn('google')} class={classes}>Sign In</button>
-		<button type="button" on:click={() => signIn('name & password')} class={classes}
-			>Sign In Bad</button
+		<p class="mb-10">Before you can play, please... do us the honor.</p>
+		<button type="button" on:click={() => signIn('google')} class={classes}
+			>Sign In With Google</button
+		>
+		<button
+			type="button"
+			data-testid="sign-in-button"
+			on:click={() => signIn('name & password')}
+			class="visually-hidden">Username Login</button
 		>
 	{/if}
 </div>
+
+<style>
+	.visually-hidden {
+		clip: rect(0 0 0 0);
+		clip-path: inset(50%);
+		height: 1px;
+		overflow: hidden;
+		position: absolute;
+		white-space: nowrap;
+		width: 1px;
+	}
+</style>

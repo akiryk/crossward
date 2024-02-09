@@ -21,6 +21,7 @@
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@tailwindcss/forms": "^0.5.7",
 		"@testing-library/svelte": "^4.0.5",
+		"@types/bcryptjs": "^2.4.6",
 		"@types/eslint": "8.56.0",
 		"@types/jest": "^29.5.11",
 		"@types/sanitize-html": "^2.9.5",
@@ -47,6 +48,8 @@
 	"dependencies": {
 		"@auth/sveltekit": "^0.5.1",
 		"@testing-library/jest-dom": "^6.2.1",
+		"argon2": "^0.31.2",
+		"bcryptjs": "^2.4.3",
 		"mongodb": "^6.3.0",
 		"sanitize-html": "^2.11.0"
 	}
