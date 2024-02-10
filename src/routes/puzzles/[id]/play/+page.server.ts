@@ -11,7 +11,8 @@ import {
 	removeAnswers,
 	transformCellMapArrayForDb,
 	getErrorMessage,
-	createCellRows
+	createCellRows,
+	stripOutCurrectAnswersForClient
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 
@@ -137,6 +138,8 @@ export const load: PageServerLoad = async ({
 			message
 		});
 	}
+
+	// const cellMap = stripOutCurrectAnswersForClient(playerPuzzle.cellMap);
 	// Create cellRows every time the page loads; otherwise, the cells
 	// in cellRows and in cellMap will get out of sync
 	const cellRows: CellRows = createCellRows({

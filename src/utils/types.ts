@@ -120,6 +120,7 @@ export type Cell = {
 	acrossWordEndX?: number;
 	downWordStartY?: number;
 	downWordEndY?: number;
+	isPlayerCell?: boolean;
 };
 
 export type CellMap = Record<ID, Cell>;

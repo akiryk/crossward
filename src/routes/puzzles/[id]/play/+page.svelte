@@ -7,7 +7,6 @@
 	import PuzzleStore from '../../../../stores/PuzzleStore';
 	import GameStore from '../../../../stores/GameStore';
 	import Crossword from '$lib/crossword/Crossword.svelte';
-	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
 	import Hints from '$lib/crossword/PlayHints.svelte';
 	import type { PlayerPuzzle, ID, CellIdTuple } from '$utils/types';
 	import { UserMode } from '$utils/types';
@@ -136,17 +135,23 @@
 	};
 </script>
 
-<PuzzleHeading puzzleType={puzzle.puzzleType} userMode={UserMode.PLAY} title={puzzle.title} />
-
-<form method="POST" action="?/saveGame" autocomplete="off" on:submit|preventDefault={handleSubmit}>
-	<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
-	<input type="hidden" name="id" value={puzzle._id} />
-	<div class="mb-5 w-fit" use:clickOutside={{ callback: handleClickOutside }}>
-		<Crossword
-			{puzzle}
-			userMode={isComplete && incorrectCells.length === 0 ? UserMode.GAME_OVER : UserMode.PLAY}
-			onInput={handleSaveOnInput}
-		/>
+<h1 class="mb-3 font-bold">Play {puzzle.title}</h1>
+<div class="flex">
+	<div class="mb-5 w-fit mr-8" use:clickOutside={{ callback: handleClickOutside }}>
+		<form
+			method="POST"
+			action="?/saveGame"
+			autocomplete="off"
+			on:submit|preventDefault={handleSubmit}
+		>
+			<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
+			<input type="hidden" name="id" value={puzzle._id} />
+			<Crossword
+				{puzzle}
+				userMode={isComplete && incorrectCells.length === 0 ? UserMode.GAME_OVER : UserMode.PLAY}
+				onInput={handleSaveOnInput}
+			/>
+		</form>
 	</div>
-</form>
-<Hints {puzzle} />
+	<Hints {puzzle} />
+</div>
