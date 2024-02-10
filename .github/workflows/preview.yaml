@@ -9,6 +9,22 @@ on:
       - main
 
 jobs:
+  Integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Run Integration Tests
+        run: npm run test:integration
+        env:
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+
   Test:
     runs-on: ubuntu-latest
     steps:
