@@ -18,7 +18,7 @@ import sanitizeHtml from 'sanitize-html';
 import mongodb, { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
-import type { PageServerLoad } from '../routes/puzzles/[id]/$types';
+import type { PageServerLoad } from '../routes/puzzles/[id]/editGrid/$types';
 import { UPDATE_TITLE, DELETE_PUZZLE } from './constants';
 
 type Props = {
@@ -56,9 +56,11 @@ export const editpageServerLoad: PageServerLoad = async ({
 			throw new Error('No puzzle');
 		}
 
-		if (puzzleFromSource.authorEmail !== session.user?.email) {
-			throw new Error('No access');
-		}
+		// TODO: Confirm is this is what I want to do
+		// if (puzzleFromSource.authorEmail !== session.user?.email) {
+		// 	throw new Error('No access');
+		// }
+
 		// Create cellRows every time the page loads; otherwise, the cells
 		// in cellRows and in cellMap will get out of sync
 		const cellRows: CellRows = createCellRows({
