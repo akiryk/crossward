@@ -20,7 +20,10 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run test:integration
+      - name: Run Integration Tests
+        run: npm run test:integration
+        env:
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
 
   Test:
     runs-on: ubuntu-latest
