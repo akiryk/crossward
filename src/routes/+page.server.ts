@@ -48,7 +48,7 @@ export const load: PageServerLoad = async ({
 		})) as unknown as Puzzles;
 
 		return {
-			puzzles: shapedPuzzles
+			puzzles: [{ _id: 'test', title: 'Test Puzzle' }]
 		};
 	} catch (error) {
 		return fail(500, {
