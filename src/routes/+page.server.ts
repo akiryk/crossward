@@ -51,6 +51,9 @@ export const load: PageServerLoad = async ({
 			puzzles: [{ _id: 'test', title: 'Test Puzzle' }]
 		};
 	} catch (error) {
+		return {
+			puzzles: [{ _id: 'test', title: 'Test Puzzle' }]
+		};
 		return fail(500, {
 			message: 'Something went wrong on the server'
 		});
