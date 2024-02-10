@@ -72,9 +72,9 @@
 		});
 	}
 
-	export function handleClick(event: MouseEvent) {
-		// if (cellIsInteractive) {
+	export function handleClick(event: MouseEvent | PointerEvent) {
 		// If it's a double click, highlight the row or the column
+		// TODO: Implement for touch events as well
 		if (event.detail === 2) {
 			toggleGridDirection(cell);
 		}
