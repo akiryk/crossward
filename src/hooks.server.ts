@@ -1,6 +1,5 @@
 import { SvelteKitAuth } from '@auth/sveltekit';
 import Google from '@auth/sveltekit/providers/google';
-import Credentials from '@auth/sveltekit/providers/credentials';
 import { GOOGLE_ID, GOOGLE_SECRET } from '$env/static/private';
 import { startMongo } from '$db/mongo';
 
@@ -10,22 +9,7 @@ import { startMongo } from '$db/mongo';
  * handle will run on every request
  */
 export const handle = SvelteKitAuth({
-	providers: [
-		Credentials({
-			name: 'name & password',
-			credentials: {
-				username: { label: 'Username', type: 'text' },
-				password: { label: 'Password', type: 'password' }
-			},
-			async authorize(credentials, request) {
-				console.log('Hello!!!');
-				const response = await fetch(request);
-				if (!response.ok) return null;
-				return (await response.json()) ?? null;
-			}
-		}),
-		Google({ clientId: GOOGLE_ID, clientSecret: GOOGLE_SECRET })
-	]
+	providers: [Google({ clientId: GOOGLE_ID, clientSecret: GOOGLE_SECRET })]
 });
 
 /**
