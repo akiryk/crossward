@@ -137,6 +137,7 @@ export const load: PageServerLoad = async ({
 			message
 		});
 	}
+
 	// Create cellRows every time the page loads; otherwise, the cells
 	// in cellRows and in cellMap will get out of sync
 	const cellRows: CellRows = createCellRows({

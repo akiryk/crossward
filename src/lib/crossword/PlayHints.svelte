@@ -1,21 +1,53 @@
 <script lang="ts">
-	import { type PlayerPuzzle } from '$utils/types';
+	import { type PlayerPuzzle, Direction } from '$utils/types';
+	import GameStore from '../../stores/GameStore';
 	import PlayHintRow from './PlayHintRow.svelte';
 	export let puzzle: PlayerPuzzle;
+
+	const DOWN = 'DOWN';
+	const ACROSS = 'ACROSS';
+
+	function handleClick({ displayNumber, direction }: { displayNumber: number; direction: string }) {
+		// set the grid direction based on hint direction
+		// The highlighted cells will automatically update once we set the focused cell
+		const puzzleCell = Object.values(puzzle.cellMap).find(
+			(cell) => cell.displayNumber === displayNumber
+		);
+		const gridDirection = direction === DOWN ? Direction.GO_DOWN : Direction.GO_RIGHT;
+		if (puzzleCell) {
+			GameStore.update((current) => {
+				return {
+					...current,
+					cellWithFocusId: puzzleCell.id,
+					gridDirection
+				};
+			});
+		}
+	}
 </script>
 
 {#if puzzle.acrossHints || puzzle.downHints}
-	<div class="flex">
-		<div class="mr-2 w-full">
-			<h2 class="font-bold text-left">Across Hints</h2>
+	<div class="flex flex-1 max-w-xl">
+		<div class="mr-8 flex-1">
+			<h2 class="font-bold text-left mb-3">Across Hints</h2>
 			{#each puzzle.acrossHints as hint}
-				<PlayHintRow hint={hint.hint} displayNumber={hint.displayNumber} />
+				<PlayHintRow
+					direction={ACROSS}
+					hint={hint.hint}
+					displayNumber={hint.displayNumber}
+					onClick={handleClick}
+				/>
 			{/each}
 		</div>
-		<div class="ml-2 w-full">
-			<h2 class="font-bold text-left">Down Hints</h2>
+		<div class="ml-2 flex-1">
+			<h2 class="font-bold text-left mb-3">Down Hints</h2>
 			{#each puzzle.downHints as hint}
-				<PlayHintRow hint={hint.hint} displayNumber={hint.displayNumber} />
+				<PlayHintRow
+					direction={DOWN}
+					hint={hint.hint}
+					displayNumber={hint.displayNumber}
+					onClick={handleClick}
+				/>
 			{/each}
 		</div>
 	</div>
