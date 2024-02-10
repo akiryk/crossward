@@ -7,7 +7,18 @@
 	const DOWN = 'DOWN';
 	const ACROSS = 'ACROSS';
 
+	let acrossDisplay: number | null;
+	let downDisplay: number | null;
+
 	function handleClick({ displayNumber, direction }: { displayNumber: number; direction: string }) {
+		// highlight the selected hint
+		if (direction === DOWN) {
+			acrossDisplay = null;
+			downDisplay = displayNumber;
+		} else {
+			downDisplay = null;
+			acrossDisplay = displayNumber;
+		}
 		// set the grid direction based on hint direction
 		// The highlighted cells will automatically update once we set the focused cell
 		const puzzleCell = Object.values(puzzle.cellMap).find(
@@ -36,6 +47,7 @@
 					hint={hint.hint}
 					displayNumber={hint.displayNumber}
 					onClick={handleClick}
+					isSelected={acrossDisplay === hint.displayNumber}
 				/>
 			{/each}
 		</div>
@@ -47,6 +59,7 @@
 					hint={hint.hint}
 					displayNumber={hint.displayNumber}
 					onClick={handleClick}
+					isSelected={downDisplay === hint.displayNumber}
 				/>
 			{/each}
 		</div>

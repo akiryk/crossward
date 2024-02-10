@@ -2,6 +2,7 @@
 	export let hint: string;
 	export let displayNumber: number;
 	export let direction: string;
+	export let isSelected: boolean;
 	export let onClick: ({
 		displayNumber,
 		direction
@@ -11,8 +12,13 @@
 	}) => void;
 </script>
 
-<button on:click={() => onClick({ displayNumber, direction })} class="text-left flex">
-	<div class="mb-3 flex items-baseline">
+<button
+	on:click={() => onClick({ displayNumber, direction })}
+	class={`text-left flex p-2 w-full dark:focus-visible:border-transparent ${
+		isSelected && ' bg-cyan-100'
+	}`}
+>
+	<div class="flex items-baseline">
 		<div class="text-sm font-bold w-6">{displayNumber}.</div>
 		<span class="font-light">{hint}</span>
 	</div>
