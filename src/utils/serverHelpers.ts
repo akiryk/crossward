@@ -433,17 +433,3 @@ export function getErrorMessage(error: unknown, fallback?: string): string {
 	if (error instanceof Error) return error.message;
 	return fallback ? fallback : String(error);
 }
-
-export function stripOutCurrectAnswersForClient(cellMap: CellMap): CellMap {
-	const clone = structuredClone(cellMap);
-	for (const key in clone) {
-		if (clone.hasOwnProperty(key)) {
-			const keyId = key as ID;
-			if (clone[keyId].correctValue) {
-				clone[keyId].isPlayerCell = true;
-				clone[keyId].correctValue = '';
-			}
-		}
-	}
-	return clone;
-}
