@@ -41,7 +41,7 @@
 								</div>
 							</div>
 						</ListItem>
-					{:else if puzzle.authorEmail === data.session?.user?.email}
+					{:else}
 						<ListItem>
 							<div class="flex items-baseline font-sans">
 								<span>

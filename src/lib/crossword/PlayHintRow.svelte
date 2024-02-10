@@ -11,9 +11,9 @@
 	}) => void;
 </script>
 
-<div class="mb-3 flex items-baseline">
-	<div class="text-sm font-bold w-4">{displayNumber}.</div>
-	<button on:click={() => onClick({ displayNumber, direction })} class="font-light text-left">
-		{hint}
-	</button>
-</div>
+<button on:click={() => onClick({ displayNumber, direction })} class="text-left flex">
+	<div class="mb-3 flex items-baseline">
+		<div class="text-sm font-bold w-6">{displayNumber}.</div>
+		<span class="font-light">{hint}</span>
+	</div>
+</button>
