@@ -62,7 +62,7 @@ export const actions = {
 		try {
 			const session = await locals.getSession();
 			if (!session) {
-				throw redirect(302, '/login');
+				throw redirect(302, '/login'); // what?
 			}
 		} catch {
 			throw redirect(302, '/login');
