@@ -19,7 +19,6 @@
 			You're already logged in! Strange, you should have been redirected to the puzzles page.
 		</p>
 		<p class="mb-10">No matter, <a class="text-blue-500" href="/">go to puzzles page</a></p>
-		<button type="button" on:click={() => signOut()} class={classes}>Sign Out</button>
 	{:else}
 		<h1 class="mr-4 mt-0 mb-2 text-xl font-medium leading-tight text-primary font-serif">Log in</h1>
 		<p class="mb-10">Before you can play, please... do us the honor.</p>
