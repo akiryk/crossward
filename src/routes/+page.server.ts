@@ -58,7 +58,15 @@ export const load: PageServerLoad = async ({
 };
 
 export const actions = {
-	create: async ({ request }: RequestEvent) => {
+	create: async ({ request, locals }: RequestEvent) => {
+		try {
+			const session = await locals.getSession();
+			if (!session) {
+				throw redirect(302, '/login');
+			}
+		} catch {
+			throw redirect(302, '/login');
+		}
 		let insertedId;
 		try {
 			const data = await request.formData();

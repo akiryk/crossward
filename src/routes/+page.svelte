@@ -25,6 +25,7 @@
 		<div class="flex items-center mb-6">
 			<h1 class="mr-4 mt-0 text-2xl font-medium leading-tight text-primary font-serif">Play!</h1>
 			<button class="btn" on:click={() => (showModal = true)}>Create a puzzle</button>
+			{#if data.session?.user}{/if}
 		</div>
 		{#if puzzles}
 			<List type="ul">
