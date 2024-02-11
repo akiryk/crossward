@@ -128,15 +128,8 @@
 	};
 
 	const confirmPublish = () => {
-		if (!puzzle) {
-			return;
-		}
-		if (puzzle.puzzleType !== 'mini') {
-			showModal = true;
-			modalContentType = PUBLISH_PUZZLE;
-			return;
-		}
-		handlePublish();
+		showModal = true;
+		modalContentType = PUBLISH_PUZZLE;
 	};
 
 	const handlePublish = async () => {
