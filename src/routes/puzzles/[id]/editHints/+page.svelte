@@ -128,14 +128,8 @@
 	};
 
 	const confirmPublish = () => {
-		if (!puzzle) {
-			return;
-		}
-		if (puzzle.puzzleType !== 'mini') {
-			showModal = true;
-			return;
-		}
-		handlePublish();
+		showModal = true;
+		modalContentType = PUBLISH_PUZZLE;
 	};
 
 	const handlePublish = async () => {
@@ -233,6 +227,10 @@
 <Modal bind:showModal>
 	{#if modalContentType === PUBLISH_PUZZLE}
 		<p class="mr-4 mb-4">Are you sure you're ready to publish?</p>
+		<p class="mr-4 mb-4">
+			You won't be able to undo it. Once it's published, it's, like... published. Hundreds of
+			millions if not billions of people will see it.
+		</p>
 		<button
 			type="button"
 			on:click={handlePublish}
