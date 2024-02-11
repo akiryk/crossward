@@ -165,7 +165,7 @@
 	/>
 {:else if userMode === UserMode.EDITING_CELLS}
 	<Cell
-		displayNumber={cell.displayNumber}
+		displayNumber={0}
 		value={cellCorrectValue}
 		onInput={handleInput}
 		onKeydown={handleKeyDown}

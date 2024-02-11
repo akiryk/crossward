@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import {
 	editpageServerLoad,
@@ -8,7 +8,7 @@ import {
 	validateHintsForPublishingPuzzle
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
-import { PUBLISHED } from '$utils/constants';
+import { EDIT_PUZZLE, PUBLISHED } from '$utils/constants';
 import { type Hint, type HintDirection, type CellMap } from '$utils/types';
 
 export const load = editpageServerLoad;
@@ -67,6 +67,36 @@ export const actions = {
 		return {
 			status: 200,
 			message: `Saved at ${new Date().toLocaleTimeString().replace('AM', '')}`
+		};
+	},
+	// User can go back to editing grid after they've started making hints.
+	returnToGrid: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+		const id = data.get('id');
+
+		if (!id || typeof id !== 'string') {
+			return fail(422, {
+				message: 'Missing puzzle id.'
+			});
+		}
+
+		try {
+			const filter = {
+				_id: new ObjectId(id)
+			};
+
+			const document = {
+				$set: {
+					publishStatus: EDIT_PUZZLE
+				}
+			};
+			await puzzlesCollection.updateOne(filter, document);
+		} catch {
+			fail(500);
+		}
+		return {
+			status: 200,
+			message: 'Edit grid again'
 		};
 	},
 	publish: async ({ request }: RequestEvent) => {
