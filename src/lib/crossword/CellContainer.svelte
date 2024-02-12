@@ -178,7 +178,7 @@
 				return '-1';
 			}
 		} else {
-			return !!displayNumber ? '0' : '-1';
+			return displayNumber ? '0' : '-1';
 		}
 	}
 </script>
