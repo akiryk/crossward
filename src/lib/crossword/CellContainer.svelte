@@ -178,7 +178,7 @@
 				return '-1';
 			}
 		} else {
-			return displayNumber ? '0' : '-1';
+			return cell.id === '0:0' ? '0' : '-1';
 		}
 	}
 </script>

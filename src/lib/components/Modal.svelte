@@ -17,7 +17,7 @@
 		<slot name="header" />
 		<slot />
 		<!-- svelte-ignore a11y-autofocus -->
-		<button autofocus on:click={() => dialog.close()}>close modal</button>
+		<button on:click={() => dialog.close()}>close modal</button>
 	</div>
 </dialog>
 

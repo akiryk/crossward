@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
+	import { tick } from 'svelte';
 	import Modal from '$components/Modal.svelte';
 	import type { PageData, ActionData } from './$types';
 	import type { Puzzles } from '$utils/types';
@@ -18,6 +20,21 @@
 	let showModal = false;
 
 	$: ({ puzzles } = data);
+	$: isCreateSuccess = $page.url.searchParams.get('create');
+	$: newPuzzleId = $page.url.searchParams.get('newPuzzleId');
+
+	function autofocus(element: HTMLInputElement) {
+		console.log();
+		tick().then(() => {
+			element.focus();
+		});
+
+		return {
+			destroy() {
+				element.blur();
+			}
+		};
+	}
 </script>
 
 <div class="px-4">
@@ -28,6 +45,12 @@
 				<button class="btn" on:click={() => (showModal = true)}>Create a puzzle</button>
 			{/if}
 		</div>
+		{#if isCreateSuccess}
+			<p class="text-lime-600">
+				<span class="font-bold">Success!</span> You just created a new puzzle
+				<a class="text-blue-500" href={`/puzzles/${newPuzzleId}/play`}>See it here</a>
+			</p>
+		{/if}
 		{#if puzzles}
 			<List type="ul">
 				{#each puzzles as puzzle}
@@ -79,6 +102,7 @@
 						placeholder="Give your puzzle a title!"
 						name="title"
 						class="border-solid border border-gray-400"
+						use:autofocus
 					/></label
 				>
 			</div>
