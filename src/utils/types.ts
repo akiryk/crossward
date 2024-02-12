@@ -47,6 +47,13 @@ export enum ServerErrorType {
 	UPDATE_TITLE_DB_ERROR
 }
 
+export enum FirstCellInWord {
+	ACROSS,
+	DOWN,
+	BOTH,
+	NEITHER
+}
+
 export type PuzzleSizes = {
 	[MINI]: number;
 	[DAILY]: number;
@@ -121,6 +128,7 @@ export type Cell = {
 	downWordStartY?: number;
 	downWordEndY?: number;
 	isPlayerCell?: boolean;
+	firstCellInWordType?: FirstCellInWord;
 };
 
 export type CellMap = Record<ID, Cell>;

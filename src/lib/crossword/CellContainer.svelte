@@ -5,7 +5,14 @@
 	import DeadCell from './DeadCell.svelte';
 	import PreviewCell from './PreviewCell.svelte';
 	import GameStore from '../../stores/GameStore';
-	import { Direction, UserMode, type ID, type Cell as CellType, type Coords } from '$utils/types';
+	import {
+		Direction,
+		UserMode,
+		type ID,
+		type Cell as CellType,
+		type Coords,
+		FirstCellInWord
+	} from '$utils/types';
 	import { KeyCodes } from '../utils/keyCodes';
 
 	// Props
@@ -146,7 +153,34 @@
 	$: isError = isPreview && cell.isSymmetrical && !cell.correctValue;
 	$: isWarning = isPreview && shouldSignalWarning;
 	$: isBlack = isPreview && !cell.value && !isError && !isWarning;
-	$: tabindex = cell.id === '0:0' || hasFocus ? '0' : '-1';
+	$: tabindex = getTabIndex(cell.displayNumber, userMode, gridDirection, cell.firstCellInWordType);
+
+	function getTabIndex(
+		displayNumber: number,
+		userMode: UserMode,
+		gridDirection: Direction,
+		firstCellInWordType?: FirstCellInWord
+	) {
+		if (userMode === UserMode.PLAY) {
+			if (
+				(firstCellInWordType === FirstCellInWord.ACROSS ||
+					firstCellInWordType === FirstCellInWord.BOTH) &&
+				gridDirection === Direction.GO_RIGHT
+			) {
+				return '0';
+			} else if (
+				(firstCellInWordType === FirstCellInWord.DOWN ||
+					firstCellInWordType === FirstCellInWord.BOTH) &&
+				gridDirection === Direction.GO_DOWN
+			) {
+				return '0';
+			} else {
+				return '-1';
+			}
+		} else {
+			return displayNumber ? '0' : '-1';
+		}
+	}
 </script>
 
 {#if userMode === UserMode.PLAY && cell.correctValue}

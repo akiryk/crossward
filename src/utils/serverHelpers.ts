@@ -13,6 +13,7 @@ import type {
 	Hint,
 	CellMapArray
 } from '$utils/types';
+import { FirstCellInWord } from '$utils/types';
 import { getId } from './helpers';
 import sanitizeHtml from 'sanitize-html';
 import mongodb, { ObjectId } from 'mongodb';
@@ -232,6 +233,7 @@ export function transformPuzzleDataForCreatingHints({
 	for (let i = 0; i < cellsArray.length; i++) {
 		let shouldIncrementCount = false;
 		const cell: Cell = cellsArray[i];
+		let firstCellInWordType = FirstCellInWord.NEITHER;
 
 		if (!cell.correctValue) {
 			continue;
@@ -246,6 +248,7 @@ export function transformPuzzleDataForCreatingHints({
 
 		// If this is the first cell in an across word
 		if (!cellMap[leftCellId]?.correctValue && cellMap[rightCellId]?.correctValue) {
+			firstCellInWordType = FirstCellInWord.ACROSS;
 			let value = cell.correctValue;
 			word = '';
 			let currentX = x;
@@ -287,7 +290,12 @@ export function transformPuzzleDataForCreatingHints({
 		// Down Words
 		const aboveCellId: ID = getId({ x, y: y - 1 });
 		const bottomCellId: ID = getId({ x, y: y + 1 });
+		// If this is the first cell in a down word
 		if (!cellMap[aboveCellId]?.correctValue && cellMap[bottomCellId]?.correctValue) {
+			firstCellInWordType =
+				firstCellInWordType === FirstCellInWord.ACROSS
+					? FirstCellInWord.BOTH
+					: FirstCellInWord.DOWN;
 			let value = cell.correctValue;
 			word = '';
 			let currentY = y;
@@ -330,6 +338,7 @@ export function transformPuzzleDataForCreatingHints({
 
 		if (shouldIncrementCount) {
 			cellMap[cell.id].displayNumber = cellDisplayNumber;
+			cellMap[cell.id].firstCellInWordType = firstCellInWordType;
 			cellDisplayNumber++;
 		}
 	}
