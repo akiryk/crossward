@@ -183,6 +183,8 @@ export const actions = {
 			updateDocument.$set[`cellMap.${key}`] = value;
 		}
 
+		console.log(updateDocument);
+
 		try {
 			await userPuzzlesCollection.updateOne(filter, updateDocument);
 			return {
