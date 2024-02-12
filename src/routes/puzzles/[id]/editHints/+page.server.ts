@@ -175,7 +175,6 @@ export const actions = {
 		} catch {
 			return fail(500);
 		}
-
 		return {
 			status: 200,
 			message: 'Congratulations, the puzzle is published!'

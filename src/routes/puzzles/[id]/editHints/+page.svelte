@@ -1,6 +1,6 @@
 <script lang="ts">
 	// [id]/editHints/page.svelte
-	import { invalidateAll, goto } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import { deserialize } from '$app/forms';
 	import { type ActionResult } from '@sveltejs/kit';
 	import { onDestroy, onMount } from 'svelte';
@@ -145,9 +145,7 @@
 			const result: ActionResult = deserialize(await response.text());
 			if (result.type === 'success') {
 				successMessage = result.data?.message;
-				showLinkToPlayPage = true;
-				// rerun all `load` functions, following the successful update
-				await invalidateAll();
+				goto(`/?create=true&newPuzzleId=${id}`);
 			} else if (result.type === 'failure') {
 				errorMessage = result.data?.message;
 			}
