@@ -13,7 +13,8 @@ export default {
 		acrossWordStartX: 0,
 		acrossWordEndX: 2,
 		downWordStartY: 0,
-		downWordEndY: 3
+		downWordEndY: 3,
+		firstCellInWordType: 2
 	},
 	'1:0': {
 		id: '1:0',
@@ -41,7 +42,8 @@ export default {
 		acrossWordStartX: 0,
 		acrossWordEndX: 2,
 		downWordStartY: 0,
-		downWordEndY: 3
+		downWordEndY: 3,
+		firstCellInWordType: 1
 	},
 	'3:0': {
 		id: '3:0',
@@ -111,7 +113,8 @@ export default {
 		acrossWordStartX: 2,
 		acrossWordEndX: 3,
 		downWordStartY: 0,
-		downWordEndY: 3
+		downWordEndY: 3,
+		firstCellInWordType: 0
 	},
 	'3:1': {
 		id: '3:1',
@@ -223,7 +226,8 @@ export default {
 		acrossWordStartX: 0,
 		acrossWordEndX: 3,
 		downWordStartY: 0,
-		downWordEndY: 3
+		downWordEndY: 3,
+		firstCellInWordType: 0
 	},
 	'1:3': {
 		id: '1:3',
