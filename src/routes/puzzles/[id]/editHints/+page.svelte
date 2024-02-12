@@ -1,6 +1,6 @@
 <script lang="ts">
 	// [id]/editHints/page.svelte
-	import { invalidateAll, goto } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import { deserialize } from '$app/forms';
 	import { type ActionResult } from '@sveltejs/kit';
 	import { onDestroy, onMount } from 'svelte';
