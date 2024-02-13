@@ -8,7 +8,7 @@
 	export let title: string;
 	export let lastSavedAtMessage: string;
 	let previousMessage: string;
-	let timerId: NodeJS.Timeout;
+	let timerId: ReturnType<typeof setTimeout>;
 	let showMessage: boolean = false;
 
 	$: headingText = getHeadingText(userMode, title);
