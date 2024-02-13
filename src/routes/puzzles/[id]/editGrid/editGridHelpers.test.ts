@@ -2,7 +2,7 @@ import { it, describe, expect } from 'vitest';
 import {
 	getActiveCellIdsFromCellMap,
 	findWordsThatAreTooShort,
-	findIfPuzzleFailsRadialSymmetry
+	findIfPuzzleFailsRotationalSymmetry
 } from './editGridHelpers';
 import mockCellMapForFindWordsThatAreTooShort from '../../../../__mocks__/mockCellMapForFindWordsThatAreTooShort';
 import type { CellMap } from '$utils/types';
@@ -37,7 +37,7 @@ describe('findWordsThatAreTooShort', () => {
 	});
 });
 
-describe('findIfPuzzleFailsRadialSymmetry', () => {
+describe('findIfPuzzleFailsRotationalSymmetry', () => {
 	it('returns false if all radially symmetrical cells have content', () => {
 		const cellMap: CellMap = {
 			// @ts-expect-error - no need to test the fully cell type
@@ -57,7 +57,7 @@ describe('findIfPuzzleFailsRadialSymmetry', () => {
 			}
 		};
 
-		expect(findIfPuzzleFailsRadialSymmetry(cellMap)).toBe(false);
+		expect(findIfPuzzleFailsRotationalSymmetry(cellMap)).toBe(false);
 	});
 
 	it("returns true if any radially symmetrical cells don't have content", () => {
@@ -79,7 +79,7 @@ describe('findIfPuzzleFailsRadialSymmetry', () => {
 			}
 		};
 
-		expect(findIfPuzzleFailsRadialSymmetry(cellMap)).toBe(true);
+		expect(findIfPuzzleFailsRotationalSymmetry(cellMap)).toBe(true);
 	});
 });
 

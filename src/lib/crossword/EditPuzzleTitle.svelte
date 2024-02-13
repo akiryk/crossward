@@ -71,9 +71,10 @@
 			<label>
 				Edit the title:
 				<input
+					placeholder={title}
 					type="text"
 					name="title"
-					class="border-solid border-2 border-indigo-600 p-2"
+					class="ml-2 border-solid border-1 border-gray-300 p-2"
 				/></label
 			>
 			<Button buttonType="submit" style="primary">Update</Button>
@@ -87,7 +88,7 @@
 		}}
 	>
 		<input type="hidden" name="id" value={id} />
-		Danger Zone!
+		<span class="mr-2">Danger Zone!</span>
 		<Button buttonType="submit" style="primary">Delete</Button>
 	</form>
 </div>
@@ -103,5 +104,5 @@
 	<h2 slot="header">Hoo, boy! You gonna Delete?</h2>
 
 	<p class="mb-10">You sher 'bout that?'</p>
-	<button class="btn" on:click={handleDelete}>Yes, Delete!</button>
+	<button class="btn mb-4" on:click={handleDelete}>Yes, Delete!</button>
 </Modal>
