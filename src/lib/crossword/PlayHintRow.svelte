@@ -20,6 +20,6 @@
 >
 	<div class="flex items-baseline">
 		<div class="text-sm font-bold w-6">{displayNumber}.</div>
-		<span class="font-light">{hint}</span>
+		<span class="font-light flex-1">{hint}</span>
 	</div>
 </button>
