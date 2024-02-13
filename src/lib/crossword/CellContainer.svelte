@@ -153,7 +153,7 @@
 	$: isError = isPreview && cell.isSymmetrical && !cell.correctValue;
 	$: isWarning = isPreview && shouldSignalWarning;
 	$: isBlack = isPreview && !cell.value && !isError && !isWarning;
-	$: tabindex = getTabIndex(cell.displayNumber, userMode, gridDirection, cell.firstCellInWordType);
+	$: tabindex = getTabIndex(userMode, gridDirection, cell.firstCellInWordType);
 
 	function getTabIndex(
 		userMode: UserMode,
