@@ -64,16 +64,28 @@
 		}
 		switch (true) {
 			case isError:
-				style = 'bg-red-500';
+				if (isHighlighted) {
+					style = 'bg-red-600';
+				} else {
+					style = 'bg-red-900';
+				}
 				break;
 			case isWarning:
-				style = 'bg-red-200';
+				if (isHighlighted) {
+					style = 'bg-yellow-400';
+				} else {
+					style = 'bg-yellow-500';
+				}
 				break;
 			case isGameOver:
 				style = 'bg-blue-100 outline-blue-400';
 				break;
 			case isHighlighted:
-				style = isSymmetrical || userMode === UserMode.PLAY ? 'bg-cyan-100' : 'bg-gray-200';
+				if (isBlack) {
+					style = 'bg-gray-700';
+				} else {
+					style = isSymmetrical || userMode === UserMode.PLAY ? 'bg-cyan-100' : 'bg-gray-200';
+				}
 				break;
 			case isBlack:
 				style = 'bg-black';

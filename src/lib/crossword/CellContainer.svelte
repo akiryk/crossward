@@ -156,7 +156,6 @@
 	$: tabindex = getTabIndex(cell.displayNumber, userMode, gridDirection, cell.firstCellInWordType);
 
 	function getTabIndex(
-		displayNumber: number,
 		userMode: UserMode,
 		gridDirection: Direction,
 		firstCellInWordType?: FirstCellInWord
