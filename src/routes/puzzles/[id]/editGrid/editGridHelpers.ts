@@ -4,7 +4,7 @@ import { getId } from '$utils/helpers';
 // Every cell with a value should have radial symmetry
 // with another cell with a value; e.g. if the upper-left corner has a value
 // the lower-right corner must also have a value
-export const findIfPuzzleFailsRadialSymmetry = (cellMap: CellMap): boolean =>
+export const findIfPuzzleFailsRotationalSymmetry = (cellMap: CellMap): boolean =>
 	Object.values(cellMap).some((cell) => cell.isSymmetrical && !cell.correctValue);
 
 // Add all words that are less than 3 characters to GameStore's list of ids to be

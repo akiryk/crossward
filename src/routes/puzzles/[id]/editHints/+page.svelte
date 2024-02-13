@@ -28,9 +28,9 @@
 	let errorMessage: string = '';
 	let successMessage: string = '';
 	let showLinkToPlayPage = false;
-	let timerId: ReturnType<typeof setTimeout>;
 	let showModal = false;
 	let modalContentType = '';
+	let lastSavedAtMessage: string = '';
 
 	const REVERT_TO_GRID = 'REVERT_TO_GRID';
 	const PUBLISH_PUZZLE = 'PUBLISH_PUZZLE';
@@ -69,11 +69,7 @@
 					errorMessage = result.data?.message;
 				}
 				if (result.type === 'success' && result?.data?.message) {
-					clearTimeout(timerId);
-					successMessage = result.data.message;
-					timerId = setTimeout(() => {
-						successMessage = '';
-					}, 3000);
+					lastSavedAtMessage = result.data.message;
 				}
 			} catch (error) {
 				console.error('Error saving chunk:', error);
@@ -159,6 +155,7 @@
 	puzzleType={puzzle.puzzleType}
 	userMode={UserMode.EDITING_HINTS}
 	title={puzzle.title}
+	{lastSavedAtMessage}
 />
 {#if puzzle || puzzle}
 	<div class="mb-5">

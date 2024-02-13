@@ -6,8 +6,25 @@
 	export let puzzleType: PuzzleType;
 	export let userMode: UserMode;
 	export let title: string;
+	export let lastSavedAtMessage: string;
+	let previousMessage: string;
+	let timerId: NodeJS.Timeout;
+	let showMessage: boolean = false;
 
 	$: headingText = getHeadingText(userMode, title);
+	$: getNewMessage(lastSavedAtMessage);
+
+	function getNewMessage(lastSavedAtMessage: string) {
+		if (previousMessage !== lastSavedAtMessage) {
+			clearTimeout(timerId);
+			previousMessage = lastSavedAtMessage;
+			showMessage = true;
+
+			timerId = setTimeout(() => {
+				showMessage = false;
+			}, 4000);
+		}
+	}
 
 	function getHeadingText(userMode: UserMode, title: string) {
 		switch (userMode) {
@@ -23,11 +40,16 @@
 	}
 </script>
 
-<h2 class="font-medium font-sans text-md mb-2">
-	{#if isCreateSuccess}
-		<span class="text-lime-600">
-			Yay, you created a new {puzzleType} puzzle!
-		</span>
+<div class="flex">
+	<h2 class="font-medium font-sans text-md mb-2">
+		{#if isCreateSuccess}
+			<span class="text-lime-600">
+				Yay, you created a new {puzzleType} puzzle!
+			</span>
+		{/if}
+		{headingText}
+	</h2>
+	{#if showMessage}
+		<span class="ml-4 text-gray-400">{lastSavedAtMessage}</span>
 	{/if}
-	{headingText}
-</h2>
+</div>

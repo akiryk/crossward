@@ -28,7 +28,7 @@
 	import {
 		findWordsThatAreTooShort,
 		getActiveCellIdsFromCellMap,
-		findIfPuzzleFailsRadialSymmetry
+		findIfPuzzleFailsRotationalSymmetry
 	} from './editGridHelpers.js';
 
 	export let puzzle: EditorPuzzle;
@@ -39,15 +39,19 @@
 
 	let preventSaveOnTransitionToHintsPage = false;
 	let errorMessage: string = '';
-	let successMessage: string = '';
+	let lastSavedAtMessage: string = '';
 	let isPreview = false;
 	let showModal = false;
-	let modalTitle = '';
-	let modalMessage = '';
+	let modalContentType = '';
+	let percentOfCompleteCells: string;
+
+	const MISSING_SYMMETRY = 'MISSING_SYMMETRY';
+	const TWO_LETTER_WORDS = 'TWO_LETTER_WORDS';
+	const PUZZLE_INCOMPLETE = 'PUZZLE_INCOMPLETE';
 
 	$: ({ puzzle, isCreateSuccess } = data);
 
-	onMount(() => {
+	$: onMount(() => {
 		if (puzzle) {
 			PuzzleStore.set(puzzle);
 			const cellMap = puzzle.cellMap;
@@ -126,7 +130,7 @@
 				});
 				const result: ActionResult = deserialize(await response.text());
 				if (result.type === 'success') {
-					successMessage = result.data?.message;
+					lastSavedAtMessage = result.data?.message;
 					// rerun all `load` functions, following the successful update
 					// await invalidateAll();
 				} else if (result.type === 'failure') {
@@ -199,14 +203,25 @@
 	};
 
 	const validateGridIsReadyForHints = async () => {
-		if (findIfPuzzleFailsRadialSymmetry(puzzle.cellMap)) {
-			modalTitle = 'Ah, nuts!';
-			modalMessage = `This puzzle doesn't have radial symmetry. Toggle on preview mode to see the red squares that you should complete.`;
+		const { activeCellIds } = get(GameStore);
+
+		// 1. Check for a mostly incomplete puzzle in which less than 50% of the cells have values
+		const percentComplete = activeCellIds.length / Object.keys(puzzle.cellMap).length;
+		if (percentComplete < 0.5) {
+			percentOfCompleteCells = (percentComplete * 100).toFixed();
+			modalContentType = PUZZLE_INCOMPLETE;
 			showModal = true;
 			return;
 		}
 
-		const { activeCellIds } = get(GameStore);
+		// 2 Check rotational symmetry
+		if (findIfPuzzleFailsRotationalSymmetry(puzzle.cellMap)) {
+			modalContentType = MISSING_SYMMETRY;
+			showModal = true;
+			return;
+		}
+
+		// 3. Check for two-letter words
 		const twoLetterWordIds = findWordsThatAreTooShort(puzzle.cellMap, activeCellIds);
 		GameStore.update((current: GameContext) => {
 			return {
@@ -215,18 +230,7 @@
 			};
 		});
 		if (twoLetterWordIds.length > 0) {
-			modalTitle = 'Hold on, there!';
-			modalMessage = `This puzzle has ${
-				twoLetterWordIds.length === 2
-					? 'a two-letter word'
-					: twoLetterWordIds.length / 2 + ' two-letter words'
-			}. Toggle on preview mode to see the pink squares identifying these words.`;
-			showModal = true;
-			return;
-		}
-		if (activeCellIds.length < 3) {
-			modalTitle = 'Hold on, there!';
-			modalMessage = `This puzzle doesn't seem finished. You think it is? Forget that, you need more words.`;
+			modalContentType = TWO_LETTER_WORDS;
 			showModal = true;
 			return;
 		}
@@ -246,6 +250,7 @@
 	puzzleType={puzzle.puzzleType}
 	userMode={UserMode.EDITING_CELLS}
 	title={puzzle.title}
+	{lastSavedAtMessage}
 />
 {#if puzzle}
 	<form
@@ -256,17 +261,12 @@
 	>
 		<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
 		<input type="hidden" name="id" value={puzzle._id} />
-		<div class="mb-5 w-fit" use:clickOutside={{ callback: handleClickOutside }}>
+		<div class="mb-5 w-fit flex" use:clickOutside={{ callback: handleClickOutside }}>
 			<Crossword {puzzle} {isPreview} userMode={UserMode.EDITING_CELLS} onInput={handleInput} />
 		</div>
 		<!-- ERROR MESSAGES -->
 		{#if errorMessage}
 			<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} />
-		{/if}
-
-		<!-- SUCCESS MESSAGES -->
-		{#if successMessage}
-			<Banner message={successMessage} bannerType={BannerType.IS_SUCCESS} />
 		{/if}
 
 		<div class="mb-5 flex items-center">
@@ -293,9 +293,32 @@
 <EditPuzzleTitle {form} title={puzzle.title} id={puzzle._id} />
 
 <Modal bind:showModal>
-	<h2 slot="header">
-		{modalTitle}
-	</h2>
-
-	<p class="mb-10">{modalMessage}</p>
+	{#if modalContentType === MISSING_SYMMETRY}
+		<h2 class="mr-4 mb-4">Rotational symmetry, anyone?</h2>
+		<p class="mr-4 mb-4">
+			This puzzle doesn't have rotational symmetry. You can still publish it, but it might not look
+			up-to-standards.
+		</p>
+		<p class="mr-4 mb-4">
+			Try enabling "toggle preview mode" to identify problem areas (red cells are for incomplete
+			symmetry and pink cells are for two-letter words)
+		</p>
+	{:else if modalContentType === TWO_LETTER_WORDS}
+		<p class="mb-4">
+			Your puzzle has one or more two-letter words, which isn't really super cool. You can still do
+			it, but. Just saying.
+		</p>
+	{:else if modalContentType === PUZZLE_INCOMPLETE}
+		<p class="mb-4">Lazy. Bones.</p>
+		<p class="mb-4">
+			Only about {percentOfCompleteCells}% of cells in this puzzle have content. Aim for at least
+			75%.
+		</p>
+	{/if}
+	<button
+		type="button"
+		on:click={saveGridAndCreateHints}
+		class="mr-4 mb-4 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+		>Continue anyway!</button
+	>
 </Modal>
