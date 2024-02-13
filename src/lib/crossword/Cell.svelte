@@ -67,7 +67,7 @@
 				if (isHighlighted) {
 					style = 'bg-red-600';
 				} else {
-					style = 'bg-red-900';
+					style = 'bg-red-700';
 				}
 				break;
 			case isWarning:
