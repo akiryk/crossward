@@ -116,7 +116,7 @@
 			});
 			const result: ActionResult = deserialize(await response.text());
 			if (result.type === 'success') {
-				goto(`/puzzles/${id}/editGrid`);
+				goto(`/puzzles/${id}/edit`);
 			}
 		} catch {
 			console.log('error changing status');

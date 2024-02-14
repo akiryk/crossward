@@ -69,7 +69,7 @@
 							<div class="flex items-baseline font-sans">
 								<span>
 									{#if puzzle.publishStatus === EDIT_PUZZLE}
-										<a href="/puzzles/{puzzle._id}/editGrid" class="text-sky-400">{puzzle.title}</a>
+										<a href="/puzzles/{puzzle._id}/edit" class="text-sky-400">{puzzle.title}</a>
 									{:else if puzzle.publishStatus === EDITING_HINTS}
 										<a href="/puzzles/{puzzle._id}/editHints" class="text-sky-400">{puzzle.title}</a
 										>

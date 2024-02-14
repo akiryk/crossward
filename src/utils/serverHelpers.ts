@@ -19,7 +19,7 @@ import sanitizeHtml from 'sanitize-html';
 import mongodb, { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
-import type { PageServerLoad } from '../routes/puzzles/[id]/editGrid/$types';
+import type { PageServerLoad } from '../routes/puzzles/[id]/edit/$types';
 import { UPDATE_TITLE, DELETE_PUZZLE } from './constants';
 
 type Props = {

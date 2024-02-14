@@ -1,5 +1,18 @@
-import type { ID, CellMap } from '$utils/types';
-import { getId } from '$utils/helpers';
+import { get } from 'svelte/store';
+import { deserialize } from '$app/forms';
+import { type ActionResult } from '@sveltejs/kit';
+import { getId, chunkArray, promiseDebounce } from '$utils/helpers';
+import GameStore from '../../../../stores/GameStore';
+import { DEFAULT_CHUNK_SIZE } from '$utils/constants';
+import {
+	UserMode,
+	BannerType,
+	type EditorPuzzle,
+	type CellMapArray,
+	type ID,
+	type GameContext,
+	type CellMap
+} from '$utils/types';
 
 // Every cell with a value should have radial symmetry
 // with another cell with a value; e.g. if the upper-left corner has a value
@@ -74,4 +87,73 @@ export function getActiveCellIdsFromCellMap(cellMap: CellMap): Array<ID> {
 		}
 	});
 	return activeCellIds;
+}
+
+export const togglePreview = ({
+	event,
+	puzzle
+}: {
+	event: Event;
+	puzzle: EditorPuzzle;
+}): boolean => {
+	let isPreview = false;
+	if ((event.target as HTMLInputElement).checked) {
+		setTimeout(() => {
+			const { activeCellIds } = get(GameStore);
+			const twoLetterWordIds = findWordsThatAreTooShort(puzzle.cellMap, activeCellIds);
+			GameStore.update((current: GameContext) => {
+				return {
+					...current,
+					twoLetterWordIds
+				};
+			});
+		}, 0);
+		isPreview = true;
+	} else {
+		isPreview = false;
+	}
+	return isPreview;
+};
+
+export async function saveData(
+	data: FormData
+): Promise<{ errorMessage: string; successMessage: string } | null> {
+	const formCellMap = data?.get('cellMap');
+	const id = data?.get('id');
+	if (typeof formCellMap !== 'string' || typeof id !== 'string') {
+		return null;
+	}
+	const cellsArray: CellMapArray = Object.entries(JSON.parse(formCellMap));
+	const chunkedData = chunkArray(cellsArray, DEFAULT_CHUNK_SIZE);
+
+	let successMessage = '';
+	let errorMessage = '';
+
+	chunkedData.forEach(async (chunk) => {
+		// chunk = [["0:0", cell1], ["0:1", cell2], etc ... ]
+		const formData = new FormData();
+		formData.append('chunk', JSON.stringify(chunk));
+		formData.append('id', id);
+		try {
+			const response = await fetch(`?/updateCellMap`, {
+				method: 'POST',
+				body: formData
+			});
+			const result: ActionResult = deserialize(await response.text());
+			if (result.type === 'success') {
+				successMessage = result.data?.message;
+				// rerun all `load` functions, following the successful update
+				// await invalidateAll();
+			} else if (result.type === 'failure') {
+				errorMessage = result.data?.message;
+			}
+		} catch (error) {
+			console.error('Error saving chunk:', error);
+		}
+	});
+
+	return {
+		errorMessage,
+		successMessage
+	};
 }
