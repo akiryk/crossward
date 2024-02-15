@@ -51,12 +51,7 @@ export const saveDownHintInput = async (puzzle: EditorPuzzle) => {
 	await debounceSave(chunkedData, puzzle._id, 'down');
 };
 
-export const confirmRevertToGrid = () => {
-	showModal = true;
-	modalContentType = REVERT_TO_GRID;
-};
-
-const handleRevertToGrid = async () => {
+export const revertToGrid = async (puzzle: EditorPuzzle) => {
 	const id = puzzle._id;
 	const formData = new FormData();
 	formData.append('id', id);
@@ -74,15 +69,18 @@ const handleRevertToGrid = async () => {
 	}
 };
 
-export const confirmPublish = () => {
-	showModal = true;
-	modalContentType = PUBLISH_PUZZLE;
-};
+export const publish = async (
+	puzzle: EditorPuzzle
+): Promise<{ success: string; error: string }> => {
+	// first save all the hint data
+	await saveAcrossHintInput(puzzle);
+	await saveDownHintInput(puzzle);
 
-const handlePublish = async () => {
-	await handleSaveHints();
+	// now save the puzzle's status as published
 	const id = puzzle._id;
 	const formData = new FormData();
+	let success = '';
+	let error = '';
 	formData.append('id', id);
 	try {
 		const response = await fetch('?/publish', {
@@ -91,12 +89,15 @@ const handlePublish = async () => {
 		});
 		const result: ActionResult = deserialize(await response.text());
 		if (result.type === 'success') {
-			successMessage = result.data?.message;
-			goto(`/?create=true&newPuzzleId=${id}`);
+			success = result.data?.message;
 		} else if (result.type === 'failure') {
-			errorMessage = result.data?.message;
+			error = result.data?.message;
 		}
 	} catch (error) {
-		errorMessage = 'Please try again soon.';
+		error = 'Please try again soon.';
 	}
+	return {
+		success,
+		error
+	};
 };
