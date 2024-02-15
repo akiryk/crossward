@@ -145,7 +145,11 @@
 
 	const handleRevertToGrid = async () => {
 		const response = await revertToGrid(puzzle);
-		if (response.success) {
+		if (response.success && response.cellMap) {
+			puzzle.cellMap = response.cellMap;
+			puzzle.acrossHints = [];
+			puzzle.downHints = [];
+			PuzzleStore.set(puzzle);
 			userMode = UserMode.EDITING_CELLS;
 		}
 	};

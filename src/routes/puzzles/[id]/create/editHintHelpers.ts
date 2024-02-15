@@ -2,7 +2,13 @@
 import { deserialize } from '$app/forms';
 import { type ActionResult } from '@sveltejs/kit';
 
-import { type HintDirection, type EditorPuzzle, type Hint, type ID } from '$utils/types';
+import {
+	type HintDirection,
+	type EditorPuzzle,
+	type Hint,
+	type ID,
+	type CellMap
+} from '$utils/types';
 import { promiseDebounce, chunkArray } from '$utils/helpers';
 
 const saveHintData = async (
@@ -81,19 +87,22 @@ export const saveDownHintInput = async (
 	return { successMessage: response.successMessage, errors: response.errors };
 };
 
-export const revertToGrid = async (puzzle: EditorPuzzle): Promise<{ success: boolean }> => {
+export const revertToGrid = async (
+	puzzle: EditorPuzzle
+): Promise<{ success: boolean; cellMap?: CellMap }> => {
 	const id = puzzle._id;
 	const formData = new FormData();
 	formData.append('id', id);
 	try {
-		const response = await fetch('?/returnToGrid', {
+		const response = await fetch('?/revertToGrid', {
 			method: 'POST',
 			body: formData
 		});
 		const result: ActionResult = deserialize(await response.text());
 		if (result.type === 'success') {
 			return {
-				success: true
+				success: true,
+				cellMap: result.data?.cellMap
 			};
 		}
 	} catch {

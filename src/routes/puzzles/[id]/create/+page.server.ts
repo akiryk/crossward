@@ -279,7 +279,7 @@ export const actions = {
 	delete: async ({ request }: RequestEvent) => {
 		return await handleDeletePuzzle(request);
 	},
-	returnToGrid: async ({ request }: RequestEvent) => {
+	revertToGrid: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
 		const id = data.get('id');
 
@@ -289,23 +289,56 @@ export const actions = {
 			});
 		}
 
+		// 1. Get the existing puzzle
+		let puzzle;
 		try {
-			const filter = {
-				_id: new ObjectId(id)
-			};
+			puzzle = await puzzlesCollection.findOne(
+				{
+					_id: new ObjectId(id)
+				},
+				{ projection: { cellMap: 1 } }
+			);
+			if (puzzle === null || puzzle.cellMap === null) {
+				// TODO: Redirect to some kind of help page
+				throw redirect(300, '/');
+			}
+		} catch (error) {
+			return fail(500, {
+				errorType: ServerErrorType.DB_ERROR,
+				message:
+					"Uh oh. We're having trouble with the ole internet wires. Maybe try again in a week."
+			});
+		}
 
-			const document = {
-				$set: {
-					publishStatus: EDIT_PUZZLE
-				}
-			};
+		// 2. reset all displayNumbers to zero
+		const cellMap: CellMap = puzzle.cellMap;
+		Object.values(cellMap).forEach((cell) => {
+			cellMap[cell.id].displayNumber = 0;
+		});
+
+		// 4. update puzzle with the new data
+		const filter = {
+			_id: new ObjectId(id)
+		};
+
+		const document = {
+			$set: {
+				cellMap,
+				publishStatus: EDIT_PUZZLE,
+				downHints: [],
+				acrossHints: []
+			}
+		};
+
+		try {
 			await puzzlesCollection.updateOne(filter, document);
 		} catch {
 			fail(500);
 		}
 		return {
-			status: 200,
-			message: 'Edit grid again'
+			cellMap,
+			downHints: [],
+			acrossHints: []
 		};
 	}
 };
