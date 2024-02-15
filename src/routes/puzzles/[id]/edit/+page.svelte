@@ -18,20 +18,35 @@
 		type EditorPuzzle,
 		type CellMapArray,
 		type ID,
-		type GameContext
+		type GameContext,
+		type PublishStatus
 	} from '$utils/types';
 	import Banner from '$components/Banner.svelte';
 	import Modal from '$components/Modal.svelte';
+	import Hints from '$lib/crossword/EditHints.svelte';
 	import { promiseDebounce, chunkArray } from '$utils/helpers';
-
 	import type { ActionData } from './$types.js';
 	import {
 		findWordsThatAreTooShort,
 		getActiveCellIdsFromCellMap,
 		findIfPuzzleFailsRotationalSymmetry,
 		togglePreview,
-		saveData
-	} from './editGridHelpers.js';
+		saveData,
+		validateGridIsReadyForHints,
+		createHints
+	} from './editGridHelpers';
+	import {
+		saveAcrossHintInput,
+		saveDownHintInput,
+		confirmPublish,
+		confirmRevertToGrid
+	} from './editHintHelpers';
+	import {
+		MISSING_SYMMETRY,
+		TWO_LETTER_WORDS,
+		PUZZLE_INCOMPLETE,
+		EDIT_PUZZLE
+	} from '$utils/constants';
 
 	export let puzzle: EditorPuzzle;
 	export let data: LoadData;
@@ -39,22 +54,22 @@
 
 	export let form: ActionData;
 
-	let preventSaveOnTransitionToHintsPage = false;
 	let errorMessage: string = '';
 	let lastSavedAtMessage: string = '';
 	let isPreview = false;
 	let showModal = false;
 	let modalContentType = '';
 	let percentOfCompleteCells: string;
-
-	const MISSING_SYMMETRY = 'MISSING_SYMMETRY';
-	const TWO_LETTER_WORDS = 'TWO_LETTER_WORDS';
-	const PUZZLE_INCOMPLETE = 'PUZZLE_INCOMPLETE';
+	let userMode: UserMode;
+	let showLinkToPlayPage = false;
+	let successMessage: string = '';
 
 	$: ({ puzzle, isCreateSuccess } = data);
 
 	$: onMount(() => {
 		if (puzzle) {
+			userMode =
+				puzzle.publishStatus === EDIT_PUZZLE ? UserMode.EDITING_CELLS : UserMode.EDITING_HINTS;
 			PuzzleStore.set(puzzle);
 			const cellMap = puzzle.cellMap;
 			const activeCellIds: Array<ID> = getActiveCellIdsFromCellMap(cellMap);
@@ -94,29 +109,15 @@
 		}));
 	}
 
-	async function createHints() {
-		if (puzzle === null) {
+	async function handleValidateGridIsReadyForHints() {
+		const validation = await validateGridIsReadyForHints(puzzle);
+		if (validation.showModal && validation.modalContentType) {
+			showModal = true;
+			modalContentType = validation.modalContentType;
+			percentOfCompleteCells = validation.percentOfCompleteCells || '';
 			return;
 		}
-		const formData = new FormData();
-		const id = puzzle._id;
-		formData.append('id', id);
-		try {
-			const response = await fetch(`?/createHints`, {
-				method: 'POST',
-				body: formData
-			});
-
-			const result: ActionResult = deserialize(await response.text());
-
-			if (result.type === 'success') {
-				goto(`/puzzles/${id}/editHints`);
-			} else if (result.type === 'failure') {
-				errorMessage = result.data?.message;
-			}
-		} catch (error) {
-			console.error('Error saving hints:', error);
-		}
+		saveGridAndCreateHints();
 	}
 
 	const promiseDebounceSave = promiseDebounce(saveData);
@@ -139,7 +140,25 @@
 			}));
 		}
 
-		const result = await promiseDebounceSave(formData);
+		const result = (await promiseDebounceSave(formData)) as {
+			errorMessage: string;
+			successMessage: string;
+		} | null;
+		lastSavedAtMessage = result?.successMessage || '';
+		errorMessage = result?.errorMessage || '';
+	};
+
+	const handleAcrossHintInput = async () => {
+		await saveAcrossHintInput(puzzle);
+	};
+
+	const handleDownHintInput = async () => {
+		await saveDownHintInput(puzzle);
+	};
+
+	const handleSaveHints = async () => {
+		await handleDownHintInput();
+		await handleAcrossHintInput();
 	};
 
 	// Enable the event handler to call a function
@@ -152,55 +171,33 @@
 	// that doesn't accept event:Event as a parameter
 	const handleInput = () => {
 		handleSaveCellMap();
+		if (userMode === UserMode.EDITING_HINTS) {
+			handleSaveHints();
+		}
 	};
 
-	const validateGridIsReadyForHints = async () => {
-		const { activeCellIds } = get(GameStore);
-
-		// 1. Check for a mostly incomplete puzzle in which less than 50% of the cells have values
-		const percentComplete = activeCellIds.length / Object.keys(puzzle.cellMap).length;
-		if (percentComplete < 0.5) {
-			percentOfCompleteCells = (percentComplete * 100).toFixed();
-			modalContentType = PUZZLE_INCOMPLETE;
-			showModal = true;
-			return;
-		}
-
-		// 2 Check rotational symmetry
-		if (findIfPuzzleFailsRotationalSymmetry(puzzle.cellMap)) {
-			modalContentType = MISSING_SYMMETRY;
-			showModal = true;
-			return;
-		}
-
-		// 3. Check for two-letter words
-		const twoLetterWordIds = findWordsThatAreTooShort(puzzle.cellMap, activeCellIds);
-		GameStore.update((current: GameContext) => {
-			return {
-				...current,
-				twoLetterWordIds
-			};
-		});
-		if (twoLetterWordIds.length > 0) {
-			modalContentType = TWO_LETTER_WORDS;
-			showModal = true;
-			return;
-		}
-
-		saveGridAndCreateHints();
+	const closeModal = () => {
+		showModal = false;
 	};
 
 	async function saveGridAndCreateHints() {
 		await handleSaveCellMap();
-		preventSaveOnTransitionToHintsPage = true;
-		createHints();
+		const result = await createHints(puzzle);
+		if (result?.success) {
+			userMode = UserMode.EDITING_HINTS;
+			puzzle.acrossHints = result.data.acrossHints;
+			puzzle.downHints = result.data.downHints;
+			puzzle.cellMap = result.data.cellMap;
+			puzzle.cellRows = result.data.cellRows;
+			PuzzleStore.set(puzzle);
+		}
 	}
 </script>
 
 <PuzzleHeading
 	isCreateSuccess={isCreateSuccess ? true : false}
 	puzzleType={puzzle.puzzleType}
-	userMode={UserMode.EDITING_CELLS}
+	{userMode}
 	title={puzzle.title}
 	{lastSavedAtMessage}
 />
@@ -213,37 +210,89 @@
 	>
 		<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
 		<input type="hidden" name="id" value={puzzle._id} />
-		<div class="mb-5 w-fit flex" use:clickOutside={{ callback: handleClickOutside }}>
-			<Crossword {puzzle} {isPreview} userMode={UserMode.EDITING_CELLS} onInput={handleInput} />
+		<div class="mb-10 w-fit flex" use:clickOutside={{ callback: handleClickOutside }}>
+			<Crossword {isPreview} {userMode} onInput={handleInput} />
 		</div>
 		<!-- ERROR MESSAGES -->
 		{#if errorMessage}
 			<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} />
 		{/if}
+		{#if userMode === UserMode.EDITING_CELLS}
+			<div class="mb-5 flex items-center">
+				<button
+					class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+					>Update save</button
+				>
+				<button
+					type="button"
+					on:click={handleValidateGridIsReadyForHints}
+					class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+					>Make Hints</button
+				>
 
-		<div class="mb-5 flex items-center">
-			<button
-				class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
-				>Update save</button
-			>
-			<button
-				type="button"
-				on:click={validateGridIsReadyForHints}
-				class="text-gray-900 mr-10 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
-				>Make Hints</button
-			>
+				<label for="togglePreview">
+					<input id="togglePreview" type="checkbox" on:change={handleTogglePreview} />
+					Toggle Preview Mode
+				</label>
+			</div>
+		{/if}
+	</form>
+{/if}
+{#if userMode === UserMode.EDITING_HINTS}
+	<form
+		method="POST"
+		action={'?/publish'}
+		autocomplete="off"
+		on:submit|preventDefault={handleSaveHints}
+	>
+		<input type="hidden" name="id" value={puzzle?._id} />
+		<input type="hidden" name="acrossHints" value={JSON.stringify(puzzle?.acrossHints)} />
+		<input type="hidden" name="downHints" value={JSON.stringify(puzzle?.downHints)} />
+		<Hints
+			{puzzle}
+			onAcrossHintInput={handleAcrossHintInput}
+			onDownHintInput={handleDownHintInput}
+		/>
 
-			<label for="togglePreview">
-				<input id="togglePreview" type="checkbox" on:change={handleTogglePreview} />
-				Toggle Preview Mode
-			</label>
+		<!-- ERROR MESSAGES -->
+		{#if errorMessage}
+			<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} />
+		{/if}
+
+		{#if showLinkToPlayPage}
+			<a href="/puzzles/{puzzle._id}/play" class="text-sky-400">Play {puzzle.title} now?</a>
+		{/if}
+
+		<div class="my-6 flex items-center">
+			<!-- 	<button
+			class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+			>Update save</button
+		>-->
+			<div class="mr-4">
+				<button
+					type="button"
+					on:click={confirmPublish}
+					class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+					>Publish!</button
+				>
+			</div>
+			<div class="mr-4">
+				<button
+					type="button"
+					on:click={confirmRevertToGrid}
+					class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+					>Go back to editing grid</button
+				>
+			</div>
+			{#if successMessage}
+				<p class="text-gray-400 text-sm">{successMessage}</p>
+			{/if}
 		</div>
 	</form>
 {/if}
 
 <hr class="my-10" />
 <EditPuzzleTitle {form} title={puzzle.title} id={puzzle._id} />
-
 <Modal bind:showModal>
 	{#if modalContentType === MISSING_SYMMETRY}
 		<h2 class="mr-4 mb-4">Rotational symmetry, anyone?</h2>

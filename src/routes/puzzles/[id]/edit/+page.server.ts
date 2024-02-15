@@ -8,11 +8,19 @@ import {
 	handleDeletePuzzle,
 	transformPuzzleDataForCreatingHints,
 	transformCellMapArrayForDb,
-	validateHintsForPublishingPuzzle
+	validateHintsForPublishingPuzzle,
+	createCellRows
 } from '$utils/serverHelpers';
 import type { RequestEvent } from './$types';
 import { EDITING_HINTS, EDIT_PUZZLE, PUBLISHED } from '$utils/constants';
-import type { CellMapArray, EditorPuzzle, Hint, HintDirection, CellMap } from '$utils/types';
+import type {
+	CellMapArray,
+	EditorPuzzle,
+	Hint,
+	HintDirection,
+	CellMap,
+	CellRows
+} from '$utils/types';
 import { ServerErrorType } from '$utils/types';
 
 export type LoadData = {
@@ -69,15 +77,15 @@ export const actions = {
 			});
 		}
 		// 1. Retrieve the completed cellMap
-		let puzzleCellMapData;
+		let puzzle;
 		try {
-			puzzleCellMapData = await puzzlesCollection.findOne(
+			puzzle = await puzzlesCollection.findOne(
 				{
 					_id: new ObjectId(id)
 				},
-				{ projection: { cellMap: 1 } }
+				{ projection: { cellMap: 1, acrossSpan: 1, downSpan: 1 } }
 			);
-			if (puzzleCellMapData === null || puzzleCellMapData.cellMap === null) {
+			if (puzzle === null || puzzle.cellMap === null) {
 				// TODO: Redirect to some kind of help page
 				throw redirect(300, '/');
 			}
@@ -90,7 +98,7 @@ export const actions = {
 
 		// 2. Use the cellMap to create the hints
 		const { cellMap, acrossHints, downHints } = transformPuzzleDataForCreatingHints({
-			initialCellMap: puzzleCellMapData.cellMap
+			initialCellMap: puzzle.cellMap
 		});
 
 		// 3. Update the puzzle with the new data
@@ -109,11 +117,17 @@ export const actions = {
 
 		try {
 			await puzzlesCollection.updateOne(filter, updateDocument);
+			const cellRows: CellRows = createCellRows({
+				cellMap,
+				acrossSpan: puzzle.acrossSpan,
+				downSpan: puzzle.downSpan
+			});
+
 			return {
-				status: 303,
-				headers: {
-					location: `/puzzles/${id}/editHints`
-				}
+				cellMap,
+				cellRows,
+				downHints,
+				acrossHints
 			};
 		} catch {
 			return fail(500, {
@@ -141,6 +155,7 @@ export const actions = {
 		}
 
 		const parsedChunk: Array<Hint> = JSON.parse(chunk);
+		console.log(parsedChunk);
 		const typeSafeDirection: HintDirection = direction as HintDirection;
 		// Loop through the hints in the chunked array.
 		// Use the 'acrossHints.$' syntax to replace hints that are already in the array
@@ -263,5 +278,39 @@ export const actions = {
 	},
 	delete: async ({ request }: RequestEvent) => {
 		return await handleDeletePuzzle(request);
+	},
+	getUpdatedPuzzle: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+		const id = data.get('id');
+
+		if (!id || typeof id !== 'string') {
+			return fail(422, {
+				message: 'Missing puzzle id'
+			});
+		}
+
+		let result;
+		try {
+			result = await puzzlesCollection.findOne(
+				{
+					_id: new ObjectId(id)
+				},
+				{
+					projection: {
+						acrossHints: 1,
+						downHints: 1,
+						cellMap: 1
+					}
+				}
+			);
+
+			if (result === null) {
+				throw new Error('no puzzle hints have been created');
+			}
+		} catch {
+			return fail(500, {
+				message: 'Unable to publish: the source puzzle may have been deleted.'
+			});
+		}
 	}
 };

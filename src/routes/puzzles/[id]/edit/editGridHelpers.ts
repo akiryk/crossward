@@ -3,7 +3,12 @@ import { deserialize } from '$app/forms';
 import { type ActionResult } from '@sveltejs/kit';
 import { getId, chunkArray, promiseDebounce } from '$utils/helpers';
 import GameStore from '../../../../stores/GameStore';
-import { DEFAULT_CHUNK_SIZE } from '$utils/constants';
+import {
+	DEFAULT_CHUNK_SIZE,
+	MISSING_SYMMETRY,
+	TWO_LETTER_WORDS,
+	PUZZLE_INCOMPLETE
+} from '$utils/constants';
 import {
 	UserMode,
 	BannerType,
@@ -75,7 +80,6 @@ export function findWordsThatAreTooShort(cellMap: CellMap, activeCellIds: Array<
 			}
 		}
 	}
-	console.log('two', twoLetterWordIds);
 	return twoLetterWordIds;
 }
 
@@ -155,5 +159,88 @@ export async function saveData(
 	return {
 		errorMessage,
 		successMessage
+	};
+}
+
+export const validateGridIsReadyForHints = async (
+	puzzle: EditorPuzzle
+): Promise<{ showModal: boolean; modalContentType?: string; percentOfCompleteCells?: string }> => {
+	const { activeCellIds } = get(GameStore);
+
+	let percentOfCompleteCells: string = '';
+
+	// 1. Check for a mostly incomplete puzzle in which less than 50% of the cells have values
+	let percentComplete = activeCellIds.length / Object.keys(puzzle.cellMap).length;
+	if (percentComplete < 0.5) {
+		percentOfCompleteCells = (percentComplete * 100).toFixed();
+		return {
+			showModal: true,
+			modalContentType: PUZZLE_INCOMPLETE,
+			percentOfCompleteCells
+		};
+	}
+
+	// 2 Check rotational symmetry
+	if (findIfPuzzleFailsRotationalSymmetry(puzzle.cellMap)) {
+		return {
+			showModal: true,
+			modalContentType: MISSING_SYMMETRY
+		};
+	}
+
+	// 3. Check for two-letter words
+	const twoLetterWordIds = findWordsThatAreTooShort(puzzle.cellMap, activeCellIds);
+	GameStore.update((current: GameContext) => {
+		return {
+			...current,
+			twoLetterWordIds
+		};
+	});
+	if (twoLetterWordIds.length > 0) {
+		return {
+			showModal: true,
+			modalContentType: TWO_LETTER_WORDS
+		};
+	}
+
+	return {
+		showModal: false
+	};
+};
+
+export async function createHints(
+	puzzle: EditorPuzzle
+): Promise<{ success: boolean; message?: string; data: any } | null> {
+	if (puzzle === null) {
+		return null;
+	}
+	let success = false;
+	let message = '';
+	let data = null;
+
+	const formData = new FormData();
+	const id = puzzle._id;
+	formData.append('id', id);
+	try {
+		const response = await fetch(`?/createHints`, {
+			method: 'POST',
+			body: formData
+		});
+
+		const result: ActionResult = deserialize(await response.text());
+
+		if (result.type === 'success') {
+			success = true;
+			data = result.data;
+		} else if (result.type === 'failure') {
+			message = result.data?.message;
+		}
+	} catch (error) {
+		message = 'Error saving hints';
+	}
+	return {
+		success,
+		message,
+		data
 	};
 }

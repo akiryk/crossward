@@ -147,7 +147,6 @@
 			<input type="hidden" name="cellMap" value={JSON.stringify(puzzle?.cellMap)} />
 			<input type="hidden" name="id" value={puzzle._id} />
 			<Crossword
-				{puzzle}
 				userMode={isComplete && incorrectCells.length === 0 ? UserMode.GAME_OVER : UserMode.PLAY}
 				onInput={handleSaveOnInput}
 			/>

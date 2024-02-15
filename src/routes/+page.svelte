@@ -24,7 +24,6 @@
 	$: newPuzzleId = $page.url.searchParams.get('newPuzzleId');
 
 	function autofocus(element: HTMLInputElement) {
-		console.log();
 		tick().then(() => {
 			element.focus();
 		});
@@ -71,8 +70,7 @@
 									{#if puzzle.publishStatus === EDIT_PUZZLE}
 										<a href="/puzzles/{puzzle._id}/edit" class="text-sky-400">{puzzle.title}</a>
 									{:else if puzzle.publishStatus === EDITING_HINTS}
-										<a href="/puzzles/{puzzle._id}/editHints" class="text-sky-400">{puzzle.title}</a
-										>
+										<a href="/puzzles/{puzzle._id}/edit" class="text-sky-400">{puzzle.title}</a>
 									{/if}</span
 								>
 								<div class="ml-auto">
