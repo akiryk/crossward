@@ -71,7 +71,7 @@
 			<label>
 				Edit the title:
 				<input
-					placeholder={title}
+					placeholder={@html title}
 					type="text"
 					name="title"
 					class="ml-2 border-solid border-1 border-gray-300 p-2"

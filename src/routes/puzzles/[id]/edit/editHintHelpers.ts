@@ -51,7 +51,7 @@ export const saveDownHintInput = async (puzzle: EditorPuzzle) => {
 	await debounceSave(chunkedData, puzzle._id, 'down');
 };
 
-export const revertToGrid = async (puzzle: EditorPuzzle) => {
+export const revertToGrid = async (puzzle: EditorPuzzle): Promise<{ success: boolean }> => {
 	const id = puzzle._id;
 	const formData = new FormData();
 	formData.append('id', id);
@@ -62,11 +62,16 @@ export const revertToGrid = async (puzzle: EditorPuzzle) => {
 		});
 		const result: ActionResult = deserialize(await response.text());
 		if (result.type === 'success') {
-			goto(`/puzzles/${id}/edit`);
+			return {
+				success: true
+			};
 		}
 	} catch {
 		console.log('error changing status');
 	}
+	return {
+		success: false
+	};
 };
 
 export const publish = async (

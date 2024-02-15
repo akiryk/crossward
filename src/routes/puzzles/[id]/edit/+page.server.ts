@@ -155,7 +155,6 @@ export const actions = {
 		}
 
 		const parsedChunk: Array<Hint> = JSON.parse(chunk);
-		console.log(parsedChunk);
 		const typeSafeDirection: HintDirection = direction as HintDirection;
 		// Loop through the hints in the chunked array.
 		// Use the 'acrossHints.$' syntax to replace hints that are already in the array
@@ -312,5 +311,34 @@ export const actions = {
 				message: 'Unable to publish: the source puzzle may have been deleted.'
 			});
 		}
+	},
+	returnToGrid: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+		const id = data.get('id');
+
+		if (!id || typeof id !== 'string') {
+			return fail(422, {
+				message: 'Missing puzzle id.'
+			});
+		}
+
+		try {
+			const filter = {
+				_id: new ObjectId(id)
+			};
+
+			const document = {
+				$set: {
+					publishStatus: EDIT_PUZZLE
+				}
+			};
+			await puzzlesCollection.updateOne(filter, document);
+		} catch {
+			fail(500);
+		}
+		return {
+			status: 200,
+			message: 'Edit grid again'
+		};
 	}
 };

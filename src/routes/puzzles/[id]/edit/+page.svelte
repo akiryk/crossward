@@ -1,8 +1,6 @@
 <script lang="ts">
 	// [id]/edit/page.svelte
 	import { get } from 'svelte/store';
-	import { type ActionResult } from '@sveltejs/kit';
-	import { deserialize } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { clickOutside } from '$utils/useClickOutside';
@@ -12,24 +10,15 @@
 	import Crossword from '$lib/crossword/Crossword.svelte';
 	import EditPuzzleTitle from '$lib/crossword/EditPuzzleTitle.svelte';
 	import PuzzleHeading from '$lib/crossword/PuzzleHeading.svelte';
-	import {
-		UserMode,
-		BannerType,
-		type EditorPuzzle,
-		type CellMapArray,
-		type ID,
-		type GameContext,
-		type PublishStatus
-	} from '$utils/types';
+	import { UserMode, BannerType, type EditorPuzzle, type ID } from '$utils/types';
 	import Banner from '$components/Banner.svelte';
 	import Modal from '$components/Modal.svelte';
 	import Hints from '$lib/crossword/EditHints.svelte';
-	import { promiseDebounce, chunkArray } from '$utils/helpers';
+	import { promiseDebounce } from '$utils/helpers';
 	import type { ActionData } from './$types.js';
 	import {
 		findWordsThatAreTooShort,
 		getActiveCellIdsFromCellMap,
-		findIfPuzzleFailsRotationalSymmetry,
 		togglePreview,
 		saveData,
 		validateGridIsReadyForHints,
@@ -173,8 +162,13 @@
 		}
 	};
 
-	const handleRevertToGrid = () => {
-		revertToGrid(puzzle);
+	const closeModal = () => (showModal = false);
+
+	const handleRevertToGrid = async () => {
+		const response = await revertToGrid(puzzle);
+		if (response.success) {
+			userMode = UserMode.EDITING_CELLS;
+		}
 	};
 
 	const handlePublish = async () => {
@@ -317,17 +311,44 @@
 			Try enabling "toggle preview mode" to identify problem areas (red cells are for incomplete
 			symmetry and pink cells are for two-letter words)
 		</p>
+		<button
+			type="button"
+			on:click={() => {
+				saveGridAndCreateHints();
+				closeModal();
+			}}
+			class="mr-4 mb-4 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+			>Make Hints Anyway!</button
+		>
 	{:else if modalContentType === TWO_LETTER_WORDS}
 		<p class="mb-4">
 			Your puzzle has one or more two-letter words, which isn't really super cool. You can still do
 			it, but. Just saying.
 		</p>
+		<button
+			type="button"
+			on:click={() => {
+				saveGridAndCreateHints();
+				closeModal();
+			}}
+			class="mr-4 mb-4 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+			>Make Hints Anyway!</button
+		>
 	{:else if modalContentType === PUZZLE_INCOMPLETE}
 		<p class="mb-4">Lazy. Bones.</p>
 		<p class="mb-4">
 			Only about {percentOfCompleteCells}% of cells in this puzzle have content. Aim for at least
 			75%.
 		</p>
+		<button
+			type="button"
+			on:click={() => {
+				saveGridAndCreateHints();
+				closeModal();
+			}}
+			class="mr-4 mb-4 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
+			>Make Hints Anyway!</button
+		>
 	{:else if modalContentType === PUBLISH_PUZZLE}
 		<p class="mr-4 mb-4">Are you sure you're ready to publish?</p>
 		<p class="mr-4 mb-4">
@@ -336,7 +357,10 @@
 		</p>
 		<button
 			type="button"
-			on:click={handlePublish}
+			on:click={() => {
+				handlePublish();
+				closeModal();
+			}}
 			class="mr-4 mb-4 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
 			>Yes, Publish!</button
 		>
@@ -347,15 +371,12 @@
 		</p>
 		<button
 			type="button"
-			on:click={handleRevertToGrid}
+			on:click={() => {
+				handleRevertToGrid();
+				closeModal();
+			}}
 			class="mr-4 mb-4 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
 			>Yes, Edit Grid!</button
 		>
 	{/if}
-	<button
-		type="button"
-		on:click={saveGridAndCreateHints}
-		class="mr-4 mb-4 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
-		>Continue anyway!</button
-	>
 </Modal>
