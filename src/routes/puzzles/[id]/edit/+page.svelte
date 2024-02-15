@@ -102,10 +102,10 @@
 
 	const handleAcrossHintInput = async () => {
 		const response = await saveAcrossHintInput(puzzle);
-		if (response.success) {
-			successMessage = response?.successMessage || '';
+		if (response.errors.length > 0) {
+			errorMessage = 'We had a problem saving your data. Perhaps try again later.';
 		} else {
-			errorMessage = response?.errorMessage || '';
+			lastSavedAtMessage = response.successMessage;
 		}
 	};
 

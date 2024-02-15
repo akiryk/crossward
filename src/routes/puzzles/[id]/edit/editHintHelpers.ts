@@ -9,11 +9,10 @@ const saveHintData = async (
 	chunkedData: Hint[],
 	id: string,
 	direction: HintDirection
-): Promise<{ success: boolean; errorMessage: string; successMessage: string }> => {
-	let success: boolean = true;
-	let errorMessage = '';
+): Promise<{ errors: string[]; successMessage: string }> => {
 	let successMessage = '';
-	chunkedData.forEach(async (chunk) => {
+	const errors: Array<string> = [];
+	for (const chunk of chunkedData) {
 		const formData = new FormData();
 		formData.append('chunk', JSON.stringify(chunk));
 		formData.append('direction', direction);
@@ -25,20 +24,18 @@ const saveHintData = async (
 			});
 			const result: ActionResult = deserialize(await response.text());
 			if (result.type === 'failure') {
-				success = false;
-				errorMessage = `${errorMessage} ${result.data?.message}`;
+				errors.push(result.data?.message);
 			}
 			if (result.type === 'success' && result?.data?.message) {
 				successMessage = result.data.message;
 			}
 		} catch (error) {
-			error = 'Error saving chunk';
+			errors.push('Error saving chunk');
 		}
-	});
+	}
 	return {
-		success,
-		successMessage,
-		errorMessage
+		errors,
+		successMessage
 	};
 };
 
@@ -49,39 +46,39 @@ const debounceSave = promiseDebounce(saveHintData) as (
 ) => SaveHintResponse;
 
 type SaveHintResponse = Promise<{
-	success: boolean;
 	successMessage: string;
-	errorMessage: string;
+	errors: string[];
 }>;
 
 export const saveAcrossHintInput = async (
 	puzzle: EditorPuzzle
-): Promise<{ success: boolean; errorMessage?: string; successMessage?: string }> => {
+): Promise<{ errors: string[]; successMessage: string }> => {
 	if (puzzle === null) {
 		return {
-			success: false
+			errors: ['No puzzle!'],
+			successMessage: ''
 		};
 	}
 	const chunkedData = chunkArray(puzzle.acrossHints, 5);
 	const response = await debounceSave(chunkedData, puzzle._id as ID, 'across');
-	console.log('response', response);
 	return {
-		success: response.success,
 		successMessage: response.successMessage,
-		errorMessage: response.errorMessage
+		errors: response.errors
 	};
 };
 
 export const saveDownHintInput = async (
 	puzzle: EditorPuzzle
-): Promise<{ success: boolean; errorMessage?: string; successMessage?: string }> => {
+): Promise<{ errors: string[]; successMessage: string }> => {
 	if (puzzle === null) {
 		return {
-			success: false
+			errors: ['No puzzle!'],
+			successMessage: ''
 		};
 	}
 	const chunkedData = chunkArray(puzzle.downHints, 5);
-	return await debounceSave(chunkedData, puzzle._id as ID, 'down');
+	const response = await debounceSave(chunkedData, puzzle._id as ID, 'down');
+	return { successMessage: response.successMessage, errors: response.errors };
 };
 
 export const revertToGrid = async (puzzle: EditorPuzzle): Promise<{ success: boolean }> => {
