@@ -1,4 +1,4 @@
-// [id]/editPuzzle/page.server.ts
+// [id]/create/page.server.ts
 import { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';

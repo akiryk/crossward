@@ -13,17 +13,19 @@
 	export let errorMessage: string;
 	export let successMessage: string;
 	export let showLinkToPlayPage: boolean;
+	export let onResetErrorMessage: () => void;
+	export let showHintErrors: boolean = false;
 </script>
 
 <form method="POST" action={'?/publish'} autocomplete="off" on:submit|preventDefault={onSaveHints}>
 	<input type="hidden" name="id" value={puzzle._id} />
 	<input type="hidden" name="acrossHints" value={JSON.stringify(puzzle.acrossHints)} />
 	<input type="hidden" name="downHints" value={JSON.stringify(puzzle.downHints)} />
-	<Hints {puzzle} {onAcrossHintInput} {onDownHintInput} />
+	<Hints {puzzle} {onAcrossHintInput} {onDownHintInput} {showHintErrors} />
 
 	<!-- ERROR MESSAGES -->
 	{#if errorMessage}
-		<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} />
+		<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} onClose={onResetErrorMessage} />
 	{/if}
 
 	{#if showLinkToPlayPage}

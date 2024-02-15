@@ -1,5 +1,5 @@
 <script lang="ts">
-	// [id]/edit/page.svelte
+	// [id]/create/page.svelte
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import type { LoadData } from './+page.server.ts';
@@ -20,8 +20,14 @@
 		createHints,
 		saveCellMap
 	} from './editGridHelpers';
-	import { saveAcrossHintInput, saveDownHintInput, revertToGrid, publish } from './editHintHelpers';
-	import { EDIT_PUZZLE, REVERT_TO_GRID, PUBLISH_PUZZLE } from '$utils/constants';
+	import {
+		saveAcrossHintInput,
+		saveDownHintInput,
+		revertToGrid,
+		publish,
+		validatePuzzleCanBePublished
+	} from './editHintHelpers';
+	import { EDIT_PUZZLE, REVERT_TO_GRID, PUBLISH_PUZZLE, MISSING_HINTS } from '$utils/constants';
 
 	export let puzzle: EditorPuzzle;
 	export let data: LoadData;
@@ -38,6 +44,7 @@
 	let userMode: UserMode;
 	let showLinkToPlayPage = false;
 	let successMessage: string = '';
+	let showHintErrors: boolean = false;
 
 	$: ({ puzzle, isCreateSuccess } = data);
 
@@ -100,8 +107,7 @@
 		}
 	};
 
-	const handleAcrossHintInput = async () => {
-		const response = await saveAcrossHintInput(puzzle);
+	const updateUIWithSavedHintStatus = (response: { errors: string[]; successMessage: string }) => {
 		if (response.errors.length > 0) {
 			errorMessage = 'We had a problem saving your data. Perhaps try again later.';
 		} else {
@@ -109,13 +115,14 @@
 		}
 	};
 
+	const handleAcrossHintInput = async () => {
+		const response = await saveAcrossHintInput(puzzle);
+		updateUIWithSavedHintStatus(response);
+	};
+
 	const handleDownHintInput = async () => {
 		const response = await saveDownHintInput(puzzle);
-		if (response.success) {
-			successMessage = response?.successMessage || '';
-		} else {
-			errorMessage = response?.errorMessage || '';
-		}
+		updateUIWithSavedHintStatus(response);
 	};
 
 	const handleSaveHints = async () => {
@@ -123,14 +130,10 @@
 		await handleAcrossHintInput();
 	};
 
-	// Enable the event handler to call a function
-	// that doesn't accept event:Event as a parameter
 	const handleSubmit = () => {
 		handleSaveCellMap();
 	};
 
-	// Enable the event handler to call a function
-	// that doesn't accept event:Event as a parameter
 	const handleInput = () => {
 		handleSaveCellMap();
 		if (userMode === UserMode.EDITING_HINTS) {
@@ -150,7 +153,7 @@
 	const handlePublish = async () => {
 		const response = await publish(puzzle);
 		if (response.success) {
-			goto(`/?create=true&newPuzzleId=${puzzle._id}`);
+			goto(`/?newPuzzle=true&newPuzzleId=${puzzle._id}`);
 		}
 		if (response.error) {
 			errorMessage = response.error;
@@ -163,8 +166,15 @@
 	};
 
 	const handleConfirmPublish = () => {
-		showModal = true;
-		modalContentType = PUBLISH_PUZZLE;
+		const { isValid } = validatePuzzleCanBePublished(puzzle);
+		if (isValid) {
+			showModal = true;
+			modalContentType = PUBLISH_PUZZLE;
+		} else {
+			showModal = true;
+			modalContentType = MISSING_HINTS;
+			showHintErrors = true;
+		}
 	};
 
 	async function handleSaveGridAndCreateHints() {
@@ -219,6 +229,8 @@
 		{errorMessage}
 		{successMessage}
 		{showLinkToPlayPage}
+		onResetErrorMessage={handleResetErrorMessage}
+		{showHintErrors}
 	/>
 {/if}
 

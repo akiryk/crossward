@@ -4,7 +4,8 @@
 		TWO_LETTER_WORDS,
 		PUZZLE_INCOMPLETE,
 		REVERT_TO_GRID,
-		PUBLISH_PUZZLE
+		PUBLISH_PUZZLE,
+		MISSING_HINTS
 	} from '$utils/constants';
 
 	export let modalContentType: string;
@@ -91,4 +92,7 @@
 		class="mr-4 mb-4 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
 		>Yes, Edit Grid!</button
 	>
+{:else if modalContentType === MISSING_HINTS}
+	<p class="mb-4">Tsk tsk, sloppy work.</p>
+	<p class="mb-4">You haven't added hints for all of your words. Please add hints and try again.</p>
 {/if}

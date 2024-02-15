@@ -5,8 +5,7 @@
 	import Button from '$components/Button.svelte';
 	import Modal from '$components/Modal.svelte';
 	import { UPDATE_TITLE, DELETE_PUZZLE } from '$utils/constants';
-	import type { ActionData } from '../../routes/puzzles/[id]/edit/$types';
-	import type { ActionData as ActionDataFromHints } from '../../routes/puzzles/[id]/editHints/$types';
+	import type { ActionData } from '../../routes/puzzles/[id]/create/$types';
 
 	type Message = {
 		text?: string;

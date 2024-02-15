@@ -200,7 +200,7 @@
 	/>
 {:else if userMode === UserMode.EDITING_CELLS || (userMode === UserMode.EDITING_HINTS && cellCorrectValue)}
 	<Cell
-		displayNumber={cell.displayNumber}
+		displayNumber={userMode === UserMode.EDITING_HINTS ? cell.displayNumber : 0}
 		value={cellCorrectValue}
 		onInput={handleInput}
 		onKeydown={handleKeyDown}
@@ -216,21 +216,8 @@
 		{isBlack}
 		{tabindex}
 	/>
-{:else if userMode === UserMode.PREVIEW}
-	<PreviewCell
-		displayNumber={cell.displayNumber}
-		value={cellCorrectValue}
-		missingValueForSymmetricalCell={cell.isSymmetrical && !cell.correctValue}
-		id={cell.id}
-	/>
 {:else if userMode === UserMode.GAME_OVER}
-	<PreviewCell
-		gameOver={true}
-		displayNumber={cell.displayNumber}
-		value={cellCorrectValue}
-		missingValueForSymmetricalCell={cell.isSymmetrical && !cell.correctValue}
-		id={cell.id}
-	/>
+	<PreviewCell displayNumber={cell.displayNumber} value={cellCorrectValue} />
 {:else}
 	<DeadCell />
 {/if}

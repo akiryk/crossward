@@ -136,3 +136,21 @@ export const publish = async (
 		error
 	};
 };
+
+export const validatePuzzleCanBePublished = (
+	puzzle: EditorPuzzle
+): { isValid: boolean; message?: string } => {
+	if (
+		puzzle.acrossHints.find((data) => !data.hint) ||
+		puzzle.downHints.find((data) => !data.hint)
+	) {
+		return {
+			isValid: false,
+			message: 'Not every word has a corresponding hint.'
+		};
+	}
+	return {
+		isValid: true,
+		message: 'Good job!'
+	};
+};
