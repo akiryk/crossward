@@ -96,7 +96,7 @@
 		if (response.errors.length > 0) {
 			errorMessage = 'We had a problem saving your data. Perhaps try again later.';
 		} else {
-			successMessage = response.success;
+			lastSavedAtMessage = response.success;
 		}
 	};
 
@@ -177,7 +177,13 @@
 			puzzle.cellMap = result.data.cellMap;
 			puzzle.cellRows = result.data.cellRows;
 			PuzzleStore.set(puzzle);
+		} else {
+			errorMessage = result?.message || '';
 		}
+	}
+
+	function handleResetErrorMessage() {
+		errorMessage = '';
 	}
 </script>
 
@@ -199,6 +205,7 @@
 		{isPreview}
 		{userMode}
 		{errorMessage}
+		onResetErrorMessage={handleResetErrorMessage}
 	/>
 {/if}
 {#if userMode === UserMode.EDITING_HINTS}

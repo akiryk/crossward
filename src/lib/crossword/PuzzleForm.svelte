@@ -15,6 +15,7 @@
 	export let isPreview: boolean;
 	export let userMode: UserMode;
 	export let errorMessage: string;
+	export let onResetErrorMessage: () => void;
 
 	function handleClickOutside() {
 		GameStore.update((current) => ({
@@ -32,7 +33,13 @@
 	</div>
 	<!-- ERROR MESSAGES -->
 	{#if errorMessage}
-		<Banner message={errorMessage} bannerType={BannerType.IS_ERROR} />
+		<div class="mb-10">
+			<Banner
+				message={errorMessage}
+				bannerType={BannerType.IS_ERROR}
+				onClose={onResetErrorMessage}
+			/>
+		</div>
 	{/if}
 	{#if userMode === UserMode.EDITING_CELLS}
 		<div class="mb-5 flex items-center">

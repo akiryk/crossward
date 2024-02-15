@@ -64,6 +64,7 @@ export const saveAcrossHintInput = async (
 	}
 	const chunkedData = chunkArray(puzzle.acrossHints, 5);
 	const response = await debounceSave(chunkedData, puzzle._id as ID, 'across');
+	console.log('response', response);
 	return {
 		success: response.success,
 		successMessage: response.successMessage,

@@ -92,7 +92,8 @@ export const actions = {
 		} catch (error) {
 			return fail(500, {
 				errorType: ServerErrorType.DB_ERROR,
-				message: 'Having trouble with the databases'
+				message:
+					"Uh oh. We're having trouble with the ole internet wires. Maybe try again in a week."
 			});
 		}
 
@@ -277,40 +278,6 @@ export const actions = {
 	},
 	delete: async ({ request }: RequestEvent) => {
 		return await handleDeletePuzzle(request);
-	},
-	getUpdatedPuzzle: async ({ request }: RequestEvent) => {
-		const data = await request.formData();
-		const id = data.get('id');
-
-		if (!id || typeof id !== 'string') {
-			return fail(422, {
-				message: 'Missing puzzle id'
-			});
-		}
-
-		let result;
-		try {
-			result = await puzzlesCollection.findOne(
-				{
-					_id: new ObjectId(id)
-				},
-				{
-					projection: {
-						acrossHints: 1,
-						downHints: 1,
-						cellMap: 1
-					}
-				}
-			);
-
-			if (result === null) {
-				throw new Error('no puzzle hints have been created');
-			}
-		} catch {
-			return fail(500, {
-				message: 'Unable to publish: the source puzzle may have been deleted.'
-			});
-		}
 	},
 	returnToGrid: async ({ request }: RequestEvent) => {
 		const data = await request.formData();
