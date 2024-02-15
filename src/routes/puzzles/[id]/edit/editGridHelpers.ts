@@ -10,8 +10,6 @@ import {
 	PUZZLE_INCOMPLETE
 } from '$utils/constants';
 import {
-	UserMode,
-	BannerType,
 	type EditorPuzzle,
 	type CellMapArray,
 	type ID,
@@ -119,9 +117,9 @@ export const togglePreview = ({
 	return isPreview;
 };
 
-export async function saveData(
+async function saveData(
 	data: FormData
-): Promise<{ errorMessage: string; successMessage: string } | null> {
+): Promise<{ errors: string[]; successMessage: string } | null> {
 	const formCellMap = data?.get('cellMap');
 	const id = data?.get('id');
 	if (typeof formCellMap !== 'string' || typeof id !== 'string') {
@@ -131,9 +129,9 @@ export async function saveData(
 	const chunkedData = chunkArray(cellsArray, DEFAULT_CHUNK_SIZE);
 
 	let successMessage = '';
-	let errorMessage = '';
+	const errors: Array<string> = [];
 
-	chunkedData.forEach(async (chunk) => {
+	for (const chunk of chunkedData) {
 		// chunk = [["0:0", cell1], ["0:1", cell2], etc ... ]
 		const formData = new FormData();
 		formData.append('chunk', JSON.stringify(chunk));
@@ -146,18 +144,16 @@ export async function saveData(
 			const result: ActionResult = deserialize(await response.text());
 			if (result.type === 'success') {
 				successMessage = result.data?.message;
-				// rerun all `load` functions, following the successful update
-				// await invalidateAll();
 			} else if (result.type === 'failure') {
-				errorMessage = result.data?.message;
+				errors.push(result.data?.message);
 			}
 		} catch (error) {
-			console.error('Error saving chunk:', error);
+			errors.push('Unknown problem');
 		}
-	});
+	}
 
 	return {
-		errorMessage,
+		errors,
 		successMessage
 	};
 }
@@ -244,3 +240,36 @@ export async function createHints(
 		data
 	};
 }
+
+const promiseDebounceSave = promiseDebounce(saveData);
+
+export const saveCellMap = async ({
+	puzzle,
+	isPreview
+}: {
+	puzzle: EditorPuzzle;
+	isPreview: boolean;
+}) => {
+	const formData = new FormData();
+	formData.append('cellMap', JSON.stringify(puzzle.cellMap));
+	formData.append('id', puzzle._id);
+
+	// If we are previewing the puzzle, update the warnings
+	if (isPreview) {
+		const { activeCellIds } = get(GameStore);
+		const twoLetterWordIds = findWordsThatAreTooShort(puzzle.cellMap, activeCellIds);
+		GameStore.update((current) => ({
+			...current,
+			twoLetterWordIds
+		}));
+	}
+
+	const result = (await promiseDebounceSave(formData)) as {
+		errors: string[];
+		successMessage: string;
+	} | null;
+	return {
+		success: result?.successMessage || '',
+		errors: result?.errors || []
+	};
+};

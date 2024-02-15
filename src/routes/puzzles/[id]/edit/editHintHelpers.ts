@@ -1,15 +1,18 @@
 // [id]/editHints/page.svelte
-import { goto } from '$app/navigation';
 import { deserialize } from '$app/forms';
 import { type ActionResult } from '@sveltejs/kit';
 
-import { type HintDirection, type EditorPuzzle, type Hint } from '$utils/types';
+import { type HintDirection, type EditorPuzzle, type Hint, type ID } from '$utils/types';
 import { promiseDebounce, chunkArray } from '$utils/helpers';
 
-const REVERT_TO_GRID = 'REVERT_TO_GRID';
-const PUBLISH_PUZZLE = 'PUBLISH_PUZZLE';
-
-const saveHintData = async (chunkedData: Hint[], id: string, direction: HintDirection) => {
+const saveHintData = async (
+	chunkedData: Hint[],
+	id: string,
+	direction: HintDirection
+): Promise<{ success: boolean; errorMessage: string; successMessage: string }> => {
+	let success: boolean = true;
+	let errorMessage = '';
+	let successMessage = '';
 	chunkedData.forEach(async (chunk) => {
 		const formData = new FormData();
 		formData.append('chunk', JSON.stringify(chunk));
@@ -21,34 +24,63 @@ const saveHintData = async (chunkedData: Hint[], id: string, direction: HintDire
 				body: formData
 			});
 			const result: ActionResult = deserialize(await response.text());
-			// if (result.type === 'failure') {
-			// 	errorMessage = result.data?.message;
-			// }
-			// if (result.type === 'success' && result?.data?.message) {
-			// 	lastSavedAtMessage = result.data.message;
-			// }
+			if (result.type === 'failure') {
+				success = false;
+				errorMessage = `${errorMessage} ${result.data?.message}`;
+			}
+			if (result.type === 'success' && result?.data?.message) {
+				successMessage = result.data.message;
+			}
 		} catch (error) {
-			console.error('Error saving chunk:', error);
+			error = 'Error saving chunk';
 		}
 	});
+	return {
+		success,
+		successMessage,
+		errorMessage
+	};
 };
 
-const debounceSave = promiseDebounce(saveHintData);
+const debounceSave = promiseDebounce(saveHintData) as (
+	chunkedData: Array<any>,
+	id: ID,
+	direction: string
+) => SaveHintResponse;
 
-export const saveAcrossHintInput = async (puzzle: EditorPuzzle) => {
+type SaveHintResponse = Promise<{
+	success: boolean;
+	successMessage: string;
+	errorMessage: string;
+}>;
+
+export const saveAcrossHintInput = async (
+	puzzle: EditorPuzzle
+): Promise<{ success: boolean; errorMessage?: string; successMessage?: string }> => {
 	if (puzzle === null) {
-		return;
+		return {
+			success: false
+		};
 	}
 	const chunkedData = chunkArray(puzzle.acrossHints, 5);
-	await debounceSave(chunkedData, puzzle._id, 'across');
+	const response = await debounceSave(chunkedData, puzzle._id as ID, 'across');
+	return {
+		success: response.success,
+		successMessage: response.successMessage,
+		errorMessage: response.errorMessage
+	};
 };
 
-export const saveDownHintInput = async (puzzle: EditorPuzzle) => {
+export const saveDownHintInput = async (
+	puzzle: EditorPuzzle
+): Promise<{ success: boolean; errorMessage?: string; successMessage?: string }> => {
 	if (puzzle === null) {
-		return;
+		return {
+			success: false
+		};
 	}
 	const chunkedData = chunkArray(puzzle.downHints, 5);
-	await debounceSave(chunkedData, puzzle._id, 'down');
+	return await debounceSave(chunkedData, puzzle._id as ID, 'down');
 };
 
 export const revertToGrid = async (puzzle: EditorPuzzle): Promise<{ success: boolean }> => {
