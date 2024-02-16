@@ -191,6 +191,7 @@
 			puzzle.cellMap = result.data.cellMap;
 			puzzle.cellRows = result.data.cellRows;
 			PuzzleStore.set(puzzle);
+			isPreview = false;
 		} else {
 			errorMessage = result?.message || '';
 		}

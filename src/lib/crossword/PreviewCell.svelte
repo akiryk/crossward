@@ -7,7 +7,7 @@
 		'w-10 h-10 outline outline-1  border-none flex justify-center items-center relative select-none';
 	const COMBINED_STYLES = `${SHARED_CELL_STYLES} ${SHARED_CELL_FONT_STYLES}`;
 	const bgColor = value ? 'bg-blue-100' : 'bg-black';
-	const borderColor = gameOver ? 'outline-blue-400' : 'outline-gray-400';
+	const borderColor = 'outline-blue-400';
 	export const styles = `${COMBINED_STYLES} ${bgColor} ${borderColor}`;
 </script>
 

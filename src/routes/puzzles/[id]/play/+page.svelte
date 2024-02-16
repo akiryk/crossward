@@ -19,6 +19,11 @@
 	} from '$utils/constants';
 	import { clickOutside } from '$utils/useClickOutside';
 
+	type CompletionData = {
+		isComplete: boolean;
+		incorrectCells: ID[];
+	};
+
 	export let puzzle: PlayerPuzzle;
 	export let data: LoadData;
 
@@ -32,7 +37,8 @@
 	onMount(() => {
 		if (puzzle) {
 			PuzzleStore.set(puzzle);
-			checkIfComplete(puzzle);
+			const { isComplete, incorrectCells } = getCompletionStatus(puzzle);
+			setPuzzlePlayMode({ isComplete, incorrectCells });
 		}
 	});
 
@@ -53,7 +59,7 @@
 		}));
 	}
 
-	function checkIfComplete(puzzle: PlayerPuzzle) {
+	function getCompletionStatus(puzzle: PlayerPuzzle): CompletionData {
 		isComplete = true;
 		Object.values(puzzle.cellMap).forEach((cell) => {
 			const id: ID = `${cell.x}:${cell.y}`;
@@ -70,15 +76,26 @@
 				incorrectCells.splice(index, 1);
 			}
 		});
-		puzzle.incorrectCells = incorrectCells;
-		if (incorrectCells.length && isComplete) {
-			puzzle.playMode === COMPLETE_BUT_WITH_ERRORS;
-		} else if (incorrectCells.length === 0 && isComplete) {
-			puzzle.playMode === COMPLETE_AND_NO_ERRORS;
-		} else {
-			puzzle.playMode === INCOMPLETE;
+		return {
+			isComplete,
+			incorrectCells
+		};
+	}
+
+	async function updatePuzzleAsComplete() {
+		try {
+			const formData = new FormData();
+			formData.append('id', puzzle!._id);
+			const response = await fetch('?/gameOver', {
+				method: 'POST'
+			});
+			const result: ActionResult = deserialize(await response.text());
+			if (result.type === 'error') {
+				throw new Error('Request failed');
+			}
+		} catch (error) {
+			console.error('Error saving');
 		}
-		PuzzleStore.set(puzzle);
 	}
 
 	async function saveData() {
@@ -126,16 +143,34 @@
 		debounceSaveUpdatedCellMap();
 
 		if (puzzle) {
-			checkIfComplete(puzzle);
+			const { isComplete, incorrectCells } = getCompletionStatus(puzzle);
+			setPuzzlePlayMode({ isComplete, incorrectCells });
 		}
 	};
+
+	function setPuzzlePlayMode({ isComplete, incorrectCells }: CompletionData) {
+		puzzle.incorrectCells = incorrectCells;
+		if (incorrectCells.length && isComplete) {
+			puzzle.playMode = COMPLETE_BUT_WITH_ERRORS;
+		} else if (incorrectCells.length === 0 && isComplete) {
+			puzzle.playMode = COMPLETE_AND_NO_ERRORS;
+			updatePuzzleAsComplete();
+		} else {
+			puzzle.playMode = INCOMPLETE;
+		}
+		PuzzleStore.set(puzzle);
+	}
 
 	const handleSubmit = async () => {
 		debounceSaveUpdatedCellMap();
 	};
 </script>
 
-<h1 class="mb-3 font-bold">Play {puzzle.title}</h1>
+{#if (puzzle.playMode = COMPLETE_AND_NO_ERRORS)}
+	<h1 class="mb-3 font-bold">GAME OVER!!!</h1>
+{:else}
+	<h1 class="mb-3 font-bold">Play {puzzle.title}</h1>
+{/if}
 <div class="flex">
 	<div class="mb-5 w-fit mr-8" use:clickOutside={{ callback: handleClickOutside }}>
 		<form
