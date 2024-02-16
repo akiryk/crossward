@@ -133,6 +133,6 @@ export const actions = {
 				message: 'Something went wrong!'
 			});
 		}
-		redirect(302, `/puzzles/${insertedId}/editGrid?create=true`);
+		redirect(302, `/puzzles/${insertedId}/create?newPuzzle=true`);
 	}
 };

@@ -1,4 +1,4 @@
-// Mock cellMap passed to editGrid when saving in order
+// Mock cellMap passed to edit when saving in order
 // to make hints. This is data passed to transformPuzzleDataForCreatingHints.
 export const mockCellMapForDb = {
 	'0:0': {

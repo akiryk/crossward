@@ -20,7 +20,7 @@
 	export let userMode: UserMode;
 	export let isPreview: boolean;
 	export let onInput: (id: ID) => void;
-	export let updateCellSymmetry: (cell: CellType) => void;
+	export let updatePuzzleData: (cell: CellType) => void;
 	export let goToNextCell: (cell: CellType, direction: Direction) => void;
 	export let toggleGridDirection: (cell: CellType) => void;
 	export let updateCellWithFocus: (coords: Coords) => void;
@@ -50,9 +50,9 @@
 		const cleanValue = getCleanValueOfInput({ event, previousValue: cell.value });
 		(event.target as HTMLInputElement).value = cleanValue;
 		cell.value = cleanValue;
-		if (userMode === UserMode.EDITING_CELLS) {
+		if (userMode !== UserMode.PLAY) {
 			cell.correctValue = cleanValue;
-			updateCellSymmetry(cell);
+			updatePuzzleData(cell);
 
 			GameStore.update((current) => {
 				if (!current.activeCellIds.includes(cell.id)) {
@@ -62,7 +62,6 @@
 			});
 		}
 		goToNextCell(cell, Direction.GO_FORWARD);
-
 		onInput(cell.id);
 	}
 
@@ -98,9 +97,12 @@
 				toggleGridDirection(cell);
 				break;
 			case KeyCodes.DELETE_KEY:
+				if (userMode === UserMode.EDITING_HINTS) {
+					return;
+				}
 				cell.value = '';
 				if (userMode === UserMode.EDITING_CELLS) {
-					updateCellSymmetry(cell);
+					updatePuzzleData(cell);
 					cell.correctValue = '';
 					GameStore.update((current) => {
 						const index = current.activeCellIds.indexOf(cell.id);
@@ -196,9 +198,9 @@
 		{userMode}
 		{tabindex}
 	/>
-{:else if userMode === UserMode.EDITING_CELLS}
+{:else if userMode === UserMode.EDITING_CELLS || (userMode === UserMode.EDITING_HINTS && cellCorrectValue)}
 	<Cell
-		displayNumber={0}
+		displayNumber={userMode === UserMode.EDITING_HINTS ? cell.displayNumber : 0}
 		value={cellCorrectValue}
 		onInput={handleInput}
 		onKeydown={handleKeyDown}
@@ -214,23 +216,8 @@
 		{isBlack}
 		{tabindex}
 	/>
-{:else if userMode === UserMode.PREVIEW}
-	<PreviewCell
-		displayNumber={cell.displayNumber}
-		value={cellCorrectValue}
-		missingValueForSymmetricalCell={cell.isSymmetrical && !cell.correctValue}
-		id={cell.id}
-	/>
 {:else if userMode === UserMode.GAME_OVER}
-	<PreviewCell
-		gameOver={true}
-		displayNumber={cell.displayNumber}
-		value={cellCorrectValue}
-		missingValueForSymmetricalCell={cell.isSymmetrical && !cell.correctValue}
-		id={cell.id}
-	/>
-{:else if userMode === UserMode.EDITING_HINTS}
-	<PreviewCell id={cell.id} displayNumber={cell.displayNumber} value={cellCorrectValue} />
+	<PreviewCell displayNumber={cell.displayNumber} value={cellCorrectValue} />
 {:else}
 	<DeadCell />
 {/if}

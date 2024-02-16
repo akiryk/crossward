@@ -20,11 +20,10 @@
 	let showModal = false;
 
 	$: ({ puzzles } = data);
-	$: isCreateSuccess = $page.url.searchParams.get('create');
+	$: isCreateSuccess = $page.url.searchParams.get('newPuzzle');
 	$: newPuzzleId = $page.url.searchParams.get('newPuzzleId');
 
 	function autofocus(element: HTMLInputElement) {
-		console.log();
 		tick().then(() => {
 			element.focus();
 		});
@@ -69,10 +68,9 @@
 							<div class="flex items-baseline font-sans">
 								<span>
 									{#if puzzle.publishStatus === EDIT_PUZZLE}
-										<a href="/puzzles/{puzzle._id}/editGrid" class="text-sky-400">{puzzle.title}</a>
+										<a href="/puzzles/{puzzle._id}/create" class="text-sky-400">{puzzle.title}</a>
 									{:else if puzzle.publishStatus === EDITING_HINTS}
-										<a href="/puzzles/{puzzle._id}/editHints" class="text-sky-400">{puzzle.title}</a
-										>
+										<a href="/puzzles/{puzzle._id}/create" class="text-sky-400">{puzzle.title}</a>
 									{/if}</span
 								>
 								<div class="ml-auto">

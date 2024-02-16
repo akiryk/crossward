@@ -19,7 +19,7 @@ import sanitizeHtml from 'sanitize-html';
 import mongodb, { ObjectId } from 'mongodb';
 import { fail, redirect } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
-import type { PageServerLoad } from '../routes/puzzles/[id]/editGrid/$types';
+import type { PageServerLoad } from '../routes/puzzles/[id]/create/$types';
 import { UPDATE_TITLE, DELETE_PUZZLE } from './constants';
 
 type Props = {
@@ -75,11 +75,11 @@ export const editpageServerLoad: PageServerLoad = async ({
 			cellRows,
 			_id: puzzleFromSource._id.toString()
 		} as unknown as EditorPuzzle;
-		const create = url.searchParams.get('create');
+		const newPuzzle = url.searchParams.get('newPuzzle');
 
 		return {
 			puzzle,
-			isCreateSuccess: create === 'true'
+			isCreateSuccess: newPuzzle === 'true'
 		};
 	} catch (error) {
 		redirect(302, '/');
@@ -373,7 +373,6 @@ export const handleDeletePuzzle = async (request: Request) => {
 		const id = data.get('id');
 		if (typeof id === 'string') {
 			const query = { _id: new mongodb.ObjectId(id) };
-			console.log('Ismerelaa');
 			const isDeleted = await puzzlesCollection.deleteOne(query);
 			if (!isDeleted) {
 				throw new Error('Unable to delete that puzzle.');

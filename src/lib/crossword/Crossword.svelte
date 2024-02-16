@@ -26,18 +26,24 @@
 	export const SHARED_CELL_STYLES = 'w-10 h-10 outline outline-1 outline-gray-400 border-none';
 
 	export let onInput: (id: ID) => void = () => {};
-	export let puzzle: PlayerPuzzle | EditorPuzzle;
 	export let userMode: UserMode;
 	export let isPreview: boolean = false;
 	let gridDirection = Direction.GO_RIGHT;
+	let puzzle: EditorPuzzle | PlayerPuzzle;
 
-	// Game Store
+	const unsubscribePuzzleStore = PuzzleStore.subscribe((data) => {
+		if (data) {
+			puzzle = data;
+		}
+	});
+
 	const unsubscribeGameStore = GameStore.subscribe((data) => {
 		gridDirection = data.gridDirection;
 	});
 
 	onDestroy(() => {
 		unsubscribeGameStore();
+		unsubscribePuzzleStore();
 	});
 
 	function getHighlightedCellIds(cell: Cell): Array<ID> {
@@ -136,7 +142,7 @@
 		updateCellWithFocus(nextCellCoords);
 	}
 
-	export function updateCellSymmetry(cell: Cell) {
+	export function updatePuzzleData(cell: Cell) {
 		const symmetricalCell = getSymmetricalCell(puzzle, { x: cell.x, y: cell.y });
 		cell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
 		symmetricalCell.isSymmetrical = !!cell.value || !!symmetricalCell.value;
@@ -144,6 +150,37 @@
 		puzzle.cellMap[symmetricalCell.id] = symmetricalCell;
 		puzzle.cellRows[cell.y][cell.x] = cell;
 		puzzle.cellRows[symmetricalCell.y][symmetricalCell.x] = symmetricalCell;
+		if (userMode === UserMode.EDITING_HINTS) {
+			if (typeof cell.acrossWordStartX === 'number' && typeof cell.acrossWordEndX === 'number') {
+				const cellDisplayNumber =
+					puzzle.cellMap[`${cell.acrossWordStartX}:${cell.y}`].displayNumber;
+				const indexOfAcrossHint = puzzle.acrossHints.findIndex(
+					(hint) => hint.displayNumber === cellDisplayNumber
+				);
+				// puzzle.acrossHints[indexOfAcrossHint].answer ===
+				// update the answer word to match the updated cell value
+				let word = '';
+				for (let x = cell.acrossWordStartX; x < cell.acrossWordEndX + 1; x++) {
+					const id = getId({ x, y: cell.y });
+					word += puzzle.cellMap[id].correctValue;
+				}
+				puzzle.acrossHints[indexOfAcrossHint].answer = word;
+			}
+
+			if (typeof cell.downWordStartY === 'number' && typeof cell.downWordEndY === 'number') {
+				const cellDisplayNumber = puzzle.cellMap[`${cell.x}:${cell.downWordStartY}`].displayNumber;
+				const indexOfDownHint = puzzle.downHints.findIndex(
+					(hint) => hint.displayNumber === cellDisplayNumber
+				);
+				// update the answer word to match the updated cell value
+				let word = '';
+				for (let y = cell.downWordStartY; y < cell.downWordEndY + 1; y++) {
+					const id = getId({ x: cell.x, y });
+					word += puzzle.cellMap[id].correctValue;
+				}
+				puzzle.downHints[indexOfDownHint].answer = word;
+			}
+		}
 		PuzzleStore.set(puzzle);
 	}
 
@@ -159,7 +196,7 @@
 </script>
 
 <table
-	class="relative mb-10 table-fixed border-collapse"
+	class="relative table-fixed border-collapse"
 	cellpadding="0"
 	cellspacing="0"
 	border="0"
@@ -172,7 +209,7 @@
 					<CellContainer
 						{userMode}
 						{cell}
-						{updateCellSymmetry}
+						{updatePuzzleData}
 						{toggleGridDirection}
 						{goToNextCell}
 						{updateCellWithFocus}

@@ -3,6 +3,18 @@
 	export let answer: string;
 	export let displayNumber: number;
 	export let onInput: (event: Event, displayNumber: number) => void;
+	export let showHintErrors = false;
+
+	$: styles = getStyles(showHintErrors, hint);
+
+	function getStyles(showHintErrors: boolean, hint: string) {
+		let styles =
+			'leading-10 border border-gray-300 text-gray-900 pl-10 focus:border-blue-500 block w-full';
+		if (showHintErrors && !hint) {
+			styles += ' border-red-600 bg-red-50 placeholder:text-red-300';
+		}
+		return styles;
+	}
 </script>
 
 <div class="items-center my-2">
@@ -20,7 +32,7 @@
 			name="hint"
 			on:input={(event) => onInput(event, displayNumber)}
 			id={`acrossHintFor${displayNumber}`}
-			class="leading-10 border border-gray-300 text-gray-900 pl-10 focus:border-blue-500 block w-full"
+			class={styles}
 		/>
 	</div>
 </div>

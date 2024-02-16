@@ -5,8 +5,7 @@
 	import Button from '$components/Button.svelte';
 	import Modal from '$components/Modal.svelte';
 	import { UPDATE_TITLE, DELETE_PUZZLE } from '$utils/constants';
-	import type { ActionData } from '../../routes/puzzles/[id]/editGrid/$types';
-	import type { ActionData as ActionDataFromHints } from '../../routes/puzzles/[id]/editHints/$types';
+	import type { ActionData } from '../../routes/puzzles/[id]/create/$types';
 
 	type Message = {
 		text?: string;
@@ -14,7 +13,7 @@
 		action?: string;
 	} | null;
 
-	export let form: ActionData | ActionDataFromHints;
+	export let form: ActionData;
 	export let title: string;
 	export let id: string;
 
@@ -36,7 +35,7 @@
 		}
 	}
 
-	function getMessage(form: ActionData | ActionDataFromHints): Message {
+	function getMessage(form: ActionData): Message {
 		if (form) {
 			if (!form?.success) {
 				return {

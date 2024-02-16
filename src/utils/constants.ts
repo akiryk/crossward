@@ -33,3 +33,10 @@ export const COMPLETE_BUT_WITH_ERRORS = 'COMPLETE_BUT_WITH_ERRORS';
 // Error and Success types for form submission
 export const UPDATE_TITLE = 'updateTitle';
 export const DELETE_PUZZLE = 'deletePuzzle';
+
+export const MISSING_SYMMETRY = 'MISSING_SYMMETRY';
+export const TWO_LETTER_WORDS = 'TWO_LETTER_WORDS';
+export const PUZZLE_INCOMPLETE = 'PUZZLE_INCOMPLETE';
+export const REVERT_TO_GRID = 'REVERT_TO_GRID';
+export const PUBLISH_PUZZLE = 'PUBLISH_PUZZLE';
+export const MISSING_HINTS = 'MISSING_HINTS';

@@ -5,7 +5,7 @@ import { fail, redirect, type ActionFailure } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
-import { INCOMPLETE, PUBLISHED } from '$utils/constants';
+import { INCOMPLETE, PUBLISHED, COMPLETE_BUT_WITH_ERRORS } from '$utils/constants';
 import { type CellMapArray, type PlayerPuzzle, type CellRows } from '$utils/types';
 import {
 	removeAnswers,
@@ -183,9 +183,33 @@ export const actions = {
 			updateDocument.$set[`cellMap.${key}`] = value;
 		}
 
-		console.log(updateDocument);
-
 		try {
+			await userPuzzlesCollection.updateOne(filter, updateDocument);
+			return {
+				status: 200,
+				message: 'Success!'
+			};
+		} catch {
+			return fail(500, { message: 'Error' });
+		}
+	},
+	gameOver: async ({ request }: RequestEvent) => {
+		const data = await request.formData();
+		const id = data.get('id');
+		if (!id || typeof id !== 'string') {
+			return fail(422, {
+				message: 'Sorry but there was a problem.'
+			});
+		}
+		try {
+			const filter = {
+				_id: new ObjectId(id)
+			};
+			const updateDocument = {
+				$set: {
+					playMode: COMPLETE_BUT_WITH_ERRORS
+				}
+			};
 			await userPuzzlesCollection.updateOne(filter, updateDocument);
 			return {
 				status: 200,
