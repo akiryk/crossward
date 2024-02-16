@@ -87,7 +87,8 @@
 			const formData = new FormData();
 			formData.append('id', puzzle!._id);
 			const response = await fetch('?/gameOver', {
-				method: 'POST'
+				method: 'POST',
+				body: formData
 			});
 			const result: ActionResult = deserialize(await response.text());
 			if (result.type === 'error') {
@@ -166,8 +167,8 @@
 	};
 </script>
 
-{#if (puzzle.playMode = COMPLETE_AND_NO_ERRORS)}
-	<h1 class="mb-3 font-bold">GAME OVER!!!</h1>
+{#if puzzle.playMode === COMPLETE_AND_NO_ERRORS}
+	<h1 class="mb-3 font-bold text-lime-600">{puzzle.title} is GAME OVER!!!</h1>
 {:else}
 	<h1 class="mb-3 font-bold">Play {puzzle.title}</h1>
 {/if}

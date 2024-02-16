@@ -151,6 +151,9 @@
 			puzzle.downHints = [];
 			PuzzleStore.set(puzzle);
 			userMode = UserMode.EDITING_CELLS;
+			// reset hint errors so they don't display once
+			// you come back to creating the hints
+			showHintErrors = false;
 		}
 	};
 
@@ -184,7 +187,7 @@
 	async function handleSaveGridAndCreateHints() {
 		await handleSaveCellMap();
 		const result = await createHints(puzzle);
-		if (result?.success) {
+		if (result?.success && result?.data) {
 			userMode = UserMode.EDITING_HINTS;
 			puzzle.acrossHints = result.data.acrossHints;
 			puzzle.downHints = result.data.downHints;

@@ -5,7 +5,7 @@ import { fail, redirect, type ActionFailure } from '@sveltejs/kit';
 import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
-import { INCOMPLETE, PUBLISHED, COMPLETE_BUT_WITH_ERRORS } from '$utils/constants';
+import { INCOMPLETE, PUBLISHED, COMPLETE_AND_NO_ERRORS } from '$utils/constants';
 import { type CellMapArray, type PlayerPuzzle, type CellRows } from '$utils/types';
 import {
 	removeAnswers,
@@ -207,7 +207,7 @@ export const actions = {
 			};
 			const updateDocument = {
 				$set: {
-					playMode: COMPLETE_BUT_WITH_ERRORS
+					playMode: COMPLETE_AND_NO_ERRORS
 				}
 			};
 			await userPuzzlesCollection.updateOne(filter, updateDocument);
