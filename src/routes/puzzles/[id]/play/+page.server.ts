@@ -6,7 +6,7 @@ import { puzzlesCollection } from '$db/puzzles';
 import { userPuzzlesCollection } from '$db/userPuzzles';
 import type { PageServerLoad } from './$types';
 import { INCOMPLETE, PUBLISHED, COMPLETE_BUT_WITH_ERRORS } from '$utils/constants';
-import { type CellMapArray, type PlayerPuzzle, type CellRows, type PlayMode } from '$utils/types';
+import { type CellMapArray, type PlayerPuzzle, type CellRows } from '$utils/types';
 import {
 	removeAnswers,
 	transformCellMapArrayForDb,

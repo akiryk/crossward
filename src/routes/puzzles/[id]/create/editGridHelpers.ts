@@ -14,7 +14,9 @@ import {
 	type CellMapArray,
 	type ID,
 	type GameContext,
-	type CellMap
+	type CellMap,
+	type CellRows,
+	type Hint
 } from '$utils/types';
 
 // Every cell with a value should have radial symmetry
@@ -166,7 +168,7 @@ export const validateGridIsReadyForHints = async (
 	let percentOfCompleteCells: string = '';
 
 	// 1. Check for a mostly incomplete puzzle in which less than 50% of the cells have values
-	let percentComplete = activeCellIds.length / Object.keys(puzzle.cellMap).length;
+	const percentComplete = activeCellIds.length / Object.keys(puzzle.cellMap).length;
 	if (percentComplete < 0.5) {
 		percentOfCompleteCells = (percentComplete * 100).toFixed();
 		return {
@@ -204,15 +206,26 @@ export const validateGridIsReadyForHints = async (
 	};
 };
 
-export async function createHints(
-	puzzle: EditorPuzzle
-): Promise<{ success: boolean; message?: string; data: any } | null> {
+type CreateHintData = {
+	cellMap: CellMap;
+	cellRows: CellRows;
+	acrossHints: Hint[];
+	downHints: Hint[];
+};
+
+type CreateHintReturn = {
+	success: boolean;
+	message?: string;
+	data?: CreateHintData;
+};
+
+export async function createHints(puzzle: EditorPuzzle): Promise<CreateHintReturn | null> {
 	if (puzzle === null) {
 		return null;
 	}
 	let success = false;
 	let message = '';
-	let data = null;
+	let data;
 
 	const formData = new FormData();
 	const id = puzzle._id;
@@ -227,7 +240,7 @@ export async function createHints(
 
 		if (result.type === 'success') {
 			success = true;
-			data = result.data;
+			data = result.data as CreateHintData;
 		} else if (result.type === 'failure') {
 			message = result.data?.message;
 		}

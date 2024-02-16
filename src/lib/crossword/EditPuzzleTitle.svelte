@@ -13,7 +13,7 @@
 		action?: string;
 	} | null;
 
-	export let form: ActionData | ActionDataFromHints;
+	export let form: ActionData;
 	export let title: string;
 	export let id: string;
 
@@ -35,7 +35,7 @@
 		}
 	}
 
-	function getMessage(form: ActionData | ActionDataFromHints): Message {
+	function getMessage(form: ActionData): Message {
 		if (form) {
 			if (!form?.success) {
 				return {

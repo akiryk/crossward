@@ -47,7 +47,7 @@
 				Yay, you created a new {puzzleType} puzzle!
 			</span>
 		{/if}
-		{@html headingText}
+		{headingText}
 	</h2>
 	{#if showMessage}
 		<span class="ml-4 text-gray-400">{lastSavedAtMessage}</span>

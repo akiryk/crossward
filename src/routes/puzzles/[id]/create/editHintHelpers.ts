@@ -46,7 +46,7 @@ const saveHintData = async (
 };
 
 const debounceSave = promiseDebounce(saveHintData) as (
-	chunkedData: Array<any>,
+	chunkedData: Array<unknown>,
 	id: ID,
 	direction: string
 ) => SaveHintResponse;
@@ -137,7 +137,7 @@ export const publish = async (
 		} else if (result.type === 'failure') {
 			error = result.data?.message;
 		}
-	} catch (error) {
+	} catch {
 		error = 'Please try again soon.';
 	}
 	return {
