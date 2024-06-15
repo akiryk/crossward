@@ -10,6 +10,9 @@ A crossward puzzle game making tool!
 
 This is mainly an exploration in how to make a crossword puzzle, more than anything. To see the finished result, visit https://crossward.vercel.app/.
 
+<img width="609" alt="finished" src="https://github.com/akiryk/crossward/assets/2437758/ba3a88b0-e552-4912-b55d-792f929dee39">
+
+
 ## Developing
 
 In order to develop, you need access to secrets for login and the database. You can create your own:
