@@ -1,38 +1,33 @@
-# create-svelte
+# Crossward
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+A crossward puzzle game making tool!
 
-## Creating a project
+- create a crossword puzzle with hints and answers of your choosing
+- save the puzzle for others to use
+- play puzzles that others have made
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Background
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+This is mainly an exploration in how to make a crossword puzzle, more than anything. To see the finished result, visit https://crossward.vercel.app/.
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+In order to develop, you need access to secrets for login and the database. You can create your own:
+
+- Database: [MongoDB](https://cloud.mongodb.com/). You'll need `MONGO_DB_URI` and `MONGO_DB_PASSWORD`.
+- Auth: Uses [SveltkitAuth](https://authjs.dev/reference/sveltekit) with Google as provider. You'll need a `GOOGLE_ID` and a `GOOGLE_SECRET`, which you can get by creating credentials at [Google OAuth Client](https://console.cloud.google.com/apis/credentials/oauthclient)
 
 ```bash
+npm install
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
+
+Visit http://localhost:5173/
 
 ## Building
 
-To create a production version of your app:
+To create a production version of the app:
 
 ```bash
 npm run build
 ```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
