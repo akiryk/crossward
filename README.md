@@ -12,10 +12,22 @@ This is mainly an exploration in how to make a crossword puzzle, more than anyth
 
 <img width="609" alt="finished" src="https://github.com/akiryk/crossward/assets/2437758/ba3a88b0-e552-4912-b55d-792f929dee39">
 
-
 ## Developing
 
-In order to develop, you need access to secrets for login and the database. You can create your own:
+In order to develop, you need access to secrets for login and the database.
+
+Create a `.env` file and add the following values:
+
+```
+MONGO_DB_PASSWORD=""
+MONGO_DB_URL=""
+GOOGLE_ID=""
+AUTH_SECRET=""
+GOOGLE_SECRET=""
+```
+
+Find these in the existing Vercel environment variables part of the UI or else create your own:
+(Note that I don't think DATA_API_KEY is necessary, although it's in the Vercel UI; I think that's a mistake...)
 
 - Database: [MongoDB](https://cloud.mongodb.com/). You'll need `MONGO_DB_URI` and `MONGO_DB_PASSWORD`.
 - Auth: Uses [SveltkitAuth](https://authjs.dev/reference/sveltekit) with Google as provider. You'll need a `GOOGLE_ID` and a `GOOGLE_SECRET`, which you can get by creating credentials at [Google OAuth Client](https://console.cloud.google.com/apis/credentials/oauthclient)
